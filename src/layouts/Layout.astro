@@ -111,9 +111,16 @@ const {
           </div>
           <span class="text-xs font-mono-tech text-slate-700 tracking-wider">ANTOLOGÍA DIGITAL &copy; 2024</span>
         </div>
-        <p class="text-xs text-slate-700 font-mono-tech tracking-wide">
-          Construido para mentes inquietas de Puebla, México
-        </p>
+        <div class="flex items-center gap-5">
+          <p class="text-xs text-slate-700 font-mono-tech tracking-wide">
+            Construido para mentes inquietas de Puebla, México
+          </p>
+          <!-- El panel se protege con las reglas de Firestore, no escondiendo
+               el enlace: quien entre sin permiso no ve absolutamente nada. -->
+          <a href={u("/profesor")} class="text-xs text-slate-800 hover:text-cyan-400 font-mono-tech transition-colors">
+            Profesor
+          </a>
+        </div>
       </div>
     </footer>
 

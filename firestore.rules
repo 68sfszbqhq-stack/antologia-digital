@@ -1,0 +1,109 @@
+rules_version = '2';
+
+// Reglas de seguridad de la Antología Digital.
+//
+// Idea de fondo: el sitio es estático y público, así que TODA la seguridad real
+// vive aquí. Lo que estas reglas garantizan:
+//
+//   1. Ningún alumno puede leer las calificaciones de otro.
+//   2. Ningún alumno puede contestar dos veces el mismo módulo.
+//   3. Ningún alumno puede contestar un módulo que el profesor no ha abierto.
+//   4. Solo el profesor puede ver el conjunto de resultados.
+//
+// Para publicarlas:  firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Quién es quién ────────────────────────────────────────────────────
+
+    // UID de José. Se obtiene la primera vez que entre a /profesor con Google:
+    // la propia página se lo muestra en pantalla para que lo pegue aquí.
+    // Mientras diga PENDIENTE, nadie tiene permisos de profesor y el panel
+    // aparece vacío. Eso es a propósito: se falla del lado seguro.
+    function profesores() {
+      return ['PENDIENTE_UID_DEL_PROFESOR'];
+    }
+
+    function esProfesor() {
+      return request.auth != null && request.auth.uid in profesores();
+    }
+
+    function fichaAlumno() {
+      return get(/databases/$(database)/documents/alumnos/$(request.auth.uid)).data;
+    }
+
+    function alumnoActivo() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/alumnos/$(request.auth.uid))
+        && fichaAlumno().activo == true;
+    }
+
+    function moduloAbierto(dia) {
+      return exists(/databases/$(database)/documents/config/modulos)
+        && dia in get(/databases/$(database)/documents/config/modulos).data.abiertos;
+    }
+
+    // ─── Fichas de alumno ──────────────────────────────────────────────────
+    // Las crea el profesor desde su Mac con scripts/alta-alumnos.mjs. Ese
+    // script usa el Admin SDK, que pasa por encima de estas reglas; por eso
+    // aquí nadie tiene permiso de escritura salvo el profesor.
+
+    match /alumnos/{uid} {
+      // Cada quien puede leer su propia ficha (para saludarlo por su nombre).
+      allow get: if esProfesor() || (request.auth != null && request.auth.uid == uid);
+      // Pedir la lista completa de alumnos: solo el profesor.
+      allow list: if esProfesor();
+      allow write: if esProfesor();
+    }
+
+    // ─── Intentos de diagnóstico ───────────────────────────────────────────
+
+    function intentoBienFormado() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['uid', 'dia', 'aciertos', 'total', 'porcentaje',
+                               'porEje', 'respuestas', 'enviado'])
+        && d.uid is string
+        && d.dia is int      && d.dia >= 1      && d.dia <= 8
+        && d.total is int    && d.total > 0     && d.total <= 50
+        && d.aciertos is int && d.aciertos >= 0 && d.aciertos <= d.total
+        && d.porcentaje is int && d.porcentaje >= 0 && d.porcentaje <= 100
+        && d.respuestas is list
+        && d.porEje is map
+        && d.enviado == request.time;
+    }
+
+    match /intentos/{intentoId} {
+      // El alumno puede releer SU intento (para volver a ver su calificación),
+      // pero no puede pedir la colección: eso destaparía las notas del grupo.
+      allow get: if esProfesor()
+        || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow list: if esProfesor();
+
+      // Un solo intento por alumno y módulo. El candado es el nombre del
+      // documento: al llamarse "<uid>_<dia>", un segundo envío choca con el
+      // primero, y en Firestore un `create` sobre algo que ya existe falla.
+      allow create: if alumnoActivo()
+        && intentoId == request.auth.uid + '_' + string(request.resource.data.dia)
+        && request.resource.data.uid == request.auth.uid
+        && moduloAbierto(request.resource.data.dia)
+        && intentoBienFormado();
+
+      // Corregir o borrar una calificación: solo el profesor.
+      allow update, delete: if esProfesor();
+    }
+
+    // ─── Qué módulos están abiertos ────────────────────────────────────────
+
+    match /config/{doc} {
+      allow read: if request.auth != null;
+      allow write: if esProfesor();
+    }
+
+    // ─── Todo lo demás queda cerrado ───────────────────────────────────────
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

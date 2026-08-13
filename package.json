@@ -9,11 +9,18 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "alta-alumnos": "node scripts/alta-alumnos.mjs",
+    "reset-codigo": "node scripts/reset-codigo.mjs",
+    "publicar-reglas": "firebase deploy --only firestore:rules"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.0",
+    "firebase": "^12.17.1",
     "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "firebase-admin": "^14.2.0"
   }
 }

@@ -1,0 +1,309 @@
+---
+// Puerta de entrada del alumno al diagnóstico de un módulo.
+//
+// Decide cuál de estas cuatro cosas ve, en este orden:
+//   1. No ha entrado         → le pide matrícula y código
+//   2. El módulo está cerrado → se lo dice y no muestra preguntas
+//   3. Ya lo contestó         → le muestra su calificación, sin dejarlo repetir
+//   4. Todo en orden          → destapa el cuestionario
+//
+// Si Firebase todavía no está configurado, se hace a un lado y el cuestionario
+// funciona como siempre, sin guardar nada. Así el sitio nunca queda roto por
+// una configuración a medias.
+
+interface Props {
+  dia: number;
+}
+const { dia } = Astro.props;
+---
+
+<div id="aa" data-dia={dia}>
+
+  <!-- Verificando quién eres -->
+  <div id="aa-cargando" class="glass-card rounded-2xl p-8 border border-white/10 mb-8 text-center">
+    <div class="inline-block w-6 h-6 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin"></div>
+    <p class="text-sm text-slate-400 mt-3 font-mono-tech">Verificando tu acceso…</p>
+  </div>
+
+  <!-- Pedir matrícula y código -->
+  <div id="aa-login" class="hidden glass-card rounded-2xl p-6 sm:p-8 border border-white/10 mb-8">
+    <div class="max-w-md mx-auto">
+      <span class="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">// Identifícate</span>
+      <h2 class="text-2xl font-bold text-white mb-2">Antes de empezar</h2>
+      <p class="text-sm text-slate-400 mb-6">
+        Escribe tu matrícula y el código que te dio tu profesor. Solo tienes que
+        hacerlo una vez: este dispositivo te va a recordar en los demás módulos.
+      </p>
+
+      <form id="aa-form" class="space-y-4" novalidate>
+        <div>
+          <label for="aa-matricula" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+            Matrícula
+          </label>
+          <input
+            id="aa-matricula" name="matricula" type="text" required
+            autocomplete="username" inputmode="numeric" autocapitalize="off" spellcheck="false"
+            placeholder="2024001"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono-tech
+                   placeholder:text-slate-600 focus:outline-none focus:border-cyan-400/50 focus:bg-white/[0.07] transition"
+          />
+        </div>
+
+        <div>
+          <label for="aa-codigo" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+            Código de acceso
+          </label>
+          <input
+            id="aa-codigo" name="codigo" type="password" required
+            autocomplete="current-password" autocapitalize="characters" spellcheck="false"
+            placeholder="XXXXXXXX"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono-tech tracking-[0.2em]
+                   placeholder:text-slate-600 placeholder:tracking-normal focus:outline-none focus:border-cyan-400/50 focus:bg-white/[0.07] transition"
+          />
+          <p class="text-[11px] text-slate-500 mt-1.5">
+            No importa si lo escribes con mayúsculas o minúsculas.
+          </p>
+        </div>
+
+        <p id="aa-error" class="hidden text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3"></p>
+
+        <button id="aa-entrar" type="submit" class="btn-primary w-full justify-center py-3 text-sm font-semibold">
+          Entrar
+        </button>
+      </form>
+
+      <p class="text-[11px] text-slate-600 mt-5 leading-relaxed">
+        ¿Perdiste tu código o no te deja entrar? Pídele a tu profesor que te
+        genere uno nuevo.
+      </p>
+    </div>
+  </div>
+
+  <!-- El profesor todavía no abre este módulo -->
+  <div id="aa-cerrado" class="hidden glass-card rounded-2xl p-8 border border-amber-500/20 mb-8 text-center">
+    <div class="text-3xl mb-3">🔒</div>
+    <h2 class="text-xl font-bold text-white mb-2">Este cuestionario aún no está abierto</h2>
+    <p class="text-sm text-slate-400 max-w-md mx-auto">
+      Tu profesor lo habilita cuando toque la clase de este módulo. Mientras
+      tanto puedes leer el resto del material sin problema.
+    </p>
+  </div>
+
+  <!-- Ya lo contestó -->
+  <div id="aa-hecho" class="hidden glass-card rounded-2xl p-8 border border-emerald-500/20 mb-8 text-center">
+    <div class="text-3xl mb-3">✅</div>
+    <h2 class="text-xl font-bold text-white mb-1">Ya contestaste este diagnóstico</h2>
+    <p class="text-sm text-slate-400 mb-6">Solo se permite un intento por módulo.</p>
+
+    <div class="inline-flex items-baseline gap-2 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl px-8 py-5">
+      <span id="aa-hecho-puntaje" class="text-4xl font-black text-emerald-400 font-mono-tech">—</span>
+      <span class="text-sm text-slate-400 font-mono-tech">aciertos</span>
+    </div>
+    <p id="aa-hecho-fecha" class="text-xs text-slate-500 font-mono-tech mt-4"></p>
+  </div>
+
+  <!-- Barra de sesión: aparece cuando ya entró -->
+  <div id="aa-barra" class="hidden flex items-center justify-between gap-4 mb-6 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+    <span class="text-xs font-mono-tech text-slate-400 truncate">
+      <span class="text-cyan-400">●</span>
+      <span id="aa-barra-nombre" class="text-slate-300"></span>
+      <span id="aa-barra-grupo" class="text-slate-600"></span>
+    </span>
+    <button id="aa-salir" type="button" class="text-xs font-mono-tech text-slate-500 hover:text-rose-400 transition flex-shrink-0">
+      No soy yo
+    </button>
+  </div>
+
+  <!-- Aviso de guardado, tras entregar -->
+  <div id="aa-guardado" class="hidden mb-6 px-4 py-3 rounded-xl text-sm"></div>
+</div>
+
+<script>
+  import { firebaseConfigurado, auth } from "../lib/firebase";
+  import {
+    entrar, salir, observarSesion, fichaDe, modulosAbiertos,
+    intentoPrevio, guardarIntento, mensajeDeError, type Ficha,
+  } from "../lib/alumno";
+  import type { User } from "firebase/auth";
+
+  // El sitio usa View Transitions, así que al navegar entre módulos el script
+  // no se vuelve a ejecutar solo: hay que colgarse de astro:page-load.
+  document.addEventListener("astro:page-load", iniciar);
+
+  let dejarDeObservar: (() => void) | null = null;
+
+  function ver(id: string, visible: boolean) {
+    document.getElementById(id)?.classList.toggle("hidden", !visible);
+  }
+
+  /** El cuestionario vive fuera de este componente, en la propia página. */
+  function verQuiz(visible: boolean) {
+    document.getElementById("step-1-quiz")?.classList.toggle("hidden", !visible);
+  }
+
+  function soloUnEstado(visible: string | null) {
+    for (const id of ["aa-cargando", "aa-login", "aa-cerrado", "aa-hecho"]) {
+      ver(id, id === visible);
+    }
+    verQuiz(visible === null);
+  }
+
+  function iniciar() {
+    const raiz = document.getElementById("aa");
+    if (!raiz) return; // no estamos en una página de módulo
+
+    const dia = Number(raiz.dataset.dia);
+
+    // Sin Firebase configurado: el cuestionario se comporta como antes de todo
+    // esto. Nada se guarda, pero nada se rompe.
+    if (!firebaseConfigurado()) {
+      soloUnEstado(null);
+      ver("aa-barra", false);
+      return;
+    }
+
+    dejarDeObservar?.();
+    dejarDeObservar = observarSesion((u) => decidirQueMostrar(u, dia));
+    prepararFormulario(dia);
+    prepararSalir();
+    escucharEntrega(dia);
+  }
+
+  // ─── Qué ve el alumno ──────────────────────────────────────────────────────
+
+  async function decidirQueMostrar(u: User | null, dia: number) {
+    if (!u) {
+      soloUnEstado("aa-login");
+      ver("aa-barra", false);
+      return;
+    }
+
+    soloUnEstado("aa-cargando");
+
+    try {
+      const [ficha, abiertos, previo] = await Promise.all([
+        fichaDe(u.uid),
+        modulosAbiertos(),
+        intentoPrevio(u.uid, dia),
+      ]);
+
+      mostrarBarra(ficha);
+
+      if (previo) {
+        soloUnEstado("aa-hecho");
+        pintarIntentoPrevio(previo);
+        return;
+      }
+
+      if (!abiertos.includes(dia)) {
+        soloUnEstado("aa-cerrado");
+        return;
+      }
+
+      soloUnEstado(null);
+    } catch {
+      // Si Firestore no contesta, se deja pasar el cuestionario: es preferible
+      // que el alumno pueda trabajar a que se quede mirando un error. El envío
+      // volverá a fallar de forma visible si el problema persiste.
+      soloUnEstado(null);
+    }
+  }
+
+  function mostrarBarra(ficha: Ficha | null) {
+    const nombre = document.getElementById("aa-barra-nombre");
+    const grupo = document.getElementById("aa-barra-grupo");
+    if (nombre) nombre.textContent = ficha?.nombre ?? "Sesión iniciada";
+    if (grupo) grupo.textContent = ficha?.grupo ? `· ${ficha.grupo}` : "";
+    ver("aa-barra", true);
+  }
+
+  function pintarIntentoPrevio(previo: any) {
+    const puntaje = document.getElementById("aa-hecho-puntaje");
+    if (puntaje) puntaje.textContent = `${previo.aciertos} / ${previo.total}`;
+
+    const fecha = document.getElementById("aa-hecho-fecha");
+    if (fecha && previo.enviado?.toDate) {
+      fecha.textContent = "Entregado el " + previo.enviado.toDate().toLocaleString("es-MX", {
+        day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+      });
+    }
+  }
+
+  // ─── Entrar y salir ────────────────────────────────────────────────────────
+
+  function prepararFormulario(dia: number) {
+    const form = document.getElementById("aa-form") as HTMLFormElement | null;
+    const boton = document.getElementById("aa-entrar") as HTMLButtonElement | null;
+    const error = document.getElementById("aa-error");
+    if (!form || form.dataset.listo) return;
+    form.dataset.listo = "1";
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const matricula = (document.getElementById("aa-matricula") as HTMLInputElement).value;
+      const codigo = (document.getElementById("aa-codigo") as HTMLInputElement).value;
+
+      if (!matricula.trim() || !codigo.trim()) {
+        mostrarError(error, "Escribe tu matrícula y tu código.");
+        return;
+      }
+
+      if (boton) { boton.disabled = true; boton.textContent = "Entrando…"; }
+      error?.classList.add("hidden");
+
+      try {
+        await entrar(matricula, codigo);
+        // observarSesion se encarga del resto.
+      } catch (e) {
+        mostrarError(error, mensajeDeError(e));
+        (document.getElementById("aa-codigo") as HTMLInputElement).value = "";
+      } finally {
+        if (boton) { boton.disabled = false; boton.textContent = "Entrar"; }
+      }
+    });
+  }
+
+  function mostrarError(el: HTMLElement | null, texto: string) {
+    if (!el) return;
+    el.textContent = texto;
+    el.classList.remove("hidden");
+  }
+
+  function prepararSalir() {
+    const boton = document.getElementById("aa-salir");
+    if (!boton || boton.dataset.listo) return;
+    boton.dataset.listo = "1";
+    boton.addEventListener("click", async () => {
+      await salir();
+      location.reload();
+    });
+  }
+
+  // ─── Guardar el diagnóstico ────────────────────────────────────────────────
+
+  function escucharEntrega(dia: number) {
+    if (document.body.dataset.aaEscuchando) return;
+    document.body.dataset.aaEscuchando = "1";
+
+    document.addEventListener("antologia:diagnostico-terminado", (async (ev: CustomEvent) => {
+      if (!firebaseConfigurado()) return;
+
+      const aviso = document.getElementById("aa-guardado");
+      const usuario = auth().currentUser;
+      if (!usuario || !aviso) return;
+
+      aviso.className = "mb-6 px-4 py-3 rounded-xl text-sm bg-white/5 border border-white/10 text-slate-400";
+      aviso.textContent = "Guardando tus respuestas…";
+      aviso.classList.remove("hidden");
+
+      try {
+        await guardarIntento(usuario.uid, { dia, ...ev.detail });
+        aviso.className = "mb-6 px-4 py-3 rounded-xl text-sm bg-emerald-500/10 border border-emerald-500/25 text-emerald-300";
+        aviso.textContent = "✅ Listo, tus respuestas quedaron registradas.";
+      } catch (e) {
+        aviso.className = "mb-6 px-4 py-3 rounded-xl text-sm bg-rose-500/10 border border-rose-500/25 text-rose-300";
+        aviso.textContent = "⚠️ " + mensajeDeError(e) + " Avísale a tu profesor antes de cerrar la página.";
+      }
+    }) as EventListener);
+  }
+</script>

@@ -1,0 +1,413 @@
+---
+import Layout from "../layouts/Layout.astro";
+import sesiones from "../data/sesiones.json";
+---
+
+<Layout title="Panel del profesor" description="Resultados de los diagnósticos y exportación a iDoceo.">
+  <div class="max-w-7xl mx-auto px-6 py-12">
+
+    <!-- Entrar ---------------------------------------------------------- -->
+    <div id="pr-login" class="hidden max-w-md mx-auto glass-card rounded-2xl p-8 border border-white/10 text-center">
+      <span class="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-2">// Acceso restringido</span>
+      <h1 class="text-2xl font-bold text-white mb-2">Panel del profesor</h1>
+      <p class="text-sm text-slate-400 mb-6">
+        Aquí se ven los resultados de los diagnósticos. Solo tú tienes acceso.
+      </p>
+      <button id="pr-entrar" class="btn-primary w-full justify-center py-3 text-sm font-semibold">
+        Entrar con Google
+      </button>
+      <p id="pr-login-error" class="hidden text-sm text-rose-400 mt-4"></p>
+    </div>
+
+    <!-- Sin permisos todavía -------------------------------------------- -->
+    <div id="pr-sinpermiso" class="hidden max-w-2xl mx-auto glass-card rounded-2xl p-8 border border-amber-500/25">
+      <h1 class="text-xl font-bold text-white mb-3">Falta un paso para darte permiso</h1>
+      <p class="text-sm text-slate-400 mb-5">
+        Entraste bien, pero las reglas de seguridad todavía no saben que este
+        eres tú. Copia tu identificador, pégalo en <code class="text-cyan-400 font-mono-tech">firestore.rules</code>
+        donde dice <code class="text-cyan-400 font-mono-tech">PENDIENTE_UID_DEL_PROFESOR</code> y publica las reglas con:
+      </p>
+      <pre class="bg-black/40 border border-white/10 rounded-xl p-4 text-xs font-mono-tech text-slate-300 overflow-x-auto mb-5">firebase deploy --only firestore:rules</pre>
+      <label class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">Tu identificador (UID)</label>
+      <div class="flex gap-2">
+        <input id="pr-uid" readonly class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-cyan-400 font-mono-tech text-sm" />
+        <button id="pr-copiar" class="btn-primary px-5 text-xs font-mono-tech flex-shrink-0">Copiar</button>
+      </div>
+      <button id="pr-recargar" class="text-xs font-mono-tech text-slate-500 hover:text-cyan-400 mt-5 transition">
+        Ya publiqué las reglas → volver a intentar
+      </button>
+    </div>
+
+    <!-- Panel ------------------------------------------------------------ -->
+    <div id="pr-panel" class="hidden">
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        <div>
+          <span class="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">// Panel del profesor</span>
+          <h1 class="text-3xl font-black text-white">Resultados de los diagnósticos</h1>
+        </div>
+        <button id="pr-salir" class="text-xs font-mono-tech text-slate-500 hover:text-rose-400 transition flex-shrink-0">
+          Cerrar sesión
+        </button>
+      </div>
+
+      <!-- Qué módulos están abiertos -->
+      <section class="glass-card rounded-2xl p-6 border border-white/10 mb-8">
+        <h2 class="text-lg font-bold text-white mb-1">Módulos abiertos</h2>
+        <p class="text-xs text-slate-400 mb-5">
+          Un módulo cerrado no deja contestar a nadie. Ábrelo cuando toque la clase y ciérralo cuando termines.
+        </p>
+        <div id="pr-modulos" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+        <p id="pr-modulos-aviso" class="text-xs font-mono-tech text-slate-500 mt-4 h-4"></p>
+      </section>
+
+      <!-- Resultados -->
+      <section class="glass-card rounded-2xl p-6 border border-white/10">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-white mb-1">Calificaciones</h2>
+            <p id="pr-resumen" class="text-xs text-slate-400 font-mono-tech">Cargando…</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <select id="pr-grupo" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white font-mono-tech focus:outline-none focus:border-cyan-400/50">
+              <option value="">Todos los grupos</option>
+            </select>
+            <button id="pr-exportar" class="btn-primary px-5 py-2.5 text-xs font-mono-tech">
+              Descargar CSV para iDoceo
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto -mx-6 px-6">
+          <table class="w-full text-sm border-collapse">
+            <thead id="pr-thead" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider"></thead>
+            <tbody id="pr-tbody" class="text-slate-300"></tbody>
+          </table>
+        </div>
+
+        <p class="text-[11px] text-slate-600 mt-6 leading-relaxed">
+          Las celdas vacías son alumnos que no han contestado ese módulo; en el CSV
+          también salen vacías, no como cero. Toca una calificación para borrar ese
+          intento y dejar que el alumno lo repita.
+        </p>
+      </section>
+    </div>
+
+    <div id="pr-cargando" class="text-center py-24">
+      <div class="inline-block w-7 h-7 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin"></div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import {
+    GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, type User,
+  } from "firebase/auth";
+  import {
+    collection, getDocs, doc, getDoc, setDoc, deleteDoc,
+  } from "firebase/firestore";
+  import { auth, db, firebaseConfigurado } from "../lib/firebase";
+  import { csvParaIdoceo, descargarCSV, type FilaAlumno } from "../lib/csv-idoceo";
+  import sesiones from "../data/sesiones.json";
+
+  const DIAS: number[] = sesiones.map((s: any) => s.dia);
+
+  // "Módulo 1.1" → "1.1". Como encabezado de columna y en el CSV se lee mejor
+  // corto; el nombre largo se queda para el tooltip.
+  const ETIQUETA = new Map<number, string>(
+    sesiones.map((s: any) => [
+      s.dia,
+      String(s.modulo ?? "").replace(/^Módulo\s*/i, "") || String(s.dia),
+    ]),
+  );
+  const TITULO = new Map<number, string>(sesiones.map((s: any) => [s.dia, s.titulo ?? ""]));
+
+  interface Alumno { matricula: string; nombre: string; grupo: string; activo: boolean }
+
+  let alumnos: (Alumno & { uid: string })[] = [];
+  let puntajes = new Map<string, { aciertos: number; total: number }>(); // "uid_dia"
+  let abiertos: number[] = [];
+
+  document.addEventListener("astro:page-load", iniciar);
+
+  function ver(id: string, visible: boolean) {
+    document.getElementById(id)?.classList.toggle("hidden", !visible);
+  }
+
+  function soloUno(visible: string) {
+    for (const id of ["pr-cargando", "pr-login", "pr-sinpermiso", "pr-panel"]) {
+      ver(id, id === visible);
+    }
+  }
+
+  function iniciar() {
+    if (!document.getElementById("pr-panel")) return;
+
+    if (!firebaseConfigurado()) {
+      soloUno("pr-login");
+      const err = document.getElementById("pr-login-error");
+      if (err) {
+        err.textContent = "Firebase todavía no está configurado en src/lib/firebase.ts.";
+        err.classList.remove("hidden");
+      }
+      return;
+    }
+
+    conectarBotones();
+    onAuthStateChanged(auth(), async (u) => {
+      if (!u) { soloUno("pr-login"); return; }
+      soloUno("pr-cargando");
+      await cargarTodo(u);
+    });
+  }
+
+  function conectarBotones() {
+    const una = (id: string, fn: () => void) => {
+      const el = document.getElementById(id);
+      if (!el || el.dataset.listo) return;
+      el.dataset.listo = "1";
+      el.addEventListener("click", fn);
+    };
+
+    una("pr-entrar", async () => {
+      const err = document.getElementById("pr-login-error");
+      try {
+        await signInWithPopup(auth(), new GoogleAuthProvider());
+      } catch (e: any) {
+        if (err) {
+          err.textContent = e?.code === "auth/unauthorized-domain"
+            ? "Este dominio no está autorizado en Firebase. Agrégalo en Authentication → Settings → Dominios autorizados."
+            : "No se pudo entrar. Intenta de nuevo.";
+          err.classList.remove("hidden");
+        }
+      }
+    });
+
+    una("pr-salir", async () => { await signOut(auth()); location.reload(); });
+    una("pr-recargar", () => location.reload());
+    una("pr-copiar", async () => {
+      const input = document.getElementById("pr-uid") as HTMLInputElement;
+      await navigator.clipboard.writeText(input.value);
+      const b = document.getElementById("pr-copiar")!;
+      b.textContent = "¡Copiado!";
+      setTimeout(() => (b.textContent = "Copiar"), 1500);
+    });
+    una("pr-exportar", exportar);
+
+    const sel = document.getElementById("pr-grupo");
+    if (sel && !sel.dataset.listo) {
+      sel.dataset.listo = "1";
+      sel.addEventListener("change", pintarTabla);
+    }
+  }
+
+  // ─── Carga ─────────────────────────────────────────────────────────────────
+
+  async function cargarTodo(u: User) {
+    try {
+      const [snapAlumnos, snapIntentos, snapConfig] = await Promise.all([
+        getDocs(collection(db(), "alumnos")),
+        getDocs(collection(db(), "intentos")),
+        getDoc(doc(db(), "config", "modulos")),
+      ]);
+
+      alumnos = snapAlumnos.docs
+        .map((d) => ({ uid: d.id, ...(d.data() as Alumno) }))
+        .sort((a, b) => (a.grupo + a.nombre).localeCompare(b.grupo + b.nombre, "es"));
+
+      puntajes = new Map();
+      for (const d of snapIntentos.docs) {
+        const i = d.data();
+        puntajes.set(`${i.uid}_${i.dia}`, { aciertos: i.aciertos, total: i.total });
+      }
+
+      abiertos = snapConfig.exists() ? (snapConfig.data().abiertos ?? []).map(Number) : [];
+
+      soloUno("pr-panel");
+      pintarModulos();
+      llenarGrupos();
+      pintarTabla();
+    } catch (e: any) {
+      if (e?.code === "permission-denied") {
+        // Entró con Google, pero su UID no está en las reglas todavía.
+        soloUno("pr-sinpermiso");
+        (document.getElementById("pr-uid") as HTMLInputElement).value = u.uid;
+        return;
+      }
+      soloUno("pr-login");
+      const err = document.getElementById("pr-login-error");
+      if (err) {
+        err.textContent = "No pude leer los datos: " + (e?.message ?? "error desconocido");
+        err.classList.remove("hidden");
+      }
+    }
+  }
+
+  // ─── Módulos abiertos ──────────────────────────────────────────────────────
+
+  function pintarModulos() {
+    const cont = document.getElementById("pr-modulos");
+    if (!cont) return;
+    cont.innerHTML = "";
+
+    for (const dia of DIAS) {
+      const activo = abiertos.includes(dia);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = activo
+        ? "py-3 px-3 rounded-xl border text-xs font-mono-tech transition-all bg-emerald-500/15 text-emerald-400 border-emerald-500/40 font-bold"
+        : "py-3 px-3 rounded-xl border text-xs font-mono-tech transition-all bg-white/5 text-slate-500 border-white/10 hover:text-slate-300";
+      b.textContent = `${activo ? "🔓" : "🔒"} Módulo ${ETIQUETA.get(dia) ?? dia}`;
+      b.title = TITULO.get(dia) ?? "";
+      b.addEventListener("click", () => alternarModulo(dia));
+      cont.appendChild(b);
+    }
+  }
+
+  async function alternarModulo(dia: number) {
+    const aviso = document.getElementById("pr-modulos-aviso");
+    const nuevos = abiertos.includes(dia)
+      ? abiertos.filter((d) => d !== dia)
+      : [...abiertos, dia].sort((a, b) => a - b);
+
+    const antes = abiertos;
+    abiertos = nuevos;
+    pintarModulos();
+
+    try {
+      await setDoc(doc(db(), "config", "modulos"), { abiertos: nuevos });
+      if (aviso) {
+        aviso.textContent = "Guardado.";
+        setTimeout(() => (aviso.textContent = ""), 1500);
+      }
+    } catch {
+      abiertos = antes; // revertir: lo que se ve debe ser lo que está guardado
+      pintarModulos();
+      if (aviso) aviso.textContent = "No se pudo guardar. Revisa tu conexión.";
+    }
+  }
+
+  // ─── Tabla ─────────────────────────────────────────────────────────────────
+
+  function llenarGrupos() {
+    const sel = document.getElementById("pr-grupo") as HTMLSelectElement;
+    if (!sel) return;
+    const grupos = [...new Set(alumnos.map((a) => a.grupo))].sort((a, b) => a.localeCompare(b, "es"));
+    sel.innerHTML = '<option value="">Todos los grupos</option>';
+    for (const g of grupos) {
+      const o = document.createElement("option");
+      o.value = g;
+      o.textContent = g;
+      sel.appendChild(o);
+    }
+  }
+
+  function alumnosFiltrados() {
+    const g = (document.getElementById("pr-grupo") as HTMLSelectElement)?.value ?? "";
+    return g ? alumnos.filter((a) => a.grupo === g) : alumnos;
+  }
+
+  function pintarTabla() {
+    const thead = document.getElementById("pr-thead");
+    const tbody = document.getElementById("pr-tbody");
+    const resumen = document.getElementById("pr-resumen");
+    if (!thead || !tbody) return;
+
+    const lista = alumnosFiltrados();
+
+    thead.innerHTML = `<tr class="border-b border-white/10">
+      <th class="text-left py-3 pr-4 font-medium">Alumno</th>
+      <th class="text-left py-3 pr-4 font-medium">Grupo</th>
+      ${DIAS.map((d) => `<th class="py-3 px-2 text-center font-medium whitespace-nowrap" title="${escapar(TITULO.get(d) ?? "")}">${ETIQUETA.get(d) ?? d}</th>`).join("")}
+    </tr>`;
+
+    if (!lista.length) {
+      tbody.innerHTML = `<tr><td colspan="${DIAS.length + 2}" class="py-12 text-center text-slate-500 text-sm">
+        Todavía no hay alumnos dados de alta. Usa <span class="font-mono-tech text-slate-400">scripts/alta-alumnos.mjs</span>
+      </td></tr>`;
+      if (resumen) resumen.textContent = "Sin alumnos";
+      return;
+    }
+
+    tbody.innerHTML = lista.map((a) => `
+      <tr class="border-b border-white/5 hover:bg-white/[0.02]">
+        <td class="py-3 pr-4 text-slate-200">${escapar(a.nombre)}</td>
+        <td class="py-3 pr-4 text-slate-500 font-mono-tech text-xs">${escapar(a.grupo)}</td>
+        ${DIAS.map((d) => celda(a.uid, d)).join("")}
+      </tr>`).join("");
+
+    tbody.querySelectorAll<HTMLElement>("[data-borrar]").forEach((el) => {
+      el.addEventListener("click", () => borrarIntento(el.dataset.borrar!));
+    });
+
+    const entregados = lista.reduce(
+      (n, a) => n + DIAS.filter((d) => puntajes.has(`${a.uid}_${d}`)).length, 0);
+    if (resumen) {
+      resumen.textContent =
+        `${lista.length} alumnos · ${entregados} diagnósticos entregados de ${lista.length * DIAS.length} posibles`;
+    }
+  }
+
+  function celda(uid: string, dia: number): string {
+    const p = puntajes.get(`${uid}_${dia}`);
+    if (!p) return `<td class="py-3 px-2 text-center text-slate-700">—</td>`;
+
+    const pct = p.total ? (p.aciertos / p.total) * 100 : 0;
+    const color = pct >= 80 ? "text-emerald-400" : pct >= 50 ? "text-cyan-400" : "text-amber-400";
+    return `<td class="py-3 px-2 text-center">
+      <button data-borrar="${uid}_${dia}" title="Borrar este intento para que lo repita"
+        class="font-mono-tech font-bold ${color} hover:underline decoration-rose-400 decoration-2">
+        ${p.aciertos}/${p.total}
+      </button></td>`;
+  }
+
+  async function borrarIntento(id: string) {
+    const [uid, dia] = id.split("_");
+    const alumno = alumnos.find((a) => a.uid === uid);
+    const ok = confirm(
+      `¿Borrar el intento del módulo ${dia} de ${alumno?.nombre ?? uid}?\n\n` +
+      `Su calificación se pierde y podrá contestar de nuevo. No se puede deshacer.`,
+    );
+    if (!ok) return;
+
+    try {
+      await deleteDoc(doc(db(), "intentos", id));
+      puntajes.delete(id);
+      pintarTabla();
+    } catch {
+      alert("No se pudo borrar. Revisa tu conexión e intenta de nuevo.");
+    }
+  }
+
+  function escapar(s: string): string {
+    const d = document.createElement("div");
+    d.textContent = s ?? "";
+    return d.innerHTML;
+  }
+
+  // ─── Exportar ──────────────────────────────────────────────────────────────
+
+  function exportar() {
+    const lista = alumnosFiltrados();
+    if (!lista.length) { alert("No hay alumnos que exportar."); return; }
+
+    const filas: FilaAlumno[] = lista.map((a) => {
+      const p: Record<number, number> = {};
+      for (const d of DIAS) {
+        const r = puntajes.get(`${a.uid}_${d}`);
+        if (r) p[d] = r.aciertos;
+      }
+      return { nombre: a.nombre, matricula: a.matricula, puntajes: p };
+    });
+
+    // Solo se exportan los módulos donde alguien contestó: iDoceo no gana nada
+    // con ocho columnas vacías.
+    const conDatos = DIAS.filter((d) => filas.some((f) => f.puntajes[d] !== undefined));
+    if (!conDatos.length) { alert("Todavía nadie ha contestado ningún diagnóstico."); return; }
+
+    const csv = csvParaIdoceo(filas, conDatos, (d) => `Diagnóstico ${ETIQUETA.get(d) ?? d}`);
+    const grupo = (document.getElementById("pr-grupo") as HTMLSelectElement)?.value || "todos";
+    const hoy = new Date().toISOString().slice(0, 10);
+    descargarCSV(`idoceo-${grupo.replace(/[^\w-]/g, "_")}-${hoy}.csv`, csv);
+  }
+</script>

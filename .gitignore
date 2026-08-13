@@ -25,3 +25,21 @@ pnpm-debug.log*
 
 # proyecto de terceros clonado dentro de la carpeta (tiene su propio repo)
 markitdown/
+
+# ─── Firebase: nada de esto se sube ───────────────────────────────────────────
+
+# Llave maestra de la base de datos. Con este archivo cualquiera puede leer,
+# cambiar o borrar TODO, sin pasar por las reglas de seguridad.
+serviceAccountKey.json
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+
+# Códigos de acceso de los alumnos, en texto plano, listos para repartir.
+credenciales-*.csv
+
+# La lista de alumnos: nombres y matrículas de menores de edad.
+alumnos.csv
+alumnos-*.csv
+
+# caché del CLI de Firebase
+.firebase/
