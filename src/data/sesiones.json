@@ -1,0 +1,488 @@
+[
+  {
+    "dia": 1,
+    "modulo": "Módulo 1.1",
+    "titulo": "Evolución del Hardware y Software",
+    "categoria": "Hardware & Software",
+    "materia": "Cultura Digital",
+    "proposito": "Identifica el conjunto de elementos físicos que componen un dispositivo electrónico, así como el conjunto de programas, instrucciones y reglas que permiten que funcione, para analizar críticamente su evolución a lo largo del tiempo.",
+    "duracion": "90 min",
+    "temas": [
+      "Introducción al hardware y software",
+      "Historia crítica del desarrollo de tecnología digital",
+      "Historia del software libre"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "Historia y evolución de las computadoras y sus generaciones",
+        "canal": "Periférico",
+        "url": "https://www.youtube.com/embed/wD8yJnIG7gI",
+        "descripcion": "Recorrido por las cinco generaciones de computadoras: de los tubos de vacío al microprocesador."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "¿Cómo funciona un PC y qué hace cada pieza?",
+        "canal": "Nate Gentile",
+        "url": "https://www.youtube.com/embed/0zkX6nlpiSk",
+        "descripcion": "Explicación componente por componente: CPU, RAM, placa base, almacenamiento y fuente de poder."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "La ignorancia informática de la generación Z",
+        "canal": "Platzi",
+        "url": "https://www.youtube.com/embed/FfqY1WnKNFo",
+        "descripcion": "Argumento sobre por qué saber usar aplicaciones no es lo mismo que entender la computadora. Buen detonante para debate."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "El Proyecto GNU, contado por Richard Stallman",
+        "url": "https://www.gnu.org/gnu/thegnuproject.es.html",
+        "descripcion": "Fuente primaria en español: el origen del software libre narrado por su fundador, incluida la anécdota de la impresora del MIT."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "La historia del Intel 4004, el primer microprocesador",
+        "url": "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html",
+        "descripcion": "Ficha técnica e histórica del chip de 2,300 transistores que abrió la era de la microcomputación."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Línea del tiempo: de la válvula al chip de 3 nanómetros",
+        "url": "/sesion/1",
+        "descripcion": "Actividad de evaluación del módulo, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  },
+  {
+    "dia": 2,
+    "modulo": "Módulo 1.2",
+    "titulo": "Licenciamiento y Acceso a Servicios",
+    "categoria": "Licencias & Redes",
+    "materia": "Cultura Digital",
+    "proposito": "Conoce los requerimientos, tipos de licenciamiento del software y hardware para acceder a servicios tecnológicos, al ciberespacio y a los servicios digitales (licencias de uso privativo y licencias libres).",
+    "duracion": "100 min",
+    "temas": [
+      "Licencia GPL (General Public License)",
+      "Creative Commons y otras licencias libres",
+      "Conectividad",
+      "Navegadores",
+      "Sistemas operativos",
+      "Niveles de acceso",
+      "Unidades de medida (velocidad, procesamiento y almacenamiento)"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "Licencias de software: todo lo que tienes que saber",
+        "canal": "Pelado Nerd",
+        "url": "https://www.youtube.com/embed/Ze6Fn7DpKTE",
+        "descripcion": "Diferencias prácticas entre licencias privativas, permisivas y copyleft, con ejemplos de proyectos reales."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Diferencia entre bit, byte, KB, MB, GB y TB",
+        "canal": "LearnFree en Español",
+        "url": "https://www.youtube.com/embed/kaoA6B8PT4M",
+        "descripcion": "Explicación clara de las unidades de medida digital y por qué la velocidad contratada no es la velocidad de descarga."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Las licencias del Proyecto GNU (GPL, LGPL, AGPL)",
+        "url": "https://www.gnu.org/licenses/licenses.es.html",
+        "descripcion": "Fuente primaria en español sobre qué es el copyleft y qué obliga exactamente cada versión de la GPL."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Las seis licencias Creative Commons",
+        "url": "https://creativecommons.org/share-your-work/cclicenses/",
+        "descripcion": "Sitio oficial: qué significan BY, SA, NC y ND, y cómo se combinan para formar las seis licencias."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "ENDUTIH 2024: comunicado de prensa del INEGI",
+        "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2025/endutih/ENDUTIH_24.pdf",
+        "descripcion": "Fuente oficial de las cifras de conectividad en México: 100.2 millones de usuarios y 73.6 % de hogares con internet."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Auditoría de licencias y conexión de tu propio equipo",
+        "url": "/sesion/2",
+        "descripcion": "Actividad de evaluación del módulo, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  },
+  {
+    "dia": 3,
+    "modulo": "Módulo 1.3",
+    "titulo": "Impacto Social de la Tecnología Digital",
+    "categoria": "Sociedad & Ética",
+    "materia": "Cultura Digital",
+    "proposito": "Analiza de manera crítica el impacto que tienen el uso de las tecnologías digitales —y las políticas relacionadas con la disponibilidad y gestión de la información— en las personas y en las comunidades.",
+    "duracion": "95 min",
+    "temas": [
+      "Corporaciones de innovación tecnológica",
+      "Colonialismo de datos",
+      "Mercantilización de la atención de las personas usuarias",
+      "Dependencia tecnológica",
+      "Desigualdad en el acceso a las tecnologías digitales (socioeconómica, regional o de género)"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "El poder ilimitado de los consorcios digitales",
+        "canal": "DW Documental",
+        "url": "https://www.youtube.com/embed/A3cGMNxRNJ0",
+        "descripcion": "Documental de la televisión pública alemana sobre el poder económico y político de las grandes tecnológicas."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "La brecha digital: el desigual acceso a la tecnología",
+        "canal": "Ciencia en Frecuencia",
+        "url": "https://www.youtube.com/embed/u3ptQ44rdUs",
+        "descripcion": "Explicación de las dimensiones de la brecha digital: acceso, uso y aprovechamiento."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Colonialismo de datos y cultura de la conectividad",
+        "canal": "Cuervo Digital",
+        "url": "https://www.youtube.com/embed/j6otj7TF2yU",
+        "descripcion": "Divulgación del concepto de Couldry y Mejías: cómo la vida cotidiana se convierte en materia prima."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "ENDUTIH 2024: brecha por estado, zona y género",
+        "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2025/endutih/ENDUTIH_24.pdf",
+        "descripcion": "Fuente oficial de las cifras que se usan en clase: Sonora 91.3 % contra Chiapas 64.9 %, urbano 86.9 % contra rural 68.5 %."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Auditoría de tu propia atención y foro de debate",
+        "url": "/sesion/3",
+        "descripcion": "Actividad de evaluación del módulo, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  },
+  {
+    "dia": 4,
+    "modulo": "Módulo 1.4",
+    "titulo": "Alternativas y Software Libre",
+    "categoria": "Software Libre",
+    "materia": "Cultura Digital",
+    "proposito": "Utiliza herramientas de software libre y experimenta con alternativas a los programas de patente y del software como servicio.",
+    "duracion": "105 min",
+    "temas": [
+      "Las 4 libertades del software libre",
+      "GNU/Linux",
+      "Cultura hacker y el Hazlo tú mismx en la tecnología",
+      "Software libre vs. open source",
+      "Procesadores de texto, hojas de cálculo y presentaciones electrónicas"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "Qué es el software libre y por qué deberías utilizarlo",
+        "canal": "LinuxChad",
+        "url": "https://www.youtube.com/embed/yO2HWfoJTLs",
+        "descripcion": "Introducción práctica al software libre, sus ventajas reales y sus límites."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Las 4 libertades del software libre",
+        "canal": "Rosa Gómez",
+        "url": "https://www.youtube.com/embed/fSQiVJEUpMo",
+        "descripcion": "Explicación una por una de las libertades 0, 1, 2 y 3 definidas por Richard Stallman."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Alternativas libres y gratuitas a programas de pago",
+        "canal": "Programador Novato",
+        "url": "https://www.youtube.com/embed/M7kDrpRodZA",
+        "descripcion": "Catálogo de sustitutos libres para ofimática, diseño, audio y video."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Definición oficial de software libre (FSF)",
+        "url": "https://www.gnu.org/philosophy/free-sw.es.html",
+        "descripcion": "Fuente primaria en español donde se enuncian y explican las cuatro libertades."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "TOP500: sistemas operativos de las supercomputadoras",
+        "url": "https://www.top500.org/statistics/details/osfam/1/",
+        "descripcion": "Estadística oficial que confirma que las 500 supercomputadoras más rápidas del mundo usan Linux."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Migración: una semana con alternativas libres",
+        "url": "/sesion/4",
+        "descripcion": "Actividad de evaluación del módulo, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  },
+  {
+    "dia": 5,
+    "modulo": "Módulo 1.5",
+    "titulo": "Normatividad y Seguridad en el Ciberespacio",
+    "categoria": "Seguridad & IA",
+    "materia": "Cultura Digital",
+    "proposito": "Identifica y aplica la normatividad que regula el uso del ciberespacio y servicios digitales para cuidar su seguridad digital y la de otros.",
+    "duracion": "110 min",
+    "temas": [
+      "Normatividad en el uso del ciberespacio y servicios digitales",
+      "Privacidad de la información",
+      "Seguridad digital",
+      "Protección de datos",
+      "Uso responsable y ético de la inteligencia artificial (IA)",
+      "Licenciamientos copyleft"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "¿Qué es el phishing? Explicado en 2 minutos",
+        "canal": "Cybernews en Español",
+        "url": "https://www.youtube.com/embed/8ktaGnFkOoc",
+        "descripcion": "Cómo funciona el engaño, qué señales lo delatan y qué hacer si ya hiciste clic."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Datos personales y cómo ejercer tus derechos ARCO",
+        "canal": "InfoCdMex",
+        "url": "https://www.youtube.com/embed/Te7BVhB0QSA",
+        "descripcion": "Explicación institucional de qué son Acceso, Rectificación, Cancelación y Oposición, y cómo se solicitan."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "La nueva Ley de Protección de Datos en México",
+        "canal": "Guillermo Cambero, Actualidad Legal",
+        "url": "https://www.youtube.com/embed/I_eA326-Llk",
+        "descripcion": "Análisis de los cambios que trajo la ley vigente desde el 21 de marzo de 2025."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Ley Federal de Protección de Datos Personales en Posesión de los Particulares",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+        "descripcion": "Texto vigente publicado por la Cámara de Diputados. Fuente primaria de los derechos ARCO y del aviso de privacidad."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "CONDUSEF: estadísticas de fraude financiero",
+        "url": "https://www.condusef.gob.mx/",
+        "descripcion": "Fuente oficial de las cifras de fraude cibernético en México usadas en la apertura de la clase."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Auditoría de seguridad digital personal",
+        "url": "/sesion/5",
+        "descripcion": "Actividad de evaluación del módulo, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  },
+  {
+    "dia": 6,
+    "modulo": "Módulo 1.6",
+    "titulo": "Identidad Digital y Medio Ambiente",
+    "categoria": "Ciudadanía Digital",
+    "materia": "Cultura Digital",
+    "proposito": "Utiliza los recursos digitales a su alcance con fines personales, académicos y sociales para interactuar con seguridad y con consideración al medio ambiente.",
+    "duracion": "90 min",
+    "temas": [
+      "Ciudadanía e identidad digital",
+      "Credenciales de acceso",
+      "Plataformas de uso cotidiano",
+      "Contaminación digital y tecnológica"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Transversalidad",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "Identidad digital: ¿quiénes somos en la red?",
+        "canal": "Oficina de Seguridad del Internauta",
+        "url": "https://www.youtube.com/embed/rNmXiYY9iHA",
+        "descripcion": "Material institucional sobre cómo se construye la identidad digital y qué parte de ella no controlas."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "La tragedia electrónica (documental)",
+        "canal": "Documental",
+        "url": "https://www.youtube.com/embed/HvUT5kjVLw8",
+        "descripcion": "Sigue el recorrido real de los aparatos desechados desde los países que los consumen hasta los vertederos donde terminan."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Global E-waste Monitor 2024 (ONU, UIT y UNITAR)",
+        "url": "https://ewastemonitor.info/the-global-e-waste-monitor-2024/",
+        "descripcion": "Informe fuente de las cifras usadas en clase: 62 millones de toneladas generadas en 2022 y 22.3 % reciclado formalmente."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Agencia Internacional de Energía: demanda energética de la IA",
+        "url": "https://www.iea.org/reports/energy-and-ai/energy-demand-from-ai",
+        "descripcion": "Fuente de los 415 TWh consumidos por centros de datos en 2024 y la proyección de 945 TWh para 2030."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Campaña escolar de reducción de huella digital y electrónica",
+        "url": "/sesion/6",
+        "descripcion": "Proyecto transversal de evaluación, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  },
+  {
+    "dia": 7,
+    "modulo": "Módulo 1.7",
+    "titulo": "Resolución de Problemas Algorítmicos",
+    "categoria": "Pensamiento Algorítmico",
+    "materia": "Cultura Digital",
+    "proposito": "Reconoce las posibles formas de comprensión y resolución de problemas algorítmicos para desarrollar una estrategia frente a una situación, fenómeno o problemática, utilizando medios tecnológicos y digitales.",
+    "duracion": "100 min",
+    "temas": [
+      "Pasos para solucionar un problema",
+      "Identificar el problema por resolver",
+      "Comprender el problema",
+      "Analizar alternativas de solución",
+      "Seleccionar la mejor alternativa de solución",
+      "Utilizar métodos, técnicas o diagramas de flujo para resolver problemas"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "¿Qué es un algoritmo? Diagrama de flujo y pseudocódigo",
+        "canal": "TecnoMáticas",
+        "url": "https://www.youtube.com/embed/QOy8Ya249AI",
+        "descripcion": "Del enunciado del problema a sus dos formas de representación, con ejemplos resueltos."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Diagramas de flujo: simbología y construcción",
+        "canal": "Estudia Con Marisol",
+        "url": "https://www.youtube.com/embed/qDttSc3RQBc",
+        "descripcion": "Qué significa cada símbolo y cómo encadenarlos sin ambigüedades."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Norma ISO 5807: símbolos de diagramas de flujo",
+        "url": "https://www.iso.org/standard/11955.html",
+        "descripcion": "Ficha oficial de la norma internacional que estandariza la simbología desde 1985."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Del problema real al diagrama de flujo",
+        "url": "/sesion/7",
+        "descripcion": "Actividad de evaluación del módulo, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  },
+  {
+    "dia": 8,
+    "modulo": "Módulo 1.8",
+    "titulo": "Lenguaje Algorítmico y Lógica",
+    "categoria": "Lógica de Programación",
+    "materia": "Cultura Digital",
+    "proposito": "Conoce los elementos del lenguaje algorítmico a través de medios digitales, para resolver situaciones, fenómenos o problemáticas presentes en las diferentes asignaturas.",
+    "duracion": "120 min",
+    "temas": [
+      "Dato",
+      "Información",
+      "Variables",
+      "Constantes",
+      "Expresiones",
+      "Operadores lógicos",
+      "Operadores relacionales",
+      "Operadores aritméticos",
+      "Estructuras condicionales, selectivas y repetitivas"
+    ],
+    "fases": [
+      "Exploración activa",
+      "Evaluación diagnóstica",
+      "Estrategias de aprendizaje",
+      "Transversalidad",
+      "Evaluación formativa",
+      "Actividad de evaluación"
+    ],
+    "recursos": [
+      {
+        "tipo": "YouTube",
+        "titulo": "¿Qué es una variable en programación?",
+        "canal": "Retro",
+        "url": "https://www.youtube.com/embed/kZfuJvkdcHU",
+        "descripcion": "Concepto de variable y constante explicado sin dar por hecho conocimientos previos."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Tipos de datos: entero, real, cadena y booleano",
+        "canal": "Charly Cimino",
+        "url": "https://www.youtube.com/embed/UUxSQ-rCeXs",
+        "descripcion": "Por qué el tipo de dato determina qué operaciones puedes hacer y qué errores evita."
+      },
+      {
+        "tipo": "YouTube",
+        "titulo": "Operadores lógicos o booleanos",
+        "canal": "LearnFree en Español",
+        "url": "https://www.youtube.com/embed/aJ-tdYeJTxU",
+        "descripcion": "AND, OR y NOT con tablas de verdad y ejemplos aplicados a condiciones compuestas."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "El Proyecto GNU y el origen de las herramientas de programación libres",
+        "url": "https://www.gnu.org/gnu/thegnuproject.es.html",
+        "descripcion": "Contexto histórico sobre los compiladores y herramientas libres con las que hoy se aprende a programar."
+      },
+      {
+        "tipo": "Actividad",
+        "titulo": "Laboratorio de lógica: del enunciado al programa",
+        "url": "/sesion/8",
+        "descripcion": "Actividad de evaluación del módulo, con requisitos y rúbrica en el paso 5 de la sesión."
+      }
+    ]
+  }
+]

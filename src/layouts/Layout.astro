@@ -1,0 +1,121 @@
+---
+import "../styles/global.css";
+import ClientRouter from "astro/components/ClientRouter.astro";
+import { u } from "../lib/url";
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Inicio",
+  description = "Plataforma educativa de bachillerato. Aprende con sesiones digitales interactivas.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href={u("/favicon.svg")} />
+    <title>{title} | Antología Digital</title>
+    <ClientRouter />
+  </head>
+
+  <body class="min-h-screen hero-gradient">
+
+    <!-- ─── HEADER GLASSMORPHISM ─── -->
+    <header
+      class="glass fixed top-0 left-0 right-0 z-50"
+      style="border-bottom: 1px solid rgba(255,255,255,0.05);"
+      transition:persist
+    >
+      <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+
+        <!-- Logo -->
+        <a href={u("/")} class="flex items-center gap-3 group" aria-label="Inicio Antología Digital">
+          <div
+            class="w-8 h-8 rounded-lg border border-cyan-400/50 flex items-center justify-center bg-cyan-400/10 group-hover:bg-cyan-400/20 transition-all duration-300"
+            style="box-shadow: 0 0 12px rgba(0,245,255,0.15);"
+          >
+            <svg
+              width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2"
+              class="text-cyan-400"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+          </div>
+          <span class="font-bold text-sm tracking-widest font-mono-tech">
+            <span class="gradient-text">ANTOLOGÍA</span>
+            <span class="text-white/40 ml-1">DIGITAL</span>
+          </span>
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-8">
+          <a
+            href={u("/")}
+            class="text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors duration-200 tracking-wide relative group"
+          >
+            Inicio
+            <span class="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
+          </a>
+          <a
+            href={u("/#modulos")}
+            class="text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors duration-200 tracking-wide relative group"
+          >
+            Sesiones
+            <span class="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
+          </a>
+        </div>
+
+        <!-- CTA Button -->
+        <a href={u("/#modulos")} class="btn-primary hidden sm:inline-flex" aria-label="Ir a explorar sesiones">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Comenzar
+        </a>
+      </nav>
+    </header>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="pt-16">
+      <slot />
+    </main>
+
+    <!-- ─── FOOTER ─── -->
+    <footer style="border-top: 1px solid rgba(255,255,255,0.05);" class="mt-24">
+      <div class="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-6 h-6 rounded border border-cyan-400/20 flex items-center justify-center"
+            style="background: rgba(0,245,255,0.04);"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-cyan-400/40">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+          </div>
+          <span class="text-xs font-mono-tech text-slate-700 tracking-wider">ANTOLOGÍA DIGITAL &copy; 2024</span>
+        </div>
+        <p class="text-xs text-slate-700 font-mono-tech tracking-wide">
+          Construido para mentes inquietas de Puebla, México
+        </p>
+      </div>
+    </footer>
+
+  </body>
+</html>
