@@ -12,12 +12,23 @@
     "astro": "astro",
     "alta-alumnos": "node scripts/alta-alumnos.mjs",
     "reset-codigo": "node scripts/reset-codigo.mjs",
-    "publicar-reglas": "firebase deploy --only firestore:rules"
+    "publicar-reglas": "firebase deploy --only firestore:rules",
+    "probar-landolt": "node scripts/probar-landolt.mjs",
+    "abrir-landolt": "node scripts/abrir-landolt.mjs",
+    "exportar-landolt": "node scripts/exportar-landolt.mjs",
+    "alta-folios": "node scripts/alta-folios.mjs",
+    "exportar-expedientes": "node scripts/exportar-expedientes.mjs"
   },
   "dependencies": {
+    "@astrojs/react": "^6.0.4",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "astro": "^7.2.0",
     "firebase": "^12.17.1",
+    "pdfjs-dist": "^6.3.289",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {

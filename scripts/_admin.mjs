@@ -8,37 +8,56 @@ import { readFileSync, existsSync } from "node:fs";
 import { randomInt } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { initializeApp, cert, getApps } from "firebase-admin/app";
+import { initializeApp, cert, applicationDefault, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { ALFABETO_CODIGO, correoDeMatricula } from "../src/lib/matricula.mjs";
 
 export const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const LLAVE = join(RAIZ, "serviceAccountKey.json");
+const PROYECTO = "antologia-digital";
 
-/** Arranca el Admin SDK, o explica con claridad qué falta. */
+/**
+ * Arranca el Admin SDK.
+ *
+ * Dos caminos, en este orden:
+ *   1. serviceAccountKey.json, si existe.
+ *   2. Las credenciales de gcloud (`gcloud auth application-default login`).
+ *
+ * El segundo es el preferido: no deja ninguna llave secreta en el disco, que es
+ * justo el archivo más peligroso de este proyecto. La llave solo hace falta si
+ * algún día hay que correr esto en una máquina sin gcloud.
+ */
 export function conectar() {
-  if (!existsSync(LLAVE)) {
+  if (getApps().length) return { auth: getAuth(), db: getFirestore() };
+
+  if (existsSync(LLAVE)) {
+    initializeApp({ credential: cert(JSON.parse(readFileSync(LLAVE, "utf8"))) });
+    return { auth: getAuth(), db: getFirestore() };
+  }
+
+  try {
+    initializeApp({ credential: applicationDefault(), projectId: PROYECTO });
+    return { auth: getAuth(), db: getFirestore() };
+  } catch {
     console.error(`
-✗ No encuentro serviceAccountKey.json
+✗ No tengo permiso para administrar Firebase.
 
-  Descárgalo así:
-    Consola de Firebase → ⚙️ Configuración del proyecto
-    → Cuentas de servicio → "Generar nueva clave privada"
+  Lo más fácil es autorizar tu cuenta de Google una sola vez:
 
-  Guárdalo como:
-    ${LLAVE}
+      gcloud auth application-default login
 
-  Ese archivo es una llave maestra de tu base de datos. Ya está en .gitignore,
-  así que no se sube a GitHub. No lo mandes por correo ni por WhatsApp.
+  (Se abre el navegador, entras con jose.mendoza.buap@gmail.com y listo.)
+
+  La otra opción es descargar la llave del proyecto desde
+  Consola de Firebase → ⚙️ Configuración → Cuentas de servicio
+  → "Generar nueva clave privada", y guardarla como:
+      ${LLAVE}
+
+  Esa llave abre toda la base de datos: no la subas ni la mandes por mensaje.
 `);
     process.exit(1);
   }
-
-  if (!getApps().length) {
-    initializeApp({ credential: cert(JSON.parse(readFileSync(LLAVE, "utf8"))) });
-  }
-  return { auth: getAuth(), db: getFirestore() };
 }
 
 /**

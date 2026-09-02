@@ -17,12 +17,11 @@ service cloud.firestore {
 
     // ─── Quién es quién ────────────────────────────────────────────────────
 
-    // UID de José. Se obtiene la primera vez que entre a /profesor con Google:
-    // la propia página se lo muestra en pantalla para que lo pegue aquí.
-    // Mientras diga PENDIENTE, nadie tiene permisos de profesor y el panel
-    // aparece vacío. Eso es a propósito: se falla del lado seguro.
+    // UID del profesor. Es fijo a propósito: lo asigna
+    // scripts/alta-profesor.mjs al crear la cuenta, en vez de ser un
+    // identificador aleatorio que habría que ir a copiar a mano.
     function profesores() {
-      return ['PENDIENTE_UID_DEL_PROFESOR'];
+      return ['profesor'];
     }
 
     function esProfesor() {
@@ -49,10 +48,14 @@ service cloud.firestore {
     // script usa el Admin SDK, que pasa por encima de estas reglas; por eso
     // aquí nadie tiene permiso de escritura salvo el profesor.
 
-    match /alumnos/{uid} {
-      // Cada quien puede leer su propia ficha (para saludarlo por su nombre).
-      allow get: if esProfesor() || (request.auth != null && request.auth.uid == uid);
-      // Pedir la lista completa de alumnos: solo el profesor.
+    match /alumnos/{alumnoId} {
+      // El profesor ve a todo el grupo; cada alumno, solo su propia ficha.
+      //
+      // OJO con el nombre del comodín: mientras se llamó {uid} —chocando con
+      // request.auth.uid— el profesor podía listar `intentos` pero NO `alumnos`,
+      // y el panel salía vacío sin ningún error visible. Renombrarlo a
+      // {alumnoId} lo arregló. No volver a llamarlo `uid`.
+      allow get: if esProfesor() || (request.auth != null && request.auth.uid == alumnoId);
       allow list: if esProfesor();
       allow write: if esProfesor();
     }
@@ -76,8 +79,16 @@ service cloud.firestore {
     match /intentos/{intentoId} {
       // El alumno puede releer SU intento (para volver a ver su calificación),
       // pero no puede pedir la colección: eso destaparía las notas del grupo.
+      //
+      // El `resource == null` es imprescindible: la página pregunta "¿ya
+      // contesté este módulo?" ANTES de contestarlo, o sea sobre un documento
+      // que todavía no existe. Sin esta parte, esa consulta se denegaba y el
+      // sitio acababa mostrando el cuestionario de un módulo cerrado.
+      // No filtra nada: si el documento no existe, no hay dato que devolver;
+      // y si existe, sigue mandando la comparación de uid.
       allow get: if esProfesor()
-        || (request.auth != null && resource.data.uid == request.auth.uid);
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
       allow list: if esProfesor();
 
       // Un solo intento por alumno y módulo. El candado es el nombre del
@@ -90,6 +101,308 @@ service cloud.firestore {
         && intentoBienFormado();
 
       // Corregir o borrar una calificación: solo el profesor.
+      allow update, delete: if esProfesor();
+    }
+
+    // ─── Test de los Anillos de Landolt (atención concentrada) ─────────────
+    //
+    // Este test lo aplican alumnos de bachillerato de NUEVO INGRESO, que
+    // todavía no tienen ficha ni código. Por eso aquí no se usa alumnoActivo():
+    // entran con una sesión anónima de Firebase y se registran con un
+    // formulario. Lo que sostiene el permiso, ya que no hay contraseña:
+    //
+    //   1. Tiene que haber una aplicación ABIERTA. La abre y la cierra el
+    //      profesor con scripts/abrir-landolt.mjs. Cerrada, no entra nada.
+    //   2. Hay que estar autenticado, aunque sea de forma anónima.
+    //   3. Los conteos tienen que cuadrar entre sí.
+    //   4. Los textos tienen tope de longitud, para que nadie use esto como
+    //      almacenamiento gratis.
+    //
+    // Mientras el test esté abierto, quien tenga el enlace puede mandar un
+    // registro: es el precio de que un grupo entero entre sin repartir
+    // contraseñas. Por eso importa cerrarlo al acabar la sesión.
+    //
+    // LEER es otra cosa: los resultados llevan nombre y fecha de nacimiento de
+    // menores de edad. Nadie más que el profesor los lee, ni siquiera quien los
+    // acaba de escribir.
+
+    function landoltAbierta(ap) {
+      return exists(/databases/$(database)/documents/config/landolt)
+        && get(/databases/$(database)/documents/config/landolt).data.abierta == ap
+        && ap > 0;
+    }
+
+    function fichaLandoltBienFormada() {
+      let d = request.resource.data;
+      return d.nombre is string     && d.nombre.size() >= 5 && d.nombre.size() <= 80
+        && d.nacimiento is string   && d.nacimiento.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && d.genero is string       && d.genero in ['Mujer', 'Hombre', 'Prefiero no decirlo']
+        && d.semestre is int        && d.semestre >= 1 && d.semestre <= 6
+        && d.grupo is string        && d.grupo.size() >= 1 && d.grupo.size() <= 4
+        && d.turno is string        && d.turno in ['Matutino', 'Vespertino']
+        && d.procedencia is string  && d.procedencia.size() <= 80;
+    }
+
+    // La aritmética del propio protocolo. Sin esto, cualquiera podría llamar a
+    // guardarLandolt() desde la consola con un resultado perfecto.
+    function conteosLandoltCuadran() {
+      let d = request.resource.data;
+      return d.objetivo is int && d.objetivo >= 1 && d.objetivo <= 8
+        && d.semilla is int
+        // La hoja del protocolo es de 35 renglones × 30 anillos.
+        && d.N is int      && d.N >= 0      && d.N <= 1050
+        && d.CA is int     && d.CA >= 0
+        && d.CT is int     && d.CT >= 0     && d.CT <= d.N
+        && d.falsos is int && d.falsos >= 0
+        && d.CA <= d.CT
+        && d.CA + d.falsos <= d.N
+        && d.omisiones == d.CT - d.CA
+        && d.n == d.falsos + d.omisiones
+        && d.T is int && d.T > 0 && d.T <= 3600
+        && d.S is number
+        && d.IA is number
+        && d.variante in ['1min', '5min']
+        && d.curva is list && d.curva.size() <= 60;
+    }
+
+    match /landolt/{registroId} {
+      // Solo el profesor. Son datos personales de menores: ni siquiera quien
+      // acaba de entregar puede volver a leerlos, porque sin cuentas no hay
+      // forma de comprobar que sigue siendo la misma persona.
+      allow get, list: if esProfesor();
+
+      allow create: if request.auth != null
+        && landoltAbierta(request.resource.data.aplicacion)
+        && request.resource.data.keys().hasOnly([
+             'aplicacion', 'nombre', 'nacimiento', 'genero', 'semestre', 'grupo',
+             'turno', 'procedencia', 'objetivo', 'semilla', 'N', 'CA', 'CT',
+             'falsos', 'omisiones', 'n', 'T', 'S', 'IA', 'variante', 'curva',
+             'enviado'])
+        && request.resource.data.aplicacion is int
+        && fichaLandoltBienFormada()
+        && conteosLandoltCuadran()
+        && request.resource.data.enviado == request.time;
+
+      // Corregir o borrar un registro: solo el profesor.
+      allow update, delete: if esProfesor();
+    }
+
+    // ─── Diagnóstico integral (atención + temperamento + evaluación) ──────
+    //
+    // AQUÍ SE ENTRA CON CUENTA DE GOOGLE, a diferencia de /landolt. El contraste
+    // es deliberado: aquel test se aplica en un rato, vigilado, y lo único que
+    // guarda son anillos tachados. Este dura hasta hora y media, el alumno
+    // puede dejarlo a medias y volver otro día, y hay que saber de quién es
+    // cada entrega sin depender de que escriba bien su nombre. Para eso hace
+    // falta una identidad de verdad.
+    //
+    // Lo que eso permite, y que con acceso anónimo era imposible:
+    //
+    //   · Retomar. El documento se llama `<uid>_<aplicación>`, así que al
+    //     volver a entrar el alumno cae sobre el mismo y sigue donde iba.
+    //   · Guardar conforme avanza, en vez de todo al final.
+    //   · Dejar la evaluación abierta toda la semana sin que eso signifique que
+    //     cualquiera con el enlace pueda mandar basura.
+    //
+    // EL CANDADO NO ES "SOLO CREAR", COMO EN EL RESTO DEL SITIO. Aquí hay que
+    // permitir `update`, porque sin eso no se puede retomar nada. El candado es
+    // otro y está abajo: en cuanto `estado` pasa a 'entregado', las reglas
+    // dejan de aceptar cambios. Se corrige lo que aún no se entrega, y nada más.
+
+    function diagnosticoAbierto(ap) {
+      return exists(/databases/$(database)/documents/config/diagnostico)
+        && get(/databases/$(database)/documents/config/diagnostico).data.abierta == ap
+        && ap > 0;
+    }
+
+    function fichaDiagnosticoBienFormada() {
+      let d = request.resource.data;
+      return d.nombre is string     && d.nombre.size() >= 5 && d.nombre.size() <= 80
+        && d.nacimiento is string   && d.nacimiento.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && d.genero is string       && d.genero in ['Mujer', 'Hombre', 'Prefiero no decirlo']
+        && d.grado is string        && d.grado in ['1ero', '2do', '3ero']
+        && d.grupo is string        && d.grupo.size() >= 1 && d.grupo.size() <= 4
+        && d.turno is string        && d.turno in ['Matutino', 'Vespertino']
+        && d.procedencia is string  && d.procedencia.size() <= 80
+        && d.correo is string       && d.correo.size() <= 120;
+    }
+
+    // Cada bloque puede venir nulo: se llenan uno por uno, conforme el alumno
+    // avanza, y el profesor puede aplicar solo una parte. Lo que NO puede venir
+    // es un bloque con forma inventada, porque estos documentos se exportan a
+    // hoja de cálculo sin volver a revisarlos.
+
+    function bloqueAtencionValido() {
+      let a = request.resource.data.atencion;
+      return a == null || (
+        a.objetivo is int  && a.objetivo >= 1 && a.objetivo <= 8
+        && a.N is int      && a.N >= 0      && a.N <= 1050
+        && a.CA is int     && a.CA >= 0
+        && a.CT is int     && a.CT >= 0     && a.CT <= a.N
+        && a.falsos is int && a.falsos >= 0
+        && a.CA <= a.CT
+        && a.CA + a.falsos <= a.N
+        && a.omisiones == a.CT - a.CA
+        && a.n == a.falsos + a.omisiones
+        && a.T is int && a.T > 0 && a.T <= 3600
+        && a.variante in ['1min', '5min']
+      );
+    }
+
+    function bloqueTemperamentoValido() {
+      let t = request.resource.data.temperamento;
+      return t == null || (
+        t.puntos is map
+        && t.porcentaje is map
+        && t.dominante in ['sanguineo', 'colerico', 'melancolico', 'flematico']
+        && t.secundario in ['sanguineo', 'colerico', 'melancolico', 'flematico']
+        && t.empatado is bool
+        && t.respuestas is map && t.respuestas.keys().size() <= 40
+      );
+    }
+
+    function bloqueAcademicaValido() {
+      let a = request.resource.data.academica;
+      return a == null || (
+        a.grado is string
+        && a.total is int    && a.total > 0     && a.total <= 100
+        && a.aciertos is int && a.aciertos >= 0 && a.aciertos <= a.total
+        && a.porcentaje is int && a.porcentaje >= 0 && a.porcentaje <= 100
+        && a.materias is map
+        && a.respuestas is map && a.respuestas.keys().size() <= 100
+      );
+    }
+
+    // El cuadernillo de ingreso NO trae calificación: no tiene clave de
+    // respuestas. Por eso aquí no hay `aciertos` que validar, solo que lo
+    // contestado no exceda el total.
+    function bloqueCuadernilloValido() {
+      let c = request.resource.data.cuadernillo;
+      return c == null || (
+        c.cuadernillo is string && c.cuadernillo.size() <= 40
+        && c.total is int       && c.total > 0 && c.total <= 200
+        && c.contestadas is int && c.contestadas >= 0 && c.contestadas <= c.total
+        && c.respuestas is map  && c.respuestas.keys().size() <= 200
+      );
+    }
+
+    function bloquesValidos() {
+      return bloqueAtencionValido()
+        && bloqueTemperamentoValido()
+        && bloqueAcademicaValido()
+        && bloqueCuadernilloValido();
+    }
+
+    match /diagnosticos/{sesionId} {
+      // El alumno lee LO SUYO. Es imprescindible: sin esto no puede retomar,
+      // porque retomar es exactamente leer lo que ya llevaba. No destapa nada
+      // de nadie más, y el `resource == null` deja preguntar "¿ya empecé?"
+      // sobre un documento que todavía no existe.
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      // Pedir la colección entera sigue siendo solo del profesor: eso sí
+      // destaparía al grupo completo.
+      allow list: if esProfesor();
+
+      // Abrir la sesión. El nombre del documento amarra al alumno con su propia
+      // cuenta: no puede crear la de otro aunque lo intente desde la consola.
+      allow create: if request.auth != null
+        && sesionId == request.auth.uid + '_' + string(request.resource.data.aplicacion)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.correo == request.auth.token.email
+        && request.resource.data.estado == 'en curso'
+        && diagnosticoAbierto(request.resource.data.aplicacion)
+        && request.resource.data.keys().hasOnly([
+             'aplicacion', 'uid', 'correo', 'estado', 'nombre', 'nacimiento',
+             'genero', 'grado', 'grupo', 'turno', 'procedencia', 'atencion',
+             'temperamento', 'academica', 'cuadernillo', 'iniciado', 'actualizado'])
+        && request.resource.data.aplicacion is int
+        && fichaDiagnosticoBienFormada()
+        && bloquesValidos()
+        && request.resource.data.iniciado == request.time
+        && request.resource.data.actualizado == request.time;
+
+      // Avanzar y entregar.
+      //
+      // Las tres condiciones que sostienen esto, en orden de importancia:
+      //
+      //   1. El documento TIENE que estar 'en curso'. Uno ya entregado no se
+      //      vuelve a tocar: ese es el reemplazo del "solo crear" que usa el
+      //      resto del sitio.
+      //   2. Ni el dueño, ni su correo, ni la aplicación pueden cambiar. Sin
+      //      esto, un alumno podría reescribir el documento a nombre de otro.
+      //   3. La evaluación tiene que seguir abierta.
+      allow update: if esProfesor() || (
+        request.auth != null
+        && resource.data.uid == request.auth.uid
+        && resource.data.estado == 'en curso'
+        && diagnosticoAbierto(resource.data.aplicacion)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.correo == resource.data.correo
+        && request.resource.data.aplicacion == resource.data.aplicacion
+        && request.resource.data.iniciado == resource.data.iniciado
+        && request.resource.data.estado in ['en curso', 'entregado']
+        // Sin esto, un alumno podría colgarle campos inventados a su propio
+        // documento y usar la base como almacén gratis.
+        && request.resource.data.keys().hasOnly([
+             'aplicacion', 'uid', 'correo', 'estado', 'nombre', 'nacimiento',
+             'genero', 'grado', 'grupo', 'turno', 'procedencia', 'atencion',
+             'temperamento', 'academica', 'cuadernillo', 'iniciado',
+             'actualizado', 'entregado'])
+        && fichaDiagnosticoBienFormada()
+        && bloquesValidos()
+        && request.resource.data.actualizado == request.time
+      );
+
+      // Borrar un registro: solo el profesor.
+      allow delete: if esProfesor();
+    }
+
+    // ─── Expediente de nuevo ingreso (cuestionario a padres) ───────────────
+    //
+    // Aquí sí hay credencial: cada familia entra con un folio que reparte la
+    // escuela, y ese folio es una cuenta de Firebase Authentication de verdad.
+    // El contraste con /landolt es deliberado. Allá se entra sin cuenta porque
+    // lo único que se guarda son anillos tachados. Este cuestionario recoge
+    // salud del alumno, violencia dentro de la casa, consumo de sustancias en
+    // el hogar e ingresos familiares: datos personales sensibles de menores.
+    // Una puerta abierta no es aceptable para eso, ni por comodidad.
+    //
+    // Se entrega UNA vez. El candado es el mismo de siempre: el documento se
+    // llama como el folio y solo se concede `create`, nunca `update`.
+
+    match /folios/{folioId} {
+      // La ficha del folio (a qué alumno se le asignó). La escribe el profesor
+      // con scripts/alta-folios.mjs; la familia solo lee la suya.
+      allow get: if esProfesor()
+        || (request.auth != null && request.auth.uid == folioId);
+      allow list: if esProfesor();
+      allow write: if esProfesor();
+    }
+
+    match /expedientes/{folioId} {
+      // Nadie más que el profesor los lee, ni siquiera la familia que acaba de
+      // contestar: al ser el folio a la vez usuario y contraseña, cualquiera que
+      // lo viera de reojo podría volver a entrar y leer lo que se declaró sobre
+      // violencia o salud. Se escribe y no se vuelve a mostrar.
+      //
+      // El `resource == null` deja preguntar "¿ya contestamos?" sobre un
+      // documento que todavía no existe, sin destapar ningún dato.
+      allow get: if esProfesor()
+        || (request.auth != null && request.auth.uid == folioId && resource == null);
+      allow list: if esProfesor();
+
+      allow create: if request.auth != null
+        && folioId == request.auth.uid
+        && request.resource.data.folio == request.auth.uid
+        && request.resource.data.enviado == request.time
+        // Un tope generoso pero finito: son ~50 preguntas, no un almacén.
+        && request.resource.data.keys().size() <= 60
+        && request.resource.data.curp is string
+        && request.resource.data.curp.size() == 18;
+
+      // Corregir o borrar: solo el profesor.
       allow update, delete: if esProfesor();
     }
 

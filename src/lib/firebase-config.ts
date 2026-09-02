@@ -9,15 +9,15 @@
 // proyecto, no abre nada por sí sola. La seguridad real vive en firestore.rules.
 // Lo secreto es serviceAccountKey.json, que está gitignoreado.
 
-// ⚠️ PEGAR AQUÍ la configuración del proyecto.
-// Consola de Firebase → ⚙️ Configuración del proyecto → Tus apps → Config.
+// Proyecto "Antologia Digital" (antologia-digital).
+// Se obtiene con: firebase apps:sdkconfig WEB --project antologia-digital
 export const configFirebase = {
-  apiKey: "PEGAR_AQUI",
+  apiKey: "AIzaSyD5uDyzuiqHVATRRApiwOcJDRaRXrqB8bk",
   authDomain: "antologia-digital.firebaseapp.com",
   projectId: "antologia-digital",
   storageBucket: "antologia-digital.firebasestorage.app",
-  messagingSenderId: "PEGAR_AQUI",
-  appId: "PEGAR_AQUI",
+  messagingSenderId: "964976077150",
+  appId: "1:964976077150:web:9ec8d96c61899fb2acc7cf",
 };
 
 /** ¿Ya quedó configurado, o siguen los valores de ejemplo? */

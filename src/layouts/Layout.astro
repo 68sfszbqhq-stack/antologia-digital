@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import ClientRouter from "astro/components/ClientRouter.astro";
+import sesiones from "../data/sesiones.json";
 import { u } from "../lib/url";
 
 export interface Props {
@@ -28,7 +29,7 @@ const {
       rel="stylesheet"
     />
     <link rel="icon" type="image/svg+xml" href={u("/favicon.svg")} />
-    <title>{title} | Antología Digital</title>
+    <title>{title} | BGOCCVESP Plataforma Digital</title>
     <ClientRouter />
   </head>
 
@@ -43,7 +44,7 @@ const {
       <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
         <!-- Logo -->
-        <a href={u("/")} class="flex items-center gap-3 group" aria-label="Inicio Antología Digital">
+        <a href={u("/")} class="flex items-center gap-3 group" aria-label="Inicio BGOCCVESP Plataforma Digital">
           <div
             class="w-8 h-8 rounded-lg border border-cyan-400/50 flex items-center justify-center bg-cyan-400/10 group-hover:bg-cyan-400/20 transition-all duration-300"
             style="box-shadow: 0 0 12px rgba(0,245,255,0.15);"
@@ -58,38 +59,199 @@ const {
             </svg>
           </div>
           <span class="font-bold text-sm tracking-widest font-mono-tech">
-            <span class="gradient-text">ANTOLOGÍA</span>
-            <span class="text-white/40 ml-1">DIGITAL</span>
+            <span class="gradient-text">BGOCCVESP</span>
+            <span class="text-white/40 ml-1 hidden sm:inline">PLATAFORMA DIGITAL</span>
           </span>
         </a>
 
-        <!-- Desktop Nav -->
-        <div class="hidden md:flex items-center gap-8">
-          <a
-            href={u("/")}
-            class="text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors duration-200 tracking-wide relative group"
-          >
-            Inicio
-            <span class="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
+        <div class="flex items-center gap-3">
+          <!-- Atajo a lo que más se usa. En pantalla chica se esconde: ahí todo
+               vive dentro del menú, que es justo para lo que existe. -->
+          <a href={u("/diagnostico")} class="btn-primary hidden sm:inline-flex" aria-label="Ir a la evaluación diagnóstica">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            Evaluación
           </a>
-          <a
-            href={u("/#modulos")}
-            class="text-sm font-medium text-slate-400 hover:text-cyan-400 transition-colors duration-200 tracking-wide relative group"
-          >
-            Sesiones
-            <span class="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-          </a>
-        </div>
 
-        <!-- CTA Button -->
-        <a href={u("/#modulos")} class="btn-primary hidden sm:inline-flex" aria-label="Ir a explorar sesiones">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          Comenzar
-        </a>
+          <!-- La hamburguesa está en TODOS los tamaños, no solo en móvil: es el
+               índice completo del sitio, y en escritorio no cabría en la barra
+               sin volverla ilegible. -->
+          <button
+            type="button"
+            data-menu-abrir
+            class="w-10 h-10 rounded-lg border border-white/10 flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-400/40 hover:bg-cyan-400/5 transition-all duration-200"
+            aria-label="Abrir el menú"
+            aria-expanded="false"
+            aria-controls="menu-principal"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
       </nav>
     </header>
+
+    <!-- ─── MENÚ DESPLEGABLE ─── -->
+    <!--
+      Es el índice del sitio entero: la antología por un lado y las evaluaciones
+      por otro, que son las dos cosas distintas que se hacen aquí. Los módulos
+      van como etiquetas y no como lista larga porque son ocho y así caben de
+      un vistazo, sin desplazarse.
+    -->
+    <div
+      id="menu-principal"
+      data-menu
+      hidden
+      class="fixed inset-0 z-[60]"
+      transition:persist
+    >
+      <div data-menu-fondo class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+      <div
+        class="glass absolute top-0 right-0 h-full w-full sm:w-[26rem] overflow-y-auto"
+        style="border-left: 1px solid rgba(255,255,255,0.08);"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú principal"
+      >
+        <div class="flex items-center justify-between h-16 px-6" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <span class="text-xs font-mono-tech text-slate-500 uppercase tracking-widest">Índice</span>
+          <button
+            type="button"
+            data-menu-cerrar
+            class="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-white/30 transition"
+            aria-label="Cerrar el menú"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="px-6 py-7 space-y-8">
+
+          <!-- Antología -->
+          <section>
+            <a
+              href={u("/#modulos")}
+              class="flex items-start gap-3 group mb-4"
+            >
+              <span class="mt-0.5 w-8 h-8 shrink-0 rounded-lg border border-cyan-400/40 bg-cyan-400/10 flex items-center justify-center">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-cyan-400">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+              </span>
+              <span>
+                <span class="block font-bold text-white group-hover:text-cyan-400 transition">
+                  Antología de Cultura Digital
+                </span>
+                <span class="block text-xs text-slate-500 mt-0.5">
+                  Ocho módulos con lecturas, videos y actividades.
+                </span>
+              </span>
+            </a>
+
+            <div class="flex flex-wrap gap-1.5 pl-11">
+              {sesiones.map((m) => (
+                <a
+                  href={u(`/sesion/${m.dia}`)}
+                  class="text-[11px] font-mono-tech px-2.5 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/5 hover:border-cyan-400/40 hover:text-cyan-400 hover:bg-cyan-400/5 transition"
+                  title={m.titulo}
+                >
+                  {m.modulo.replace("Módulo ", "")} · {m.titulo}
+                </a>
+              ))}
+            </div>
+          </section>
+
+          <!-- Evaluaciones -->
+          <section>
+            <span class="text-xs font-mono-tech text-slate-600 uppercase tracking-widest block mb-3">
+              // Evaluaciones
+            </span>
+
+            <div class="space-y-2">
+              <a
+                href={u("/diagnostico")}
+                class="flex items-start gap-3 rounded-xl p-3 border border-white/10 hover:border-cyan-400/40 hover:bg-cyan-400/5 transition group"
+              >
+                <span class="mt-0.5 w-8 h-8 shrink-0 rounded-lg border border-cyan-400/40 bg-cyan-400/10 flex items-center justify-center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-cyan-400">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                </span>
+                <span>
+                  <span class="block text-sm font-semibold text-white group-hover:text-cyan-400 transition">
+                    Evaluación diagnóstica
+                  </span>
+                  <span class="block text-xs text-slate-500 mt-0.5">
+                    Datos, atención, temperamento y la evaluación de tu grado, de corrido.
+                  </span>
+                </span>
+              </a>
+
+              <a
+                href={u("/landolt")}
+                class="flex items-start gap-3 rounded-xl p-3 border border-white/10 hover:border-violet-400/40 hover:bg-violet-400/5 transition group"
+              >
+                <span class="mt-0.5 w-8 h-8 shrink-0 rounded-lg border border-violet-400/40 bg-violet-400/10 flex items-center justify-center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-violet-400">
+                    <circle cx="12" cy="12" r="8"></circle>
+                    <path d="M12 4v4"></path>
+                  </svg>
+                </span>
+                <span>
+                  <span class="block text-sm font-semibold text-white group-hover:text-violet-400 transition">
+                    Test de atención
+                  </span>
+                  <span class="block text-xs text-slate-500 mt-0.5">
+                    Solo los Anillos de Landolt, por separado.
+                  </span>
+                </span>
+              </a>
+
+              <a
+                href={u("/expediente")}
+                class="flex items-start gap-3 rounded-xl p-3 border border-white/10 hover:border-emerald-400/40 hover:bg-emerald-400/5 transition group"
+              >
+                <span class="mt-0.5 w-8 h-8 shrink-0 rounded-lg border border-emerald-400/40 bg-emerald-400/10 flex items-center justify-center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-400">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  </svg>
+                </span>
+                <span>
+                  <span class="block text-sm font-semibold text-white group-hover:text-emerald-400 transition">
+                    Cuestionario de nuevo ingreso
+                  </span>
+                  <span class="block text-xs text-slate-500 mt-0.5">
+                    Lo contestan los padres, en casa, con un folio.
+                  </span>
+                </span>
+              </a>
+            </div>
+          </section>
+
+          <!-- Profesor -->
+          <section style="border-top: 1px solid rgba(255,255,255,0.05);" class="pt-6">
+            <!-- El panel se protege con las reglas de Firestore, no escondiendo
+                 el enlace: quien entre sin permiso no ve absolutamente nada. -->
+            <a href={u("/profesor")} class="text-xs font-mono-tech text-slate-600 hover:text-cyan-400 transition">
+              Panel del profesor →
+            </a>
+          </section>
+        </div>
+      </div>
+    </div>
 
     <!-- ─── MAIN CONTENT ─── -->
     <main class="pt-16">
@@ -109,20 +271,71 @@ const {
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
           </div>
-          <span class="text-xs font-mono-tech text-slate-700 tracking-wider">ANTOLOGÍA DIGITAL &copy; 2024</span>
+          <span class="text-xs font-mono-tech text-slate-700 tracking-wider">BGOCCVESP PLATAFORMA DIGITAL &copy; 2024</span>
         </div>
         <div class="flex items-center gap-5">
           <p class="text-xs text-slate-700 font-mono-tech tracking-wide">
             Construido para mentes inquietas de Puebla, México
           </p>
-          <!-- El panel se protege con las reglas de Firestore, no escondiendo
-               el enlace: quien entre sin permiso no ve absolutamente nada. -->
-          <a href={u("/profesor")} class="text-xs text-slate-800 hover:text-cyan-400 font-mono-tech transition-colors">
-            Profesor
-          </a>
         </div>
       </div>
     </footer>
+
+    <script>
+      /*
+       * El menú, sin framework.
+       *
+       * Dos cuidados que no se ven en el código pero explican su forma:
+       *
+       *   1. El header y el menú llevan `transition:persist`, así que sobreviven
+       *      a los cambios de página. Si se colgaran los escuchas en cada
+       *      `astro:page-load`, se acumularían y el menú acabaría abriéndose y
+       *      cerrándose varias veces de un solo clic. Por eso se cuelgan UNA vez
+       *      del documento, con una bandera, y se usa delegación.
+       *   2. Al navegar hay que cerrarlo a mano: como el nodo persiste, quedaría
+       *      abierto encima de la página nueva.
+       */
+      const w = window as any;
+
+      function cerrarMenu() {
+        const menu = document.querySelector("[data-menu]") as HTMLElement | null;
+        const boton = document.querySelector("[data-menu-abrir]");
+        if (!menu) return;
+        menu.hidden = true;
+        document.body.style.overflow = "";
+        boton?.setAttribute("aria-expanded", "false");
+      }
+
+      function abrirMenu() {
+        const menu = document.querySelector("[data-menu]") as HTMLElement | null;
+        const boton = document.querySelector("[data-menu-abrir]");
+        if (!menu) return;
+        menu.hidden = false;
+        // Sin esto, el fondo se sigue desplazando detrás del panel.
+        document.body.style.overflow = "hidden";
+        boton?.setAttribute("aria-expanded", "true");
+        (menu.querySelector("[data-menu-cerrar]") as HTMLElement | null)?.focus();
+      }
+
+      if (!w.__menuAntologia) {
+        w.__menuAntologia = true;
+
+        document.addEventListener("click", (e) => {
+          const t = e.target as HTMLElement;
+          if (t.closest("[data-menu-abrir]")) { abrirMenu(); return; }
+          if (t.closest("[data-menu-cerrar]") || t.closest("[data-menu-fondo]")) { cerrarMenu(); return; }
+          // Un enlace del menú: se cierra solo. Con View Transitions la página
+          // cambia sin recargar, así que nadie lo cerraría por nosotros.
+          if (t.closest("[data-menu] a")) cerrarMenu();
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") cerrarMenu();
+        });
+
+        document.addEventListener("astro:page-load", cerrarMenu);
+      }
+    </script>
 
   </body>
 </html>

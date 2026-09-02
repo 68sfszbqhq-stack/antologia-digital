@@ -1,0 +1,55 @@
+---
+// Test de los Anillos de Landolt — evaluación diagnóstica de atención.
+//
+// Va aparte de los ocho módulos a propósito: no evalúa contenido de Cultura
+// Digital, sino atención concentrada, y se aplica en otro momento y con otras
+// reglas (una vez por "aplicación", no una vez por módulo).
+//
+// El test es React, el único de todo el sitio. Se monta con client:only porque
+// necesita el reloj y los clics del navegador; no hay nada que renderizar en el
+// servidor.
+import Layout from "../layouts/Layout.astro";
+import LandoltAlumno from "../components/LandoltAlumno.jsx";
+import { u } from "../lib/url";
+---
+
+<Layout
+  title="Test de atención"
+  description="Test de los Anillos de Landolt: evaluación diagnóstica de atención concentrada."
+>
+  <div class="max-w-5xl mx-auto px-6 py-12">
+
+    <nav class="text-xs font-mono-tech text-slate-500 mb-8">
+      <a href={u("/")} class="hover:text-cyan-400 transition">Cultura Digital</a>
+      <span class="mx-2">/</span>
+      <span class="text-slate-400">Test de atención</span>
+    </nav>
+
+    <header class="mb-10">
+      <span class="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-2">
+        // Evaluación diagnóstica
+      </span>
+      <h1 class="text-3xl sm:text-4xl font-black text-white mb-4">
+        Test de los Anillos de Landolt
+      </h1>
+      <p class="text-slate-400 max-w-3xl leading-relaxed">
+        Vas a ver una hoja llena de anillos con una abertura en distintas
+        posiciones. Tu trabajo es marcar, lo más rápido que puedas y sin
+        equivocarte, solo los que tengan la abertura en la posición que se te
+        indique. Empieza por la primera fila y sigue en orden, como si leyeras.
+      </p>
+    </header>
+
+    <div class="glass-card rounded-2xl p-5 border border-white/10 mb-8">
+      <p class="text-sm text-slate-400 leading-relaxed">
+        <strong class="text-slate-200">Antes de empezar:</strong> siéntate cómodo,
+        silencia el celular y no te detengas a revisar lo que ya marcaste. Si te
+        equivocas, puedes volver a hacer clic en un anillo para desmarcarlo. El
+        reloj no se detiene y la prueba termina sola.
+      </p>
+    </div>
+
+    <LandoltAlumno client:only="react" />
+
+  </div>
+</Layout>

@@ -206,6 +206,132 @@ En la práctica esto se acota aplicando el diagnóstico en clase. Lo que sí est
 garantizado por las reglas es que nadie puede **ver ni alterar las calificaciones
 de otros**, ni contestar dos veces, ni entrar a un módulo cerrado.
 
+## Evaluación diagnóstica de inicio de ciclo
+
+Es otra cosa que los ocho módulos y va por su lado: `/diagnostico`. Una sola
+sesión seguida, sin matrícula ni código —el alumno llena una ficha y empieza—,
+que encadena tres bloques:
+
+1. **Test de atención** (Anillos de Landolt). Va primero, mientras el alumno
+   está fresco: es lo único con reloj, y aplicado al final mediría el cansancio
+   de la sesión.
+2. **Test de temperamento** (cuatro temperamentos, 40 reactivos). En medio, sin
+   reloj y sin respuestas correctas, funciona como descanso.
+3. **Evaluación de conocimientos**, según el grado que el alumno elige:
+
+| Grado | Qué contesta | Reactivos |
+|---|---|---|
+| 1º | Cuadernillo oficial de ingreso (EDIEMS), mostrado como PDF | 88 |
+| 2º | Taller de Ciencias II, Lengua y Comunicación II, Inglés III | 15 |
+| 3º | Cultura Digital, Energía, Salud Integral, Sexualidad y Género, Derecho y Sociedad, Conciencia Histórica | 31 |
+
+### Abrirla y cerrarla
+
+```bash
+node scripts/abrir-diagnostico.mjs          # cómo está ahora
+node scripts/abrir-diagnostico.mjs 1        # abrir la aplicación 1
+node scripts/abrir-diagnostico.mjs cerrar   # cerrar
+```
+
+**Déjala abierta mientras dure la aplicación**, incluso varios días: es
+justamente lo que permite que un alumno que se atoró vuelva a entrar y continúe.
+Al cerrarla, las reglas dejan de aceptar cambios y quien iba a medias se queda a
+medias. Como se entra con Google, tenerla abierta no significa que pueda entrar
+cualquiera.
+
+(El test suelto de `/landolt` es lo contrario: allá se entra sin cuenta, así que
+ese sí hay que cerrarlo al acabar la sesión. Son dos interruptores distintos.)
+
+Se pueden aplicar solo algunos bloques:
+
+```bash
+node scripts/abrir-diagnostico.mjs 1 --bloques atencion,academica
+```
+
+Tiene su propio interruptor, aparte del de `/landolt`: cerrar uno no cierra el
+otro.
+
+### Sacar los resultados
+
+```bash
+node scripts/exportar-diagnostico.mjs
+```
+
+Salen tres CSV: el resumen (un renglón por alumno, con correo y estado), las
+respuestas de 2º y 3º, y las 88 del cuadernillo de 1º. Al final lista quiénes van
+a medias, con su correo, para poder ir a buscarlos.
+
+### El cuadernillo de primer año
+
+El cuadernillo **no se transcribe**: se muestra el PDF original tal cual, con
+las preguntas a un lado. Trae diagramas de Lewis, una tabla periódica, mapas
+mentales y carteles publicitarios sobre los que se pregunta directamente;
+pasarlo a HTML significaría reacomodar esas imágenes a mano, con el riesgo de
+que una quede mal y la pregunta cambie de sentido.
+
+Lo único que se teclea es en qué página está cada pregunta, y eso lo averigua un
+script:
+
+```bash
+node scripts/mapear-cuadernillo.mjs cuadernillo.pdf --id ediems-2027
+cp cuadernillo.pdf public/cuadernillos/ediems-2027.pdf
+```
+
+**No trae clave de respuestas**, porque el cuadernillo del alumno no la tiene.
+El sitio guarda lo que marcó, sin calificar. Cuando la autoridad publique la
+clave, se pone en un CSV de dos columnas y se aplica al exportar:
+
+```bash
+node scripts/exportar-diagnostico.mjs --clave clave-ediems.csv
+```
+
+### Cómo entra el alumno: con su cuenta de Google
+
+No hay matrículas ni códigos que repartir. El alumno entra con Google y eso
+resuelve tres cosas de golpe:
+
+- **Rastreable.** Cada entrega trae el correo de quien la hizo; no hay que
+  confiar en que escriba bien su nombre.
+- **Se puede retomar.** El documento se llama `<uid>_<aplicación>`, así que al
+  volver a entrar —el mismo día o tres días después, en otro aparato— el sitio
+  encuentra lo que llevaba y sigue donde se quedó.
+- **No hay que vigilar el interruptor.** Con acceso anónimo, dejar la evaluación
+  abierta significaba que cualquiera con el enlace podía mandar basura. Con
+  Google, quien entra queda identificado.
+
+**Se guarda conforme avanza**, no al final: cada bloque terminado se manda en
+cuanto termina, y el cuadernillo de primer año se manda unos segundos después de
+cada tanda de respuestas. La diferencia entre perder una hora de examen por un
+celular que se apagó y perder cuatro segundos.
+
+Y siempre, pase lo que pase con la nube, se ofrece la descarga del CSV al final.
+
+#### El único paso manual
+
+Hay que activar el proveedor una vez en la consola de Firebase:
+
+> *Authentication → Sign-in method → Google → Habilitar → elegir un correo de
+> soporte → Guardar*
+
+El dominio `68sfszbqhq-stack.github.io` ya está en la lista de dominios
+autorizados, así que no hay nada más que tocar.
+
+Si el proveedor no está activo, el alumno ve un mensaje claro y no puede entrar.
+Si Firebase entero no está configurado, el sitio funciona igual y el alumno puede
+contestar y descargar su CSV, pero no se guarda en la nube. Ese respaldo es
+intencional.
+
+#### El candado, que aquí es distinto
+
+En el resto del sitio la regla es «se crea una vez y nunca se modifica». Aquí eso
+es imposible: sin `update` no se puede retomar nada. El candado es otro y vive en
+`firestore.rules`: en cuanto el documento pasa a `estado: 'entregado'`, las
+reglas dejan de aceptar cambios. Se corrige lo que aún no se entrega, y nada más.
+
+Además, la sesión de Firebase es una sola para todo el sitio, así que aquí solo
+cuenta **quien entró con Google**: una sesión anónima de `/landolt` o una de
+folio de `/expediente` se tratan como si no hubiera nadie.
+
 ## Construido con
 
 [Astro](https://astro.build), [Tailwind CSS](https://tailwindcss.com) y

@@ -41,5 +41,26 @@ credenciales-*.csv
 alumnos.csv
 alumnos-*.csv
 
+# Resultados del test de Landolt: nombre, fecha de nacimiento y género de
+# menores de edad. Los genera scripts/exportar-landolt.mjs
+landolt-*.csv
+
+# Folios del cuestionario de nuevo ingreso. CADA FOLIO ES UNA CONTRASEÑA: quien
+# lo tenga puede contestar por esa familia. Los genera scripts/alta-folios.mjs
+folios-*.csv
+
+# Cuestionarios contestados: CURP, salud del alumno y respuestas sobre violencia
+# y consumo de sustancias en el hogar. Lo más sensible de todo el proyecto.
+expedientes-*.csv
+
+# Resultados del diagnóstico integral: nombre, fecha de nacimiento y género de
+# menores, más su perfil de temperamento. Los genera
+# scripts/exportar-diagnostico.mjs
+diagnostico-*.csv
+
+# La clave de respuestas del cuadernillo de ingreso. No es un dato de nadie,
+# pero mientras el examen no se haya aplicado es justo lo que no debe circular.
+clave-*.csv
+
 # caché del CLI de Firebase
 .firebase/
