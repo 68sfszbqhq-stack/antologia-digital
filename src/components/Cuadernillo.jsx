@@ -73,6 +73,10 @@ export default function Cuadernillo({ onFinalizar, onAvance, respuestasIniciales
   const relojGuardado = useRef(null);
   const onAvanceRef = useRef(onAvance);
   onAvanceRef.current = onAvance;
+  // Lo último marcado, para que el aviso de cierre lo lea sin tener que
+  // depender de `respuestas` y rehacerse en cada toque.
+  const respuestasRef = useRef(respuestas);
+  respuestasRef.current = respuestas;
 
   /** Programa el envío a la nube; cada toque nuevo reinicia la cuenta. */
   const programarGuardado = useCallback((respuestasAhora) => {
@@ -83,12 +87,21 @@ export default function Cuadernillo({ onFinalizar, onAvance, respuestasIniciales
     }, ESPERA_GUARDADO);
   }, []);
 
-  // Si el alumno cierra la pestaña con un guardado pendiente, se manda ya.
+  /* Si el alumno cierra la pestaña con un guardado pendiente, se manda ya.
+   *
+   * OJO CON LAS DEPENDENCIAS DE ESTE EFECTO: tiene que ser `[]`, y las
+   * respuestas se leen de un ref. Cuando dependía de `respuestas`, el efecto se
+   * rehacía en CADA respuesta marcada, y su limpieza cancelaba el temporizador
+   * que `responder` acababa de programar dos líneas antes. Resultado: el
+   * guardado automático no se disparaba nunca y el alumno que se salía a media
+   * evaluación perdía las ochenta y ocho. Se veía bien en pantalla —el contador
+   * subía, el borrador local se escribía— y en la nube no llegaba nada. */
   useEffect(() => {
     const alSalir = () => {
       if (relojGuardado.current) {
         clearTimeout(relojGuardado.current);
-        onAvanceRef.current?.(armarEntrega(respuestas));
+        relojGuardado.current = null;
+        onAvanceRef.current?.(armarEntrega(respuestasRef.current));
       }
     };
     window.addEventListener('pagehide', alSalir);
@@ -96,7 +109,7 @@ export default function Cuadernillo({ onFinalizar, onAvance, respuestasIniciales
       window.removeEventListener('pagehide', alSalir);
       clearTimeout(relojGuardado.current);
     };
-  }, [respuestas]);
+  }, []);
 
   const responder = useCallback((n, letra) => {
     setRespuestas((prev) => {
