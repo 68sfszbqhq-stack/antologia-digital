@@ -326,11 +326,14 @@ const {
             <!-- El panel se protege con las reglas de Firestore, no escondiendo
                  el enlace: quien entre sin permiso no ve absolutamente nada. -->
             <div class="flex flex-col gap-2">
-              <a href={u("/profesor")} class="text-xs font-mono-tech text-slate-600 hover:text-cyan-400 transition">
-                Panel del profesor →
-              </a>
+              <!-- Los nombres dicen QUÉ hay en cada uno, no cómo se llama el
+                   panel: son dos tableros distintos y con "profesor" y
+                   "coordinación" a secas es fácil entrar al que no es. -->
               <a href={u("/coordinacion")} class="text-xs font-mono-tech text-slate-600 hover:text-cyan-400 transition">
-                Panel de coordinación →
+                Resultados de la evaluación diagnóstica →
+              </a>
+              <a href={u("/profesor")} class="text-xs font-mono-tech text-slate-600 hover:text-cyan-400 transition">
+                Calificaciones de los 8 módulos →
               </a>
             </div>
           </section>

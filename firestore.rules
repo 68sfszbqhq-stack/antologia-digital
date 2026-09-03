@@ -24,8 +24,21 @@ service cloud.firestore {
       return ['profesor'];
     }
 
+    // Correos que también entran como profesor, pensado para el botón de
+    // Google en /profesor. Google asigna un UID aleatorio, distinto del UID
+    // fijo de arriba, así que por ahí el reconocimiento tiene que ser por
+    // correo. Se exige email_verified: sin eso, cualquiera podría crear una
+    // cuenta declarando este correo y entrar. Google siempre lo trae en true.
+    function correosDeProfesor() {
+      return ['jose.mendoza.buap@gmail.com'];
+    }
+
     function esProfesor() {
-      return request.auth != null && request.auth.uid in profesores();
+      return request.auth != null && (
+        request.auth.uid in profesores() ||
+        (request.auth.token.email_verified == true &&
+         request.auth.token.email in correosDeProfesor())
+      );
     }
 
     function fichaAlumno() {
