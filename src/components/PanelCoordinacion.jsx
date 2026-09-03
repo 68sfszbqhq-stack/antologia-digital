@@ -8,6 +8,7 @@ import { auth, db } from '../lib/firebase';
 import { firebaseConfigurado } from '../lib/firebase-config';
 import { GRADOS } from '../lib/diagnostico-materias.js';
 import { TEMPERAMENTOS } from '../lib/temperamento.js';
+import { Barras, BarrasApiladas, Histograma, SERIE, MAGNITUD } from './Graficas.jsx';
 import {
   normalizarGrupo, claveGrupo, entregados, aMedias, conteo, redondear,
   resumenAtencion, resumenTemperamento, resumenAcademico, reactivosMasFallados,
@@ -319,6 +320,27 @@ function Cobertura({ filtrados, listos, pendientes }) {
         ))}
       </div>
 
+      {(() => {
+        const filas = porGrupo(filtrados).map((g) => ({
+          etiqueta: `${g.grado} · ${g.grupo}`,
+          partes: [g.entregados, g.aMedias],
+          total: g.alumnos,
+        }));
+        if (filas.length < 2) return null;
+        return (
+          <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <BarrasApiladas
+              titulo="Quiénes terminaron, por grupo"
+              filas={filas}
+              series={[
+                { nombre: 'Entregado', color: SERIE[0] },
+                { nombre: 'A medias', color: SERIE[1] },
+              ]}
+            />
+          </div>
+        );
+      })()}
+
       {pendientes.length > 0 && (
         <div className="mt-5 rounded-xl bg-amber-400/[0.06] border border-amber-400/20 p-4">
           <p className="text-xs font-mono-tech text-amber-300 uppercase tracking-widest mb-2">
@@ -453,6 +475,15 @@ function BloqueAtencion({ registros }) {
           </tbody>
         </table>
       </div>
+
+      <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <Histograma
+          titulo="Cómo se reparte el índice de atención"
+          nota="El promedio solo dice el centro. Esto dice si el grupo salió parejo o si hay dos grupos dentro del grupo, que es lo que cambia qué hacer en clase."
+          valores={registros.filter((r) => r.atencion).map((r) => Number(r.atencion.IA))}
+          min={0} max={1} tramos={10} sufijo=""
+        />
+      </div>
     </section>
   );
 }
@@ -462,7 +493,6 @@ function BloqueAtencion({ registros }) {
 function BloqueTemperamento({ registros }) {
   const r = useMemo(() => resumenTemperamento(registros), [registros]);
   if (!r) return null;
-  const COLOR = { sanguineo: 'bg-amber-400', colerico: 'bg-rose-400', melancolico: 'bg-violet-400', flematico: 'bg-emerald-400' };
 
   return (
     <section className={`${caja} p-5 sm:p-6 mb-6`}>
@@ -471,21 +501,16 @@ function BloqueTemperamento({ registros }) {
         Cómo se reparte el grupo · {r.n} alumno(s). Describe formas de reaccionar,
         no capacidades: no sirve para separar ni para etiquetar a nadie.
       </p>
-      <div className="space-y-3">
-        {r.filas.map((f) => (
-          <div key={f.id}>
-            <div className="flex items-center justify-between text-xs mb-1.5 gap-3">
-              <span className="text-slate-200">{f.nombre}</span>
-              <span className="font-mono-tech text-slate-500 shrink-0 tabular-nums">
-                {f.cuantos} · {f.porcentaje}% · puntaje medio {f.puntajeMedio}/30
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-              <div className={`h-full ${COLOR[f.id]} transition-all duration-700`} style={{ width: `${f.porcentaje}%` }} />
-            </div>
-          </div>
-        ))}
-      </div>
+      <Barras
+        filas={r.filas.map((f, i) => ({
+          etiqueta: f.nombre,
+          valor: f.porcentaje,
+          texto: `${f.cuantos} · ${f.porcentaje}%`,
+          color: SERIE[i % SERIE.length],
+          nota: `Puntaje medio del rasgo en todo el grupo: ${f.puntajeMedio}/30`,
+        }))}
+        max={100}
+      />
       {r.sinDominanteClaro > 0 && (
         <p className="text-[11px] text-slate-600 mt-4">
           {r.sinDominanteClaro} alumno(s) sin un temperamento claramente dominante
@@ -523,24 +548,26 @@ function BloqueAcademico({ registros, grado }) {
         <Dato valor={r.de ?? '—'} rotulo="Desv. est." />
       </div>
 
-      <p className="text-[11px] font-mono-tech text-slate-500 uppercase tracking-widest mb-3">
-        Por materia · de la más baja a la más alta
-      </p>
-      <div className="space-y-3 mb-6">
-        {r.materias.map((m) => (
-          <div key={m.id}>
-            <div className="flex items-center justify-between text-xs mb-1.5 gap-3">
-              <span className="text-slate-200 truncate">{m.nombre}</span>
-              <span className="font-mono-tech text-slate-500 shrink-0 tabular-nums">
-                {m.porcentaje}% · {m.reactivos} reactivos
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-              <div className={`h-full ${m.porcentaje >= 60 ? 'bg-cyan-400' : 'bg-amber-400'}`}
-                   style={{ width: `${m.porcentaje}%` }} />
-            </div>
-          </div>
-        ))}
+      <div className="mb-6">
+        <Barras
+          titulo="Por materia · de la más baja a la más alta"
+          filas={r.materias.map((m) => ({
+            etiqueta: m.nombre,
+            valor: m.porcentaje ?? 0,
+            texto: `${m.porcentaje}%`,
+            nota: `${m.reactivos} reactivos · ${m.n} alumno(s)`,
+          }))}
+          max={100}
+        />
+      </div>
+
+      <div className="mb-6">
+        <Histograma
+          titulo="Cómo se reparten las calificaciones"
+          nota="Un promedio de 60 puede ser todos en 60, o mitad en 30 y mitad en 90. Esto lo distingue."
+          valores={registros.filter((x) => x.academica && x.grado === grado).map((x) => Number(x.academica.porcentaje))}
+          min={0} max={100} tramos={10} sufijo="%"
+        />
       </div>
 
       {fallados.length > 0 && (
@@ -551,13 +578,16 @@ function BloqueAcademico({ registros, grado }) {
           <div className="space-y-2">
             {fallados.map((p) => (
               <div key={p.id} className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
-                <div className="flex items-start justify-between gap-3 mb-1">
+                <div className="flex items-start justify-between gap-3 mb-1.5">
                   <span className="text-[11px] font-mono-tech text-slate-500">{p.materia}</span>
-                  <span className={`text-xs font-mono-tech shrink-0 tabular-nums ${tono(p.porcentaje)}`}>
+                  <span className="text-xs font-mono-tech shrink-0 tabular-nums text-slate-400">
                     {p.porcentaje}% · {p.aciertos}/{p.respondieron}
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-snug">{p.texto}</p>
+                <p className="text-xs text-slate-300 leading-snug mb-2">{p.texto}</p>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#2c2c2a' }}>
+                  <div className="h-full rounded-full" style={{ width: `${p.porcentaje}%`, background: MAGNITUD }} />
+                </div>
               </div>
             ))}
           </div>
@@ -632,27 +662,25 @@ function BloqueCuadernillo({ registros, clave, onClave }) {
 
       {aviso && <p className="text-xs font-mono-tech text-cyan-400 mb-4">{aviso}</p>}
 
-      <p className="text-[11px] font-mono-tech text-slate-500 uppercase tracking-widest mb-3">Por área</p>
-      <div className="space-y-3">
-        {r.secciones.map((s) => {
-          const valor = s.porcentaje !== null ? s.porcentaje : (s.contestadas / s.reactivos) * 100;
-          return (
-            <div key={s.id}>
-              <div className="flex items-center justify-between text-xs mb-1.5 gap-3">
-                <span className="text-slate-200 truncate">{s.nombre}</span>
-                <span className="font-mono-tech text-slate-500 shrink-0 tabular-nums">
-                  {s.porcentaje !== null
-                    ? `${s.porcentaje}% de aciertos`
-                    : `${s.contestadas}/${s.reactivos} contestadas`}
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-                <div className={`h-full ${s.porcentaje !== null ? 'bg-cyan-400' : 'bg-slate-500'}`}
-                     style={{ width: `${Math.min(100, valor)}%` }} />
-              </div>
-            </div>
-          );
-        })}
+      <Barras
+        titulo="Por área"
+        filas={r.secciones.map((x) => ({
+          etiqueta: x.nombre,
+          valor: x.porcentaje !== null ? x.porcentaje : (x.contestadas / x.reactivos) * 100,
+          texto: x.porcentaje !== null
+            ? `${x.porcentaje}% de aciertos`
+            : `${x.contestadas} de ${x.reactivos} contestadas`,
+        }))}
+        max={100}
+      />
+
+      <div className="mt-6">
+        <Histograma
+          titulo="Cuántas alcanzó a contestar cada quien"
+          nota="Si muchos se quedan cortos, el problema fue el tiempo, no el contenido."
+          valores={registros.filter((x) => x.cuadernillo).map((x) => Number(x.cuadernillo.contestadas))}
+          min={0} max={r.total} tramos={11} sufijo=""
+        />
       </div>
     </section>
   );
@@ -950,24 +978,118 @@ function Descargas({ registros, clave }) {
     bajar('diagnostico-cuadernillo', filas);
   };
 
+  // ── segmentos sueltos ──────────────────────────────────────────
+  // Cada bloque del informe se puede bajar por su cuenta. Es lo que se pide en
+  // la práctica: Supervisión quiere la tabla de cobertura, orientación quiere
+  // los temperamentos y la academia quiere los reactivos fallados, y nadie
+  // quiere recortar a mano una hoja de cincuenta columnas.
+
+  const cobertura = () => {
+    const listos = entregados(registros);
+    const filas = [['Indicador', 'Valor']];
+    filas.push(['Registrados', registros.length]);
+    filas.push(['Entregados', listos.length]);
+    filas.push(['A medias', registros.length - listos.length]);
+    filas.push(['% que terminó', registros.length ? Math.round((listos.length / registros.length) * 100) : 0]);
+    filas.push([]);
+    filas.push(['Grado', 'Registrados', 'Entregados']);
+    for (const [g] of conteo(registros, (r) => r.grado)) {
+      filas.push([g, registros.filter((r) => r.grado === g).length, listos.filter((r) => r.grado === g).length]);
+    }
+    filas.push([]);
+    filas.push(['Turno', 'Registrados']);
+    for (const [t, c] of conteo(registros, (r) => r.turno)) filas.push([t, c]);
+    bajar('cobertura', filas);
+  };
+
+  const pendientesCSV = () => {
+    const filas = [['Correo', 'Nombre', 'Grado', 'Grupo', 'Turno', 'Atención', 'Temperamento', 'Evaluación', 'Cuadernillo']];
+    for (const r of aMedias(registros)) {
+      filas.push([r.correo, r.nombre, r.grado, normalizarGrupo(r.grupo), r.turno,
+        r.atencion ? 'hecho' : 'falta',
+        r.temperamento ? 'hecho' : 'falta',
+        r.academica ? 'hecho' : 'falta',
+        r.cuadernillo ? `${r.cuadernillo.contestadas}/${r.cuadernillo.total}` : 'falta']);
+    }
+    bajar('sin-terminar', filas);
+  };
+
+  const atencionCSV = () => {
+    const filas = [['Correo', 'Nombre', 'Grado', 'Grupo', 'Figura', 'Revisados N', 'Aciertos CA',
+      'Objetivos CT', 'Falsos', 'Omisiones', 'Errores n', 'Tiempo s', 'Ritmo S', 'Índice IA', 'Variante']];
+    for (const r of registros) {
+      const a = r.atencion;
+      if (!a) continue;
+      filas.push([r.correo, r.nombre, r.grado, normalizarGrupo(r.grupo), a.objetivo,
+        a.N, a.CA, a.CT, a.falsos, a.omisiones, a.n, a.T, a.S, a.IA, a.variante]);
+    }
+    bajar('atencion', filas);
+  };
+
+  const temperamentoCSV = () => {
+    const filas = [['Correo', 'Nombre', 'Grado', 'Grupo', 'Dominante', 'Secundario',
+      'Sin dominante claro', 'Sanguíneo', 'Colérico', 'Melancólico', 'Flemático']];
+    for (const r of registros) {
+      const t = r.temperamento;
+      if (!t) continue;
+      filas.push([r.correo, r.nombre, r.grado, normalizarGrupo(r.grupo),
+        TEMPERAMENTOS[t.dominante]?.nombre ?? t.dominante,
+        TEMPERAMENTOS[t.secundario]?.nombre ?? t.secundario,
+        t.empatado ? 'sí' : 'no',
+        t.puntos?.sanguineo ?? '', t.puntos?.colerico ?? '',
+        t.puntos?.melancolico ?? '', t.puntos?.flematico ?? '']);
+    }
+    bajar('temperamento', filas);
+  };
+
+  const materiasCSV = () => {
+    const filas = [['Grado', 'Materia', 'Reactivos', 'Alumnos', 'Promedio %', 'Desv. est.']];
+    for (const g of GRADOS.filter((x) => !x.cuadernillo)) {
+      const r = resumenAcademico(entregados(registros), g.id);
+      if (!r) continue;
+      for (const m of r.materias) {
+        filas.push([g.nombre, m.nombre, m.reactivos, m.n, m.porcentaje ?? '', m.de ?? '']);
+      }
+      filas.push([g.nombre, 'GENERAL', '', r.n, r.porcentaje, r.de ?? '']);
+      filas.push([]);
+    }
+    bajar('promedios-por-materia', filas);
+  };
+
+  const falladosCSV = () => {
+    const filas = [['Grado', 'Materia', 'Reactivo', 'Pregunta', 'Respondieron', 'Aciertos', '% de acierto']];
+    for (const g of GRADOS.filter((x) => !x.cuadernillo)) {
+      for (const p of reactivosMasFallados(entregados(registros), g.id, 100)) {
+        filas.push([g.nombre, p.materia, p.id, p.texto, p.respondieron, p.aciertos, p.porcentaje]);
+      }
+    }
+    bajar('reactivos-mas-fallados', filas);
+  };
+
   const botones = [
-    ['General', 'Un renglón por alumno con todo lo resumido', general],
-    ['Por grupo', 'Lo que suele pedir Supervisión', grupos],
+    ['Cobertura', 'Cuántos presentaron, por grado y turno', cobertura],
+    ['Sin terminar', 'Quiénes van a medias y qué bloque les falta', pendientesCSV],
+    ['Por grupo', 'La tabla que suele pedir Supervisión', grupos],
+    ['Atención', 'Todos los indicadores de Landolt, por alumno', atencionCSV],
+    ['Temperamento', 'Dominante y los cuatro puntajes, por alumno', temperamentoCSV],
+    ['Promedios por materia', 'Resumen de 2º y 3º con desviación', materiasCSV],
+    ['Reactivos más fallados', 'Qué hay que volver a enseñar', falladosCSV],
     ['Respuestas 2º y 3º', 'Reactivo por reactivo', respuestas],
     ['Cuadernillo 1º', 'Las 88, una columna cada una', cuadernillo],
+    ['General', 'Un renglón por alumno con todo', general],
   ];
 
   return (
     <section className={`${caja} p-5 sm:p-6 mb-6`}>
       <h2 className="text-lg font-bold text-white mb-1">Descargas</h2>
       <p className="text-xs text-slate-500 mb-5">
-        Salen con los filtros que tengas puestos arriba. Abren en Excel sin
-        romper los acentos.
+        Cada bloque por separado, con los filtros que tengas puestos arriba.
+        Abren directo en Excel sin romper los acentos.
       </p>
-      <div className="grid sm:grid-cols-2 gap-3">
+      <div className="grid sm:grid-cols-2 gap-2.5">
         {botones.map(([titulo, nota, fn]) => (
           <button key={titulo} onClick={fn}
-                  className="text-left rounded-xl bg-white/[0.03] border border-white/10 hover:border-cyan-400/40 hover:bg-cyan-400/5 p-4 transition">
+                  className="text-left rounded-xl bg-white/[0.03] border border-white/10 hover:border-cyan-400/40 hover:bg-cyan-400/5 p-3.5 transition">
             <span className="block text-sm font-semibold text-white mb-0.5">{titulo}</span>
             <span className="block text-xs text-slate-500">{nota}</span>
           </button>
