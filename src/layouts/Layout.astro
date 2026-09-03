@@ -325,9 +325,14 @@ const {
           <section style="border-top: 1px solid rgba(255,255,255,0.05);" class="pt-6">
             <!-- El panel se protege con las reglas de Firestore, no escondiendo
                  el enlace: quien entre sin permiso no ve absolutamente nada. -->
-            <a href={u("/profesor")} class="text-xs font-mono-tech text-slate-600 hover:text-cyan-400 transition">
-              Panel del profesor →
-            </a>
+            <div class="flex flex-col gap-2">
+              <a href={u("/profesor")} class="text-xs font-mono-tech text-slate-600 hover:text-cyan-400 transition">
+                Panel del profesor →
+              </a>
+              <a href={u("/coordinacion")} class="text-xs font-mono-tech text-slate-600 hover:text-cyan-400 transition">
+                Panel de coordinación →
+              </a>
+            </div>
           </section>
         </div>
       </div>

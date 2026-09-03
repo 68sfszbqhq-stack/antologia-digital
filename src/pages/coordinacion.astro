@@ -1,0 +1,26 @@
+---
+// Panel de coordinación: el informe de la evaluación diagnóstica.
+//
+// Va aparte de /profesor a propósito. Aquel es para dar clase; este es para
+// rendir cuentas a Supervisión. La seguridad no está en esta página sino en
+// firestore.rules: quien no sea el profesor no recibe ni un dato aunque llegue
+// hasta aquí.
+import Layout from "../layouts/Layout.astro";
+import PanelCoordinacion from "../components/PanelCoordinacion.jsx";
+import { u } from "../lib/url";
+---
+
+<Layout
+  title="Panel de coordinación"
+  description="Resultados y estadísticas de la evaluación diagnóstica."
+>
+  <div class="max-w-6xl mx-auto px-5 sm:px-6 py-10 sm:py-12">
+    <nav class="text-xs font-mono-tech text-slate-500 mb-8">
+      <a href={u("/")} class="hover:text-cyan-400 transition">Inicio</a>
+      <span class="mx-2">/</span>
+      <span class="text-slate-400">Coordinación</span>
+    </nav>
+
+    <PanelCoordinacion client:only="react" />
+  </div>
+</Layout>

@@ -680,7 +680,11 @@ function Ficha({ onListo, sinNube, bloques, nombreSugerido }) {
   const enviar = async (ev) => {
     ev.preventDefault();
     const nombre = v.nombre.trim().replace(/\s+/g, ' ');
-    const grupo = v.grupo.trim().toUpperCase();
+    // Se limpia aquí, al capturarlo, y no solo al contar: los alumnos escriben
+    // el grupo de todas las formas posibles —"1-A", "1 A", '"A"', "A."— y cada
+    // variante se vuelve un grupo distinto en los informes. Mejor que nazca
+    // limpio que andarlo arreglando después.
+    const grupo = v.grupo.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
     if (nombre.length < 5 || !nombre.includes(' ')) {
       setError('Escribe tu nombre completo, con apellidos.');
@@ -799,6 +803,9 @@ function Ficha({ onListo, sinNube, bloques, nombreSugerido }) {
                 onChange={cambiar('grupo')} placeholder="A" maxLength={4}
                 autoCapitalize="characters" className={campo}
               />
+              <p className="text-[11px] text-slate-600 mt-1.5">
+                Solo la letra o el número, sin comillas ni puntos.
+              </p>
             </div>
             <div>
               <label htmlFor="dg-turno" className={rotulo}>Turno</label>
