@@ -3,6 +3,7 @@ import TestAnillosLandolt from './TestAnillosLandolt.jsx';
 import TestTemperamento, { ResultadoTemperamento } from './TestTemperamento.jsx';
 import EvaluacionAcademica, { ResultadoAcademico } from './EvaluacionAcademica.jsx';
 import DiagnosticoInicial, { ResultadoInicial } from './DiagnosticoInicial.jsx';
+import TestChaside, { ResultadoChaside } from './TestChaside.jsx';
 
 /* El cuadernillo se carga aparte, y solo cuando un alumno de primer año llega a
  * él. NO es una optimización de peso: es lo que permite que el sitio funcione en
@@ -29,6 +30,9 @@ import {
 import {
   perfilPrevio, abrirPerfil, guardarAvancePerfil, entregarPerfil,
 } from '../lib/perfil';
+import {
+  vocacionalPrevio, abrirVocacional, guardarAvanceVocacional, entregarVocacional,
+} from '../lib/vocacional';
 
 /* La sesión completa de diagnóstico, de principio a fin.
  *
@@ -84,6 +88,7 @@ export default function DiagnosticoIntegral() {
   // llegó después de que 41 alumnos ya habían entregado, y su evaluación quedó
   // congelada a propósito. Ver src/lib/perfil.ts.
   const [perfil, setPerfil] = useState(null);
+  const [vocacional, setVocacional] = useState(null);
 
   const entregaRef = useRef(entrega);
   entregaRef.current = entrega;
@@ -129,10 +134,13 @@ export default function DiagnosticoIntegral() {
 
       // El perfil se busca siempre, haya entregado o no: es una sección aparte.
       try {
-        const pr = await perfilPrevio(usuario.uid, a.abierta);
-        if (vivo) setPerfil(pr);
+        const [pr, vo] = await Promise.all([
+          perfilPrevio(usuario.uid, a.abierta),
+          vocacionalPrevio(usuario.uid, a.abierta),
+        ]);
+        if (vivo) { setPerfil(pr); setVocacional(vo); }
       } catch (e) {
-        console.error('[diagnóstico] no se pudo leer el perfil:', e);
+        console.error('[diagnóstico] no se pudieron leer las secciones nuevas:', e);
       }
       if (!vivo) return;
 
@@ -445,6 +453,58 @@ export default function DiagnosticoIntegral() {
     );
   }
 
+  if (fase === 'vocacional') {
+    return (
+      <>
+        <Identificado usuario={usuario} onSalir={cambiarDeCuenta} />
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest">
+            Sección nueva
+          </span>
+          <span className="h-px flex-1 bg-white/10" />
+          <span className="text-xs font-mono-tech text-slate-500">Orientación vocacional</span>
+        </div>
+        <TestChaside
+          respuestasIniciales={vocacional?.respuestas ?? null}
+          onAvance={async (respuestas) => {
+            if (!hayFirebase || !usuario || !ajustes?.abierta) return;
+            try {
+              if (!vocacional) {
+                await abrirVocacional(usuario, ajustes.abierta, {
+                  nombre: ficha?.nombre ?? '', grado: ficha?.grado ?? '', grupo: ficha?.grupo ?? '',
+                });
+                setVocacional({ estado: 'en curso', respuestas });
+              }
+              await guardarAvanceVocacional(usuario.uid, ajustes.abierta, { respuestas });
+            } catch (e) {
+              console.error('[vocacional] no se pudo guardar el avance:', e);
+            }
+          }}
+          onFinalizar={async (r) => {
+            setVocacional({ ...r, estado: 'entregado' });
+            setFase('fin');
+            if (!hayFirebase || !usuario || !ajustes?.abierta) return;
+            try {
+              if (!vocacional) {
+                await abrirVocacional(usuario, ajustes.abierta, {
+                  nombre: ficha?.nombre ?? '', grado: ficha?.grado ?? '', grupo: ficha?.grupo ?? '',
+                });
+              }
+              await entregarVocacional(usuario.uid, ajustes.abierta, {
+                puntajes: r.puntajes,
+                dominantes: r.dominantes,
+                empateEnSegundo: r.empateEnSegundo,
+                respuestas: r.respuestas,
+              });
+            } catch (e) {
+              setDetalleFalla(mensajeDiagnostico(e));
+            }
+          }}
+        />
+      </>
+    );
+  }
+
   /* ── fin ─────────────────────────────────────────────────────── */
 
   return (
@@ -458,6 +518,8 @@ export default function DiagnosticoIntegral() {
         yaEstaba={yaEstaba}
         perfil={perfil}
         onPerfil={() => setFase('perfil')}
+        vocacional={vocacional}
+        onVocacional={() => setFase('vocacional')}
       />
     </>
   );
@@ -600,7 +662,7 @@ function Paso({ n, de, titulo }) {
   );
 }
 
-function Cierre({ ficha, entrega, estado, detalle, yaEstaba, perfil, onPerfil }) {
+function Cierre({ ficha, entrega, estado, detalle, yaEstaba, perfil, onPerfil, vocacional, onVocacional }) {
   const [bajado, setBajado] = useState(false);
 
   const descargar = () => {
@@ -639,28 +701,43 @@ function Cierre({ ficha, entrega, estado, detalle, yaEstaba, perfil, onPerfil })
         </h2>
       </header>
 
-      {/* La sección nueva va ARRIBA de los resultados, no al final: quien ya
-          entregó ayer entra a ver lo suyo y se toparía con el aviso hasta
-          abajo, después de tres bloques de gráficas. */}
-      {perfil?.estado !== 'entregado' && (
-        <div className="glass-card rounded-2xl p-5 sm:p-6 border border-cyan-400/40 mb-6">
+      {/* Las secciones nuevas van ARRIBA de los resultados, no al final: quien
+          ya entregó entra a ver lo suyo y se toparía con el aviso hasta abajo,
+          después de tres bloques de gráficas.
+
+          Se arman desde una lista y no como bloques copiados, porque los
+          instrumentos siguen llegando de uno en uno: el que siga se agrega aquí
+          con tres líneas. */}
+      {[
+        {
+          id: 'perfil', doc: perfil, ir: onPerfil,
+          titulo: 'Cómo y en qué condiciones estudias',
+          nota: '34 preguntas, sin respuestas correctas y sin reloj.',
+        },
+        {
+          id: 'vocacional', doc: vocacional, ir: onVocacional,
+          titulo: 'Orientación vocacional',
+          nota: '98 preguntas de sí o no. Dice hacia dónde se inclinan tus intereses.',
+        },
+      ].filter((x) => x.doc?.estado !== 'entregado').map((x) => (
+        <div key={x.id} className="glass-card rounded-2xl p-5 sm:p-6 border border-cyan-400/40 mb-4">
           <span className="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-2">
             // Sección nueva
           </span>
-          <h3 className="text-lg font-bold text-white mb-2">Falta una parte</h3>
+          <h3 className="text-lg font-bold text-white mb-2">{x.titulo}</h3>
           <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            Se agregó una sección sobre cómo estudias y con qué condiciones cuentas:
-            34 preguntas, sin respuestas correctas y sin reloj. No toca nada de lo que
-            ya entregaste{perfil ? ', y lo que llevabas contestado sigue guardado' : ''}.
+            {x.nota} No toca nada de lo que ya entregaste
+            {x.doc ? ', y lo que llevabas contestado sigue guardado' : ''}.
           </p>
-          <button type="button" onClick={onPerfil} className="btn-primary px-6 py-3">
-            {perfil ? 'Continuar esa sección' : 'Contestarla ahora'}
+          <button type="button" onClick={x.ir} className="btn-primary px-6 py-3">
+            {x.doc ? 'Continuar esa sección' : 'Contestarla ahora'}
           </button>
         </div>
-      )}
+      ))}
 
       <div className="space-y-6">
         {perfil?.estado === 'entregado' && <ResultadoInicial r={perfil} />}
+        {vocacional?.estado === 'entregado' && <ResultadoChaside r={vocacional} />}
         {entrega.atencion && <ResumenAtencion a={entrega.atencion} />}
         {entrega.temperamento && <ResultadoTemperamento perfil={entrega.temperamento} />}
         {entrega.academica && <ResultadoAcademico resultado={entrega.academica} />}

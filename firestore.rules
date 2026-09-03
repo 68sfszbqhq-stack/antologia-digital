@@ -424,6 +424,59 @@ service cloud.firestore {
       allow delete: if esProfesor();
     }
 
+    // ─── Test vocacional CHASIDE ──────────────────────────────────────────
+    //
+    // Su propia colección, igual que /perfiles y por lo mismo: los instrumentos
+    // llegan de uno en uno, y quien ya entregó lo anterior tiene que poder
+    // contestar lo nuevo sin descongelar nada. El candado es el de siempre: en
+    // cuanto pasa a 'entregado', no se acepta un cambio más.
+
+    function vocacionalBienFormado() {
+      let d = request.resource.data;
+      return d.nombre is string && d.nombre.size() <= 80
+        && d.grado is string  && d.grado in ['1ero', '2do', '3ero']
+        && d.grupo is string  && d.grupo.size() <= 6
+        && d.correo is string && d.correo.size() <= 120
+        && d.respuestas is map && d.respuestas.keys().size() <= 98;
+    }
+
+    match /vocacional/{registroId} {
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      allow list: if esProfesor();
+
+      allow create: if request.auth != null
+        && registroId == request.auth.uid + '_' + string(request.resource.data.aplicacion)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.correo == request.auth.token.email
+        && request.resource.data.estado == 'en curso'
+        && diagnosticoAbierto(request.resource.data.aplicacion)
+        && request.resource.data.aplicacion is int
+        && vocacionalBienFormado()
+        && request.resource.data.iniciado == request.time
+        && request.resource.data.actualizado == request.time;
+
+      allow update: if esProfesor() || (
+        request.auth != null
+        && resource.data.uid == request.auth.uid
+        && resource.data.estado == 'en curso'
+        && diagnosticoAbierto(resource.data.aplicacion)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.correo == resource.data.correo
+        && request.resource.data.aplicacion == resource.data.aplicacion
+        && request.resource.data.estado in ['en curso', 'entregado']
+        && request.resource.data.keys().hasOnly([
+             'aplicacion', 'uid', 'correo', 'estado', 'nombre', 'grado', 'grupo',
+             'respuestas', 'puntajes', 'dominantes', 'empateEnSegundo',
+             'iniciado', 'actualizado', 'entregado'])
+        && vocacionalBienFormado()
+        && request.resource.data.actualizado == request.time
+      );
+
+      allow delete: if esProfesor();
+    }
+
     // ─── Expediente de nuevo ingreso (cuestionario a padres) ───────────────
     //
     // Aquí sí hay credencial: cada familia entra con un folio que reparte la
