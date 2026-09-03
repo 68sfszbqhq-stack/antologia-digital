@@ -43,9 +43,13 @@ export default function DiagnosticoInicial({
   // reactivos y escribir en cada uno sería una escritura por toque.
   const guardar = (a, b, p) => onAvance?.({ respuestasA: a, respuestasB: b, respuestasApoyo: p });
 
-  const responderA = (id, v) => { const s = { ...A, [id]: v }; setA(s); setRegano(false); };
-  const responderB = (id, v) => { const s = { ...B, [id]: v }; setB(s); setRegano(false); };
-  const responderAp = (id, v) => { const s = { ...ap, [id]: v }; setAp(s); setRegano(false); };
+  /* Los tres actualizan con función y no leyendo el estado de fuera. No es
+   * estilo: React agrupa los cambios, así que dos toques seguidos antes de que
+   * se vuelva a dibujar leerían el MISMO estado viejo y el primero se perdería.
+   * En un celular lento —que es justo donde esto se aplica— pasa de verdad. */
+  const responderA = (id, v) => { setA((p) => ({ ...p, [id]: v })); setRegano(false); };
+  const responderB = (id, v) => { setB((p) => ({ ...p, [id]: v })); setRegano(false); };
+  const responderAp = (id, v) => { setAp((p) => ({ ...p, [id]: v })); setRegano(false); };
 
   /** Qué falta en la pantalla actual. */
   const faltantes = useMemo(() => {
