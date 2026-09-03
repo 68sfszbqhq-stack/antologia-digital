@@ -434,7 +434,10 @@ service cloud.firestore {
     function vocacionalBienFormado() {
       let d = request.resource.data;
       return d.nombre is string && d.nombre.size() <= 80
-        && d.grado is string  && d.grado in ['1ero', '2do', '3ero']
+        // Solo tercero. Va en las reglas y no solo en la pantalla: esconder el
+        // botón no impide que alguien mande el documento desde la consola, y un
+        // CHASIDE de segundo ensuciaría el informe vocacional del plantel.
+        && d.grado == '3ero'
         && d.grupo is string  && d.grupo.size() <= 6
         && d.correo is string && d.correo.size() <= 120
         && d.respuestas is map && d.respuestas.keys().size() <= 98;

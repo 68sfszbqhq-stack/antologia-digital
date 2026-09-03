@@ -454,6 +454,9 @@ export default function DiagnosticoIntegral() {
   }
 
   if (fase === 'vocacional') {
+    // Guarda por si se llega aquí por otro camino: la lista de arriba ya la
+    // esconde, pero la pantalla no debe depender de que la lista se porte bien.
+    if (ficha?.grado !== '3ero') { setFase('fin'); return null; }
     return (
       <>
         <Identificado usuario={usuario} onSalir={cambiarDeCuenta} />
@@ -711,15 +714,19 @@ function Cierre({ ficha, entrega, estado, detalle, yaEstaba, perfil, onPerfil, v
       {[
         {
           id: 'perfil', doc: perfil, ir: onPerfil,
+          soloSi: true, // este va para los tres grados
           titulo: 'Cómo y en qué condiciones estudias',
           nota: '34 preguntas, sin respuestas correctas y sin reloj.',
         },
         {
           id: 'vocacional', doc: vocacional, ir: onVocacional,
+          // Solo tercero: es el año en que se decide la carrera, y aplicarlo
+          // antes mide un interés que todavía se está formando.
+          soloSi: ficha?.grado === '3ero',
           titulo: 'Orientación vocacional',
           nota: '98 preguntas de sí o no. Dice hacia dónde se inclinan tus intereses.',
         },
-      ].filter((x) => x.doc?.estado !== 'entregado').map((x) => (
+      ].filter((x) => x.soloSi !== false && x.doc?.estado !== 'entregado').map((x) => (
         <div key={x.id} className="glass-card rounded-2xl p-5 sm:p-6 border border-cyan-400/40 mb-4">
           <span className="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-2">
             // Sección nueva
