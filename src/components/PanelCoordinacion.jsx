@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged,
   setPersistence, browserLocalPersistence,
 } from 'firebase/auth';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
@@ -8,11 +8,13 @@ import { auth, db } from '../lib/firebase';
 import { firebaseConfigurado } from '../lib/firebase-config';
 import { GRADOS } from '../lib/diagnostico-materias.js';
 import { TEMPERAMENTOS } from '../lib/temperamento.js';
+import { SUBESCALAS, NIVELES } from '../lib/diagnostico-inicial.js';
+import { AREAS as AREAS_CHASIDE } from '../lib/chaside.js';
 import { Barras, BarrasApiladas, Histograma, SERIE, MAGNITUD } from './Graficas.jsx';
 import {
   normalizarGrupo, claveGrupo, entregados, aMedias, conteo, redondear,
   resumenAtencion, resumenTemperamento, resumenAcademico, reactivosMasFallados,
-  resumenCuadernillo, leerClave, porGrupo,
+  resumenCuadernillo, leerClave, porGrupo, resumenPerfil, resumenVocacional,
 } from '../lib/estadisticas.js';
 
 /* Panel de coordinación: lo que hay que entregarle a Supervisión.
@@ -41,6 +43,8 @@ export default function PanelCoordinacion() {
   const hayFirebase = firebaseConfigurado();
   const [usuario, setUsuario] = useState(hayFirebase ? undefined : null);
   const [registros, setRegistros] = useState(null);
+  const [perfiles, setPerfiles] = useState([]);
+  const [vocacionales, setVocacionales] = useState([]);
   const [config, setConfig] = useState(null);
   const [error, setError] = useState('');
   const [clave, setClave] = useState(null);
@@ -68,8 +72,16 @@ export default function PanelCoordinacion() {
       // evaluación está cerrada cuando no lo está es peor que no decir nada.
       const cfg = await getDoc(doc(db(), 'config', 'diagnostico')).catch(() => null);
       setConfig(cfg?.exists() ? cfg.data() : null);
-      const snap = await getDocs(collection(db(), 'diagnosticos'));
+      const [snap, snapP, snapV] = await Promise.all([
+        getDocs(collection(db(), 'diagnosticos')),
+        getDocs(collection(db(), 'perfiles')).catch(() => null),
+        getDocs(collection(db(), 'vocacional')).catch(() => null),
+      ]);
       setRegistros(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      // Las secciones nuevas se piden con `catch`: llegaron después y puede que
+      // todavía no tengan ni un documento. Que falten no debe tumbar el panel.
+      setPerfiles(snapP ? snapP.docs.map((d) => ({ id: d.id, ...d.data() })) : []);
+      setVocacionales(snapV ? snapV.docs.map((d) => ({ id: d.id, ...d.data() })) : []);
     } catch (e) {
       setError(
         e?.code === 'permission-denied'
@@ -98,6 +110,16 @@ export default function PanelCoordinacion() {
   // Casi todo el informe se calcula SOLO sobre los entregados: incluir a quien
   // va a la mitad bajaría todos los promedios por una razón que no es académica.
   const listos = useMemo(() => entregados(filtrados), [filtrados]);
+
+  // Las secciones nuevas se filtran por los mismos criterios, comparando contra
+  // el conjunto de correos que sobrevivió al filtro: así "solo 3ero B" recorta
+  // las tres cosas a la vez y los números de la pantalla siempre cuadran entre sí.
+  const correosVisibles = useMemo(
+    () => new Set(filtrados.map((r) => r.correo).filter(Boolean)), [filtrados]);
+  const perfilesF = useMemo(
+    () => perfiles.filter((p) => correosVisibles.has(p.correo)), [perfiles, correosVisibles]);
+  const vocacionalesF = useMemo(
+    () => vocacionales.filter((v) => correosVisibles.has(v.correo)), [vocacionales, correosVisibles]);
   const pendientes = useMemo(() => aMedias(filtrados), [filtrados]);
 
   /* ── pantallas ───────────────────────────────────────────────── */
@@ -153,11 +175,23 @@ export default function PanelCoordinacion() {
 
       <BloqueCuadernillo registros={listos} clave={clave} onClave={setClave} />
 
-      <TablaAlumnos registros={filtrados} onVer={setDetalle} clave={clave} />
+      <BloquePerfil perfiles={perfilesF} />
 
-      <Descargas registros={filtrados} clave={clave} />
+      <BloqueVocacional registros={vocacionalesF} />
 
-      {detalle && <FichaAlumno r={detalle} clave={clave} onCerrar={() => setDetalle(null)} />}
+      <TablaAlumnos registros={filtrados} onVer={setDetalle} clave={clave}
+                    perfiles={perfilesF} vocacionales={vocacionalesF} />
+
+      <Descargas registros={filtrados} clave={clave}
+                 perfiles={perfilesF} vocacionales={vocacionalesF} />
+
+      {detalle && (
+        <FichaAlumno
+          r={detalle} clave={clave} onCerrar={() => setDetalle(null)}
+          perfil={perfiles.find((p) => p.correo === detalle.correo)}
+          vocacional={vocacionales.find((v) => v.correo === detalle.correo)}
+        />
+      )}
     </div>
   );
 }
@@ -213,6 +247,28 @@ function Entrada({ error }) {
           {ocupado ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
+
+      <button
+        type="button"
+        onClick={async () => {
+          if (!correo.trim()) { setMsg('Escribe tu correo arriba y vuelve a tocar aquí.'); return; }
+          try {
+            await sendPasswordResetEmail(auth(), correo.trim());
+            setMsg(`Te mandé un correo a ${correo.trim()} para restablecer la contraseña.`);
+          } catch (e) {
+            setMsg(`No se pudo enviar (${e?.code ?? e}).`);
+          }
+        }}
+        className="text-xs font-mono-tech text-slate-500 hover:text-cyan-400 transition mt-5 block mx-auto"
+      >
+        Olvidé mi contraseña
+      </button>
+
+      <p className="text-[11px] text-slate-600 leading-relaxed mt-5 text-center">
+        Es la cuenta de correo y contraseña del profesor, no el botón de Google:
+        si entras con Google, Firebase te da otra identidad distinta y las reglas
+        no la reconocen.
+      </p>
     </div>
   );
 }
@@ -408,7 +464,9 @@ function TablaGrupos({ registros }) {
               <th className="text-right py-2 px-3">Entregados</th>
               <th className="text-right py-2 px-3">A medias</th>
               <th className="text-right py-2 px-3">Atención (IA)</th>
-              <th className="text-right py-2 pl-3">Evaluación</th>
+              <th className="text-right py-2 px-3">Evaluación</th>
+              <th className="text-center py-2 px-3">Perfil</th>
+              <th className="text-left py-2 pl-3">Vocacional</th>
             </tr>
           </thead>
           <tbody className="text-slate-300">
@@ -692,9 +750,162 @@ function BloqueCuadernillo({ registros, clave, onClave }) {
   );
 }
 
+/* ── perfil socioemocional ───────────────────────────────────── */
+
+function BloquePerfil({ perfiles }) {
+  const r = useMemo(() => resumenPerfil(perfiles, SUBESCALAS), [perfiles]);
+  if (!r) return null;
+
+  return (
+    <section className={`${caja} p-5 sm:p-6 mb-6`}>
+      <h2 className="text-lg font-bold text-white mb-1">Cómo y en qué condiciones estudian</h2>
+      <p className="text-xs text-slate-500 mb-5">
+        {r.n} entregados{r.aMedias ? ` · ${r.aMedias} a medias` : ''}. Se reporta cuántos
+        alumnos caen en cada nivel y no el promedio: un promedio «medio» puede
+        esconder a diez alumnos en nivel bajo.
+      </p>
+
+      <p className="text-[11px] font-mono-tech text-slate-500 uppercase tracking-widest mb-3">
+        Por subescala · lo más urgente arriba
+      </p>
+      <div className="space-y-4 mb-6">
+        {r.subescalas.map((sub) => {
+          const { bajo, medio, alto } = sub.niveles;
+          return (
+            <div key={sub.id}>
+              <div className="flex items-center justify-between text-xs mb-1.5 gap-3">
+                <span className="text-slate-200 truncate">{sub.nombre}</span>
+                <span className="font-mono-tech text-slate-500 shrink-0 tabular-nums">
+                  {sub.pctBajo}% en nivel bajo · promedio {sub.promedio}%
+                </span>
+              </div>
+              <div className="flex h-2 rounded-full overflow-hidden" style={{ background: '#2c2c2a', gap: 2 }}>
+                {[[bajo, '#d95926'], [medio, '#3987e5'], [alto, '#199e70']].map(([v, color], i) =>
+                  v > 0 ? (
+                    <div key={i} title={`${['Bajo','Medio','Alto'][i]}: ${v}`}
+                         style={{ width: `${(v / sub.n) * 100}%`, background: color, borderRadius: '9999px' }} />
+                  ) : null)}
+              </div>
+              <p className="text-[11px] text-slate-600 mt-1 tabular-nums">
+                {bajo} bajo · {medio} medio · {alto} alto
+              </p>
+            </div>
+          );
+        })}
+      </div>
+      <Leyenda series={[
+        { nombre: 'Bajo', color: '#d95926' },
+        { nombre: 'Medio', color: '#3987e5' },
+        { nombre: 'Alto', color: '#199e70' },
+      ]} />
+
+      {r.banderas.length > 0 && (
+        <div className="mt-6">
+          <p className="text-[11px] font-mono-tech text-slate-500 uppercase tracking-widest mb-3">
+            Condiciones que se repiten
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {r.banderas.map((b) => (
+              <span key={b.motivo}
+                    className={`text-[11px] font-mono-tech px-2.5 py-1.5 rounded-lg border ${
+                      b.color === 'roja'
+                        ? 'bg-rose-400/10 text-rose-300 border-rose-400/30'
+                        : 'bg-amber-400/10 text-amber-300 border-amber-400/30'}`}>
+                {b.color === 'roja' ? '🔴' : '🟡'} {b.motivo} · <b>{b.cuantas}</b> ({b.porcentaje}%)
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {r.seguimiento.length > 0 && (
+        <div className="mt-6 rounded-xl bg-rose-400/[0.06] border border-rose-400/25 p-4">
+          <p className="text-xs font-mono-tech text-rose-300 uppercase tracking-widest mb-2">
+            Prioridad de seguimiento · {r.seguimiento.length} alumno(s)
+          </p>
+          <p className="text-xs text-slate-400 leading-relaxed mb-3">
+            Dos o más banderas rojas. Es el corte que pide el instrumento para
+            atender primero; conviene una charla individual antes de que se
+            acumule el rezago.
+          </p>
+          <div className="space-y-2">
+            {r.seguimiento.map((a) => (
+              <div key={a.correo} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                <div className="flex items-baseline justify-between gap-3 mb-1">
+                  <span className="text-sm text-white">{a.nombre}</span>
+                  <span className="text-[11px] font-mono-tech text-slate-500 shrink-0">
+                    {a.grado} · {a.grupo} · {a.rojas} rojas
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  {a.motivos.join(' · ')}
+                  {a.bajas.length ? ` — bajo en: ${a.bajas.join(', ')}` : ''}
+                </p>
+                <p className="text-[11px] font-mono-tech text-slate-600 mt-1">{a.correo}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ── vocacional ──────────────────────────────────────────────── */
+
+function BloqueVocacional({ registros }) {
+  const r = useMemo(() => resumenVocacional(registros, AREAS_CHASIDE), [registros]);
+  if (!r) return null;
+
+  return (
+    <section className={`${caja} p-5 sm:p-6 mb-6`}>
+      <h2 className="text-lg font-bold text-white mb-1">Orientación vocacional · Tercer año</h2>
+      <p className="text-xs text-slate-500 mb-5">
+        CHASIDE · {r.n} entregados{r.aMedias ? ` · ${r.aMedias} a medias` : ''}. Cada alumno
+        aporta dos áreas dominantes, así que los porcentajes suman más de 100: cada
+        uno dice en cuántos alumnos aparece esa área.
+      </p>
+
+      <Barras
+        titulo="Hacia dónde apunta el grupo"
+        filas={r.areas.map((a) => ({
+          etiqueta: `${a.id} · ${a.nombre}`,
+          valor: a.porcentaje,
+          texto: `${a.dominante} alumno(s) · ${a.porcentaje}%`,
+          nota: `Puntaje medio ${a.puntajeMedio} de ${a.max}`,
+        }))}
+        max={100}
+      />
+
+      {r.empatados.length > 0 && (
+        <div className="mt-6 rounded-xl bg-amber-400/[0.06] border border-amber-400/25 p-4">
+          <p className="text-xs font-mono-tech text-amber-300 uppercase tracking-widest mb-2">
+            Sin perfil claro · {r.empatados.length} alumno(s)
+          </p>
+          <p className="text-xs text-slate-400 leading-relaxed mb-3">
+            Empataron en el segundo lugar, así que su segunda área dominante es
+            arbitraria. Con estos conviene conversar, no entregarles un dictamen.
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {r.empatados.map((a) => (
+              <span key={a.correo}
+                    className="text-[11px] font-mono-tech px-2.5 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/5">
+                {a.nombre} · {a.grupo} · {a.dominantes.join('/')}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 /* ── tabla de alumnos ────────────────────────────────────────── */
 
-function TablaAlumnos({ registros, onVer, clave }) {
+function TablaAlumnos({ registros, onVer, clave, perfiles = [], vocacionales = [] }) {
+  const porCorreo = (lista) => new Map(lista.map((x) => [x.correo, x]));
+  const mapaP = useMemo(() => porCorreo(perfiles), [perfiles]);
+  const mapaV = useMemo(() => porCorreo(vocacionales), [vocacionales]);
   const [busca, setBusca] = useState('');
   const filas = useMemo(() => {
     const t = busca.trim().toLowerCase();
@@ -759,10 +970,28 @@ function TablaAlumnos({ registros, onVer, clave }) {
                 <td className="py-2.5 px-3 text-[11px]">
                   {r.temperamento ? (TEMPERAMENTOS[r.temperamento.dominante]?.nombre ?? '—') : '—'}
                 </td>
-                <td className="py-2.5 pl-3 text-right tabular-nums">
+                <td className="py-2.5 px-3 text-right tabular-nums">
                   {r.academica ? `${r.academica.porcentaje}%`
                     : r.cuadernillo ? `${r.cuadernillo.contestadas}/${r.cuadernillo.total}`
                     : '—'}
+                </td>
+                <td className="py-2.5 px-3 text-center">
+                  {(() => {
+                    const p = mapaP.get(r.correo);
+                    if (!p) return <span className="text-slate-700">—</span>;
+                    if (p.estado !== 'entregado') return <span className="text-[11px] text-amber-400">a medias</span>;
+                    return (p.rojas ?? 0) >= 2
+                      ? <span className="text-[11px] font-mono-tech text-rose-300">{p.rojas} rojas</span>
+                      : <span className="text-[11px] text-emerald-400">✓</span>;
+                  })()}
+                </td>
+                <td className="py-2.5 pl-3 text-[11px] font-mono-tech">
+                  {(() => {
+                    const v = mapaV.get(r.correo);
+                    if (!v) return <span className="text-slate-700">—</span>;
+                    if (v.estado !== 'entregado') return <span className="text-amber-400">a medias</span>;
+                    return <span className="text-slate-300">{(v.dominantes ?? []).join(' · ')}</span>;
+                  })()}
                 </td>
               </tr>
             ))}
@@ -776,7 +1005,7 @@ function TablaAlumnos({ registros, onVer, clave }) {
 
 /* ── ficha de un alumno ──────────────────────────────────────── */
 
-function FichaAlumno({ r, clave, onCerrar }) {
+function FichaAlumno({ r, clave, onCerrar, perfil, vocacional }) {
   useEffect(() => {
     const t = (e) => { if (e.key === 'Escape') onCerrar(); };
     document.addEventListener('keydown', t);
@@ -842,6 +1071,42 @@ function FichaAlumno({ r, clave, onCerrar }) {
             </Bloque>
           )}
 
+          {perfil?.estado === 'entregado' && (
+            <Bloque titulo="Cómo y en qué condiciones estudia">
+              <Campos filas={SUBESCALAS.map((sub) => {
+                const v = perfil.puntajes?.[sub.id];
+                return [sub.nombre, v ? `${v.porcentaje}% · ${NIVELES[v.nivel]?.nombre ?? '—'}` : '—'];
+              })} />
+              {(perfil.banderas ?? []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {perfil.banderas.map((b, i) => (
+                    <span key={b.id + i}
+                          className={`text-[11px] font-mono-tech px-2 py-1 rounded border ${
+                            b.color === 'roja'
+                              ? 'bg-rose-400/10 text-rose-300 border-rose-400/30'
+                              : 'bg-amber-400/10 text-amber-300 border-amber-400/30'}`}>
+                      {b.color === 'roja' ? '🔴' : '🟡'} {b.motivo}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Bloque>
+          )}
+
+          {vocacional?.estado === 'entregado' && (
+            <Bloque titulo={`Vocacional · ${(vocacional.dominantes ?? []).join(' y ')}`}>
+              <Campos filas={AREAS_CHASIDE.map((a) => {
+                const v = vocacional.puntajes?.[a.id];
+                return [`${a.id} · ${a.nombre}`, v ? `${v.total}/${v.max}` : '—'];
+              })} />
+              {vocacional.empateEnSegundo && (
+                <p className="text-[11px] text-amber-300 mt-3 leading-relaxed">
+                  Empató en el segundo lugar: esa segunda área no es concluyente.
+                </p>
+              )}
+            </Bloque>
+          )}
+
           {r.cuadernillo && (
             <Bloque titulo={`Cuadernillo · ${r.cuadernillo.contestadas}/${r.cuadernillo.total} contestadas`}>
               <div className="grid grid-cols-8 sm:grid-cols-11 gap-1">
@@ -893,7 +1158,7 @@ function Campos({ filas }) {
 
 /* ── descargas ───────────────────────────────────────────────── */
 
-function Descargas({ registros, clave }) {
+function Descargas({ registros, clave, perfiles = [], vocacionales = [] }) {
   const bajar = (nombre, filas) => {
     const esc = (x) => {
       const s = String(x ?? '');
@@ -1072,6 +1337,56 @@ function Descargas({ registros, clave }) {
     bajar('reactivos-mas-fallados', filas);
   };
 
+  const perfilCSV = () => {
+    const listos = perfiles.filter((p) => p.estado === 'entregado');
+    if (!listos.length) return;
+    const filas = [[
+      'Correo', 'Nombre', 'Grado', 'Grupo',
+      ...SUBESCALAS.flatMap((s) => [`${s.nombre} %`, `${s.nombre} nivel`]),
+      'Banderas rojas', 'Banderas amarillas', 'Motivos',
+    ]];
+    for (const p of listos) {
+      filas.push([
+        p.correo, p.nombre, p.grado, normalizarGrupo(p.grupo),
+        ...SUBESCALAS.flatMap((s) => {
+          const v = p.puntajes?.[s.id];
+          return [v?.porcentaje ?? '', v?.nivel ?? ''];
+        }),
+        p.rojas ?? 0, p.amarillas ?? 0,
+        (p.banderas ?? []).map((b) => b.motivo).join(' · '),
+      ]);
+    }
+    bajar('perfil-socioemocional', filas);
+  };
+
+  const seguimientoCSV = () => {
+    const r = resumenPerfil(perfiles, SUBESCALAS);
+    if (!r?.seguimiento.length) return;
+    const filas = [['Correo', 'Nombre', 'Grado', 'Grupo', 'Banderas rojas', 'Motivos', 'Subescalas bajas']];
+    for (const a of r.seguimiento) {
+      filas.push([a.correo, a.nombre, a.grado, a.grupo, a.rojas, a.motivos.join(' · '), a.bajas.join(' · ')]);
+    }
+    bajar('prioridad-de-seguimiento', filas);
+  };
+
+  const vocacionalCSV = () => {
+    const listos = vocacionales.filter((v) => v.estado === 'entregado');
+    if (!listos.length) return;
+    const filas = [[
+      'Correo', 'Nombre', 'Grado', 'Grupo', 'Dominante 1', 'Dominante 2', 'Empate en 2º',
+      ...AREAS_CHASIDE.map((a) => `${a.id} total`),
+    ]];
+    for (const v of listos) {
+      filas.push([
+        v.correo, v.nombre, v.grado, normalizarGrupo(v.grupo),
+        (v.dominantes ?? [])[0] ?? '', (v.dominantes ?? [])[1] ?? '',
+        v.empateEnSegundo ? 'sí' : 'no',
+        ...AREAS_CHASIDE.map((a) => v.puntajes?.[a.id]?.total ?? ''),
+      ]);
+    }
+    bajar('vocacional-chaside', filas);
+  };
+
   const botones = [
     ['Cobertura', 'Cuántos presentaron, por grado y turno', cobertura],
     ['Sin terminar', 'Quiénes van a medias y qué bloque les falta', pendientesCSV],
@@ -1083,6 +1398,9 @@ function Descargas({ registros, clave }) {
     ['Respuestas 2º y 3º', 'Reactivo por reactivo', respuestas],
     ['Cuadernillo 1º', 'Las 88, una columna cada una', cuadernillo],
     ['General', 'Un renglón por alumno con todo', general],
+    ['Perfil socioemocional', 'Subescalas, niveles y banderas por alumno', perfilCSV],
+    ['Prioridad de seguimiento', 'Quiénes tienen 2+ banderas rojas', seguimientoCSV],
+    ['Vocacional CHASIDE', 'Áreas dominantes y puntajes de 3º', vocacionalCSV],
   ];
 
   return (

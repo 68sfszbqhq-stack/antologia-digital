@@ -314,3 +314,107 @@ export function porGrupo(registros) {
     })
     .sort((a, b) => a.grado.localeCompare(b.grado) || a.grupo.localeCompare(b.grupo, 'es'));
 }
+
+// ─── Perfil socioemocional y condiciones de estudio ──────────────────────────
+
+/**
+ * Reparto por nivel de cada subescala, y quién necesita seguimiento.
+ *
+ * Lo que se reporta a Supervisión no es el promedio de la subescala —un
+ * promedio "medio" puede esconder a diez alumnos en nivel bajo—, sino CUÁNTOS
+ * caen en cada nivel. Eso sí se puede convertir en una acción.
+ */
+export function resumenPerfil(perfiles, SUBESCALAS) {
+  const listos = perfiles.filter((p) => p.estado === 'entregado');
+  if (!listos.length) return null;
+
+  const subescalas = SUBESCALAS.map((s) => {
+    const niveles = { bajo: 0, medio: 0, alto: 0 };
+    const pcts = [];
+    for (const p of listos) {
+      const v = p.puntajes?.[s.id];
+      if (!v || v.nivel === null || v.nivel === undefined) continue;
+      niveles[v.nivel]++;
+      if (typeof v.porcentaje === 'number') pcts.push(v.porcentaje);
+    }
+    const n = niveles.bajo + niveles.medio + niveles.alto;
+    return {
+      id: s.id,
+      nombre: s.nombre,
+      n,
+      niveles,
+      // El porcentaje de alumnos en nivel bajo es el número accionable: dice a
+      // cuántos hay que atender, no qué tan bien está "el grupo" en abstracto.
+      pctBajo: n ? Math.round((niveles.bajo / n) * 100) : 0,
+      promedio: redondear(promedio(pcts), 1),
+    };
+  }).sort((a, b) => b.pctBajo - a.pctBajo); // lo más urgente arriba
+
+  // Cuántas veces se levantó cada bandera en todo el grupo.
+  const motivos = new Map();
+  for (const p of listos) {
+    for (const b of p.banderas ?? []) {
+      const k = `${b.color}|${b.motivo}`;
+      motivos.set(k, (motivos.get(k) ?? 0) + 1);
+    }
+  }
+  const banderas = [...motivos.entries()]
+    .map(([k, cuantas]) => {
+      const [color, motivo] = k.split('|');
+      return { color, motivo, cuantas, porcentaje: Math.round((cuantas / listos.length) * 100) };
+    })
+    .sort((a, b) => b.cuantas - a.cuantas);
+
+  // Dos o más banderas rojas: es el corte que pide el documento para priorizar
+  // seguimiento. Se ordena por cuántas tiene, no alfabéticamente.
+  const seguimiento = listos
+    .filter((p) => (p.rojas ?? 0) >= 2)
+    .map((p) => ({
+      nombre: p.nombre, correo: p.correo, grado: p.grado,
+      grupo: normalizarGrupo(p.grupo),
+      rojas: p.rojas ?? 0,
+      motivos: (p.banderas ?? []).filter((b) => b.color === 'roja').map((b) => b.motivo),
+      bajas: Object.entries(p.puntajes ?? {})
+        .filter(([, v]) => v?.nivel === 'bajo')
+        .map(([, v]) => v.nombre),
+    }))
+    .sort((a, b) => b.rojas - a.rojas || String(a.nombre).localeCompare(String(b.nombre), 'es'));
+
+  return { n: listos.length, aMedias: perfiles.length - listos.length, subescalas, banderas, seguimiento };
+}
+
+// ─── Vocacional (CHASIDE) ────────────────────────────────────────────────────
+
+/** Hacia dónde apunta el grupo, y quiénes quedaron sin un perfil claro. */
+export function resumenVocacional(registros, AREAS) {
+  const listos = registros.filter((r) => r.estado === 'entregado');
+  if (!listos.length) return null;
+
+  const areas = AREAS.map((a) => {
+    const dominante = listos.filter((r) => (r.dominantes ?? []).includes(a.id)).length;
+    const totales = listos.map((r) => Number(r.puntajes?.[a.id]?.total)).filter(Number.isFinite);
+    return {
+      id: a.id,
+      nombre: a.nombre,
+      dominante,
+      // Cada alumno aporta DOS áreas dominantes, así que el porcentaje se toma
+      // sobre los alumnos, no sobre el total de menciones: dice "en cuántos
+      // alumnos aparece esta área", que es lo que se quiere saber.
+      porcentaje: Math.round((dominante / listos.length) * 100),
+      puntajeMedio: redondear(promedio(totales), 1),
+      max: 14,
+    };
+  }).sort((a, b) => b.dominante - a.dominante);
+
+  return {
+    n: listos.length,
+    aMedias: registros.length - listos.length,
+    areas,
+    // Un empate en el segundo lugar hace que la segunda área dominante sea
+    // arbitraria. Estos alumnos necesitan una charla, no un dictamen.
+    empatados: listos.filter((r) => r.empateEnSegundo).map((r) => ({
+      nombre: r.nombre, correo: r.correo, grupo: normalizarGrupo(r.grupo),
+      dominantes: r.dominantes ?? [],
+    })),
+  };
+}
