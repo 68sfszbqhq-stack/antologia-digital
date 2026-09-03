@@ -43,6 +43,26 @@ import { u } from "../lib/url";
         </button>
       </form>
 
+      <div class="flex items-center gap-3 my-5">
+        <span class="h-px flex-1 bg-white/10"></span>
+        <span class="text-[10px] font-mono-tech text-slate-500 uppercase tracking-widest">o</span>
+        <span class="h-px flex-1 bg-white/10"></span>
+      </div>
+
+      <button
+        id="pr-google" type="button"
+        class="w-full flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border
+               border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white transition"
+      >
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.1-3.8 6.6-9.4 6.6-16.1z"/>
+          <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.4l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.5 46 24 46z"/>
+          <path fill="#FBBC05" d="M11.8 28.2c-.4-1.3-.7-2.7-.7-4.2s.3-2.9.7-4.2v-5.7H4.5C3 17.1 2.1 20.4 2.1 24s.9 6.9 2.4 9.9l7.3-5.7z"/>
+          <path fill="#EA4335" d="M24 10.8c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.2 29.9 2 24 2 15.5 2 8.1 6.9 4.5 14.1l7.3 5.7c1.7-5.2 6.5-9 12.2-9z"/>
+        </svg>
+        Entrar con Google
+      </button>
+
       <button id="pr-olvide" type="button" class="text-xs font-mono-tech text-slate-500 hover:text-cyan-400 transition mt-5 block mx-auto">
         Olvidé mi contraseña
       </button>
@@ -176,6 +196,7 @@ import { u } from "../lib/url";
     collection, getDocs, doc, getDoc, setDoc, deleteDoc,
   } from "firebase/firestore";
   import { auth, db, firebaseConfigurado } from "../lib/firebase";
+  import { entrarConGoogle, sesionPorRedireccion } from "../lib/diagnostico";
   import { csvParaIdoceo, descargarCSV, type FilaAlumno } from "../lib/csv-idoceo";
   import sesiones from "../data/sesiones.json";
 
@@ -223,6 +244,9 @@ import { u } from "../lib/url";
     }
 
     conectarBotones();
+    // Quien entró por redirección (teléfono viejo, o el enlace abierto dentro
+    // de WhatsApp) vuelve aquí: hay que recoger la sesión antes de nada.
+    sesionPorRedireccion().catch(() => {});
     onAuthStateChanged(auth(), async (u) => {
       if (!u) { soloUno("pr-login"); return; }
       soloUno("pr-cargando");
@@ -270,6 +294,27 @@ import { u } from "../lib/url";
         }
       });
     }
+
+    una("pr-google", async () => {
+      const err = document.getElementById("pr-login-error");
+      const ok = document.getElementById("pr-login-ok");
+      const boton = document.getElementById("pr-google") as HTMLButtonElement;
+      err?.classList.add("hidden");
+      ok?.classList.add("hidden");
+      boton.disabled = true;
+      try {
+        await entrarConGoogle();
+        // Si entró por ventana emergente, onAuthStateChanged sigue desde aquí.
+        // Si se fue por redirección, esta página ya no existe.
+      } catch (e: any) {
+        if (err && e?.code !== "auth/popup-closed-by-user" && e?.code !== "auth/cancelled-popup-request") {
+          err.textContent = "No pude entrar con Google. Intenta con tu correo y contraseña.";
+          err.classList.remove("hidden");
+        }
+      } finally {
+        boton.disabled = false;
+      }
+    });
 
     una("pr-olvide", async () => {
       const correo = (document.getElementById("pr-correo") as HTMLInputElement).value.trim();
