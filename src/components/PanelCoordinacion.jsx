@@ -61,12 +61,15 @@ export default function PanelCoordinacion() {
   const cargar = useCallback(async () => {
     setError('');
     try {
-      const [snap, cfg] = await Promise.all([
-        getDocs(collection(db(), 'diagnosticos')),
-        getDoc(doc(db(), 'config', 'diagnostico')).catch(() => null),
-      ]);
-      setRegistros(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      // La configuración se pide APARTE, no dentro del mismo Promise.all: si la
+      // lista de resultados falla —por ejemplo porque quien entró no es el
+      // profesor—, un Promise.all tiraría también la configuración, y el
+      // encabezado acabaría diciendo "cerrada" sin saberlo. Afirmar que la
+      // evaluación está cerrada cuando no lo está es peor que no decir nada.
+      const cfg = await getDoc(doc(db(), 'config', 'diagnostico')).catch(() => null);
       setConfig(cfg?.exists() ? cfg.data() : null);
+      const snap = await getDocs(collection(db(), 'diagnosticos'));
+      setRegistros(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     } catch (e) {
       setError(
         e?.code === 'permission-denied'
@@ -224,7 +227,8 @@ function Cargando({ texto }) {
 }
 
 function Encabezado({ usuario, config, onRecargar, onSalir }) {
-  const abierta = Number(config?.abierta) || 0;
+  // `null` no es lo mismo que cerrada: es que no se pudo leer.
+  const abierta = config ? (Number(config.abierta) || 0) : null;
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
@@ -233,9 +237,11 @@ function Encabezado({ usuario, config, onRecargar, onSalir }) {
         </span>
         <h1 className="text-2xl sm:text-3xl font-black text-white">Evaluación diagnóstica</h1>
         <p className="text-xs font-mono-tech text-slate-500 mt-1">
-          {abierta > 0
-            ? `Aplicación ${abierta} abierta · los alumnos pueden entrar y continuar`
-            : 'Cerrada · nadie puede entregar ni continuar'}
+          {abierta === null
+            ? 'No se pudo leer el estado de la evaluación'
+            : abierta > 0
+              ? `Aplicación ${abierta} abierta · los alumnos pueden entrar y continuar`
+              : 'Cerrada · nadie puede entregar ni continuar'}
         </p>
       </div>
       <div className="flex items-center gap-3 shrink-0">

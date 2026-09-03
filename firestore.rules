@@ -359,6 +359,71 @@ service cloud.firestore {
       allow delete: if esProfesor();
     }
 
+    // ─── Perfil: socioemocional y condiciones de estudio ──────────────────
+    //
+    // POR QUÉ ES OTRA COLECCIÓN Y NO UN CAMPO MÁS DE /diagnosticos.
+    //
+    // Un diagnóstico entregado queda congelado, y eso no se afloja: es lo que
+    // impide repetir el test de atención, que solo mide bien la primera vez.
+    // Pero este bloque llegó DESPUÉS, cuando 41 alumnos ya habían entregado, y
+    // todos tienen que poder contestarlo. Descongelar sus documentos habría
+    // abierto también todo lo demás. Así que el perfil vive aparte, con su
+    // propio ciclo: se abre, se va guardando y se entrega, sin tocar nada de lo
+    // de ayer.
+    //
+    // El candado es el mismo de allá: en cuanto pasa a 'entregado', no se
+    // vuelve a aceptar un cambio.
+
+    function perfilBienFormado() {
+      let d = request.resource.data;
+      return d.nombre is string && d.nombre.size() <= 80
+        && d.grado is string  && d.grado in ['1ero', '2do', '3ero']
+        && d.grupo is string  && d.grupo.size() <= 6
+        && d.correo is string && d.correo.size() <= 120
+        && d.respuestasA is map      && d.respuestasA.keys().size() <= 22
+        && d.respuestasB is map      && d.respuestasB.keys().size() <= 12
+        && d.respuestasApoyo is map  && d.respuestasApoyo.keys().size() <= 4;
+    }
+
+    match /perfiles/{perfilId} {
+      // El alumno lee el suyo: sin eso no puede retomar. El `resource == null`
+      // deja preguntar "¿ya empecé?" sobre algo que todavía no existe.
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      allow list: if esProfesor();
+
+      allow create: if request.auth != null
+        && perfilId == request.auth.uid + '_' + string(request.resource.data.aplicacion)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.correo == request.auth.token.email
+        && request.resource.data.estado == 'en curso'
+        && diagnosticoAbierto(request.resource.data.aplicacion)
+        && request.resource.data.aplicacion is int
+        && perfilBienFormado()
+        && request.resource.data.iniciado == request.time
+        && request.resource.data.actualizado == request.time;
+
+      allow update: if esProfesor() || (
+        request.auth != null
+        && resource.data.uid == request.auth.uid
+        && resource.data.estado == 'en curso'
+        && diagnosticoAbierto(resource.data.aplicacion)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.correo == resource.data.correo
+        && request.resource.data.aplicacion == resource.data.aplicacion
+        && request.resource.data.estado in ['en curso', 'entregado']
+        && request.resource.data.keys().hasOnly([
+             'aplicacion', 'uid', 'correo', 'estado', 'nombre', 'grado', 'grupo',
+             'puntajes', 'banderas', 'rojas', 'amarillas', 'respuestasA',
+             'respuestasB', 'respuestasApoyo', 'iniciado', 'actualizado', 'entregado'])
+        && perfilBienFormado()
+        && request.resource.data.actualizado == request.time
+      );
+
+      allow delete: if esProfesor();
+    }
+
     // ─── Expediente de nuevo ingreso (cuestionario a padres) ───────────────
     //
     // Aquí sí hay credencial: cada familia entra con un folio que reparte la

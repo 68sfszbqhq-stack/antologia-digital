@@ -25,6 +25,9 @@ import {
   sesionPorRedireccion, sesionPrevia, abrirSesion, guardarAvance, entregarSesion,
   mensajeDiagnostico,
 } from '../lib/diagnostico';
+import {
+  perfilPrevio, abrirPerfil, guardarAvancePerfil, entregarPerfil,
+} from '../lib/perfil';
 
 /* La sesión completa de diagnóstico, de principio a fin.
  *
@@ -76,6 +79,10 @@ export default function DiagnosticoIntegral() {
   const [entrando, setEntrando] = useState(false);
   const [retomado, setRetomado] = useState(false);
   const [yaEstaba, setYaEstaba] = useState(false);
+  // El perfil socioemocional vive en su propio documento, con su propio ciclo:
+  // llegó después de que 41 alumnos ya habían entregado, y su evaluación quedó
+  // congelada a propósito. Ver src/lib/perfil.ts.
+  const [perfil, setPerfil] = useState(null);
 
   const entregaRef = useRef(entrega);
   entregaRef.current = entrega;
@@ -116,6 +123,15 @@ export default function DiagnosticoIntegral() {
         // Si no se puede leer lo previo, se empieza de cero en vez de trabarse.
         // Lo peor que pasa es que se repita, y eso es mejor que no poder entrar.
         console.error('[diagnóstico] no se pudo leer la sesión previa:', e);
+      }
+      if (!vivo) return;
+
+      // El perfil se busca siempre, haya entregado o no: es una sección aparte.
+      try {
+        const pr = await perfilPrevio(usuario.uid, a.abierta);
+        if (vivo) setPerfil(pr);
+      } catch (e) {
+        console.error('[diagnóstico] no se pudo leer el perfil:', e);
       }
       if (!vivo) return;
 
@@ -372,6 +388,62 @@ export default function DiagnosticoIntegral() {
     );
   }
 
+  if (fase === 'perfil') {
+    return (
+      <>
+        <Identificado usuario={usuario} onSalir={cambiarDeCuenta} />
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest">
+            Sección nueva
+          </span>
+          <span className="h-px flex-1 bg-white/10" />
+          <span className="text-xs font-mono-tech text-slate-500">Cómo y en qué condiciones estudias</span>
+        </div>
+        <DiagnosticoInicial
+          respuestasIniciales={perfil}
+          onAvance={async (parcial) => {
+            if (!hayFirebase || !usuario || !ajustes?.abierta) return;
+            try {
+              if (!perfil) {
+                await abrirPerfil(usuario, ajustes.abierta, {
+                  nombre: ficha?.nombre ?? '', grado: ficha?.grado ?? '', grupo: ficha?.grupo ?? '',
+                });
+                setPerfil({ estado: 'en curso', ...parcial });
+              }
+              await guardarAvancePerfil(usuario.uid, ajustes.abierta, parcial);
+            } catch (e) {
+              console.error('[perfil] no se pudo guardar el avance:', e);
+            }
+          }}
+          onFinalizar={async (r) => {
+            const listo = { ...r, estado: 'entregado' };
+            setPerfil(listo);
+            setFase('fin');
+            if (!hayFirebase || !usuario || !ajustes?.abierta) return;
+            try {
+              if (!perfil) {
+                await abrirPerfil(usuario, ajustes.abierta, {
+                  nombre: ficha?.nombre ?? '', grado: ficha?.grado ?? '', grupo: ficha?.grupo ?? '',
+                });
+              }
+              await entregarPerfil(usuario.uid, ajustes.abierta, {
+                puntajes: r.puntajes,
+                banderas: r.banderas,
+                rojas: r.rojas,
+                amarillas: r.amarillas,
+                respuestasA: r.respuestasA,
+                respuestasB: r.respuestasB,
+                respuestasApoyo: r.respuestasApoyo,
+              });
+            } catch (e) {
+              setDetalleFalla(mensajeDiagnostico(e));
+            }
+          }}
+        />
+      </>
+    );
+  }
+
   /* ── fin ─────────────────────────────────────────────────────── */
 
   return (
@@ -383,6 +455,8 @@ export default function DiagnosticoIntegral() {
         estado={guardado}
         detalle={detalleFalla}
         yaEstaba={yaEstaba}
+        perfil={perfil}
+        onPerfil={() => setFase('perfil')}
       />
     </>
   );
@@ -525,7 +599,7 @@ function Paso({ n, de, titulo }) {
   );
 }
 
-function Cierre({ ficha, entrega, estado, detalle, yaEstaba }) {
+function Cierre({ ficha, entrega, estado, detalle, yaEstaba, perfil, onPerfil }) {
   const [bajado, setBajado] = useState(false);
 
   const descargar = () => {
@@ -564,7 +638,28 @@ function Cierre({ ficha, entrega, estado, detalle, yaEstaba }) {
         </h2>
       </header>
 
+      {/* La sección nueva va ARRIBA de los resultados, no al final: quien ya
+          entregó ayer entra a ver lo suyo y se toparía con el aviso hasta
+          abajo, después de tres bloques de gráficas. */}
+      {perfil?.estado !== 'entregado' && (
+        <div className="glass-card rounded-2xl p-5 sm:p-6 border border-cyan-400/40 mb-6">
+          <span className="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-2">
+            // Sección nueva
+          </span>
+          <h3 className="text-lg font-bold text-white mb-2">Falta una parte</h3>
+          <p className="text-sm text-slate-400 leading-relaxed mb-4">
+            Se agregó una sección sobre cómo estudias y con qué condiciones cuentas:
+            34 preguntas, sin respuestas correctas y sin reloj. No toca nada de lo que
+            ya entregaste{perfil ? ', y lo que llevabas contestado sigue guardado' : ''}.
+          </p>
+          <button type="button" onClick={onPerfil} className="btn-primary px-6 py-3">
+            {perfil ? 'Continuar esa sección' : 'Contestarla ahora'}
+          </button>
+        </div>
+      )}
+
       <div className="space-y-6">
+        {perfil?.estado === 'entregado' && <ResultadoInicial r={perfil} />}
         {entrega.atencion && <ResumenAtencion a={entrega.atencion} />}
         {entrega.temperamento && <ResultadoTemperamento perfil={entrega.temperamento} />}
         {entrega.academica && <ResultadoAcademico resultado={entrega.academica} />}
