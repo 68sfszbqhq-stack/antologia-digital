@@ -11,7 +11,7 @@ import { GRADOS } from '../lib/diagnostico-materias.js';
 import { TEMPERAMENTOS } from '../lib/temperamento.js';
 import { SUBESCALAS, NIVELES } from '../lib/diagnostico-inicial.js';
 import { AREAS as AREAS_CHASIDE } from '../lib/chaside.js';
-import { Barras, BarrasApiladas, Histograma, SERIE, MAGNITUD } from './Graficas.jsx';
+import { Barras, BarrasApiladas, Histograma, Leyenda, SERIE, MAGNITUD } from './Graficas.jsx';
 import {
   normalizarGrupo, claveGrupo, entregados, aMedias, conteo, redondear,
   resumenAtencion, resumenTemperamento, resumenAcademico, reactivosMasFallados,

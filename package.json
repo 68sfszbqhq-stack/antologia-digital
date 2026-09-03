@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run revisar && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "alta-alumnos": "node scripts/alta-alumnos.mjs",
@@ -17,7 +17,8 @@
     "abrir-landolt": "node scripts/abrir-landolt.mjs",
     "exportar-landolt": "node scripts/exportar-landolt.mjs",
     "alta-folios": "node scripts/alta-folios.mjs",
-    "exportar-expedientes": "node scripts/exportar-expedientes.mjs"
+    "exportar-expedientes": "node scripts/exportar-expedientes.mjs",
+    "revisar": "node scripts/revisar-componentes.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.4",
