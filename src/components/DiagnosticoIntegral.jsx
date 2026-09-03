@@ -1,14 +1,29 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
 import TestAnillosLandolt from './TestAnillosLandolt.jsx';
 import TestTemperamento, { ResultadoTemperamento } from './TestTemperamento.jsx';
 import EvaluacionAcademica, { ResultadoAcademico } from './EvaluacionAcademica.jsx';
-import Cuadernillo from './Cuadernillo.jsx';
+
+/* El cuadernillo se carga aparte, y solo cuando un alumno de primer año llega a
+ * él. NO es una optimización de peso: es lo que permite que el sitio funcione en
+ * celulares viejos.
+ *
+ * El cuadernillo arrastra pdf.js, que usa `Promise.withResolvers` —una función
+ * que solo existe desde Chrome 119, de finales de 2023—. Mientras se importaba
+ * aquí arriba, ese código entraba en el mismo archivo que todo lo demás, así que
+ * un teléfono más viejo ni siquiera lograba leerlo: la página se quedaba en
+ * blanco y el alumno "no podía entrar", aunque fuera de segundo o tercero y no
+ * tuviera nada que ver con el cuadernillo.
+ *
+ * Con `lazy` ese código vive en su propio archivo, que solo se descarga cuando
+ * de verdad hace falta. Los de segundo y tercero no lo tocan nunca. */
+const Cuadernillo = lazy(() => import('./Cuadernillo.jsx'));
 import { GRADOS, totalDe, usaCuadernillo } from '../lib/diagnostico-materias.js';
 import { TEMPERAMENTOS } from '../lib/temperamento.js';
 import { firebaseConfigurado } from '../lib/firebase-config';
 import {
   ajustesDiagnostico, entrarConGoogle, salirDiagnostico, observarDiagnostico,
-  sesionPrevia, abrirSesion, guardarAvance, entregarSesion, mensajeDiagnostico,
+  sesionPorRedireccion, sesionPrevia, abrirSesion, guardarAvance, entregarSesion,
+  mensajeDiagnostico,
 } from '../lib/diagnostico';
 
 /* La sesión completa de diagnóstico, de principio a fin.
@@ -71,6 +86,9 @@ export default function DiagnosticoIntegral() {
 
   useEffect(() => {
     if (!hayFirebase) { setAjustes(RESPALDO); setFase('ficha'); return; }
+    // Si el alumno viene de vuelta de Google por redirección, hay que recoger
+    // esa sesión: sin esto volvería a la página y parecería que no entró.
+    sesionPorRedireccion();
     return observarDiagnostico((u) => setUsuario(u ?? null));
   }, [hayFirebase]);
 
@@ -136,11 +154,14 @@ export default function DiagnosticoIntegral() {
     setEntrando(true);
     setDetalleFalla('');
     try {
-      await entrarConGoogle();
-      // El resto lo dispara observarDiagnostico.
+      const u = await entrarConGoogle();
+      // `null` significa que se tomó el camino de la redirección: la página se
+      // está yendo a Google. No se apaga el "ocupado" ni se muestra nada más,
+      // porque en un segundo esta pantalla ya no existe.
+      if (!u) return;
+      // Si entró por la ventana emergente, el resto lo dispara observarDiagnostico.
     } catch (e) {
       setDetalleFalla(mensajeDiagnostico(e));
-    } finally {
       setEntrando(false);
     }
   }, []);
@@ -334,11 +355,13 @@ export default function DiagnosticoIntegral() {
           titulo={`Evaluación diagnóstica · ${gradoNombre(ficha?.grado)}`}
         />
         {conCuadernillo ? (
-          <Cuadernillo
-            respuestasIniciales={entrega.cuadernillo?.respuestas ?? null}
-            onAvance={avanceCuadernillo}
-            onFinalizar={(r) => terminarBloque('cuadernillo', r)}
-          />
+          <Suspense fallback={<CargandoCuadernillo />}>
+            <Cuadernillo
+              respuestasIniciales={entrega.cuadernillo?.respuestas ?? null}
+              onAvance={avanceCuadernillo}
+              onFinalizar={(r) => terminarBloque('cuadernillo', r)}
+            />
+          </Suspense>
         ) : (
           <EvaluacionAcademica
             grado={ficha.grado}
@@ -439,6 +462,18 @@ function BotonSalir({ usuario, onSalir }) {
     >
       Entrar con otra cuenta
     </button>
+  );
+}
+
+function CargandoCuadernillo() {
+  return (
+    <div className={`${caja} text-center`}>
+      <div className="inline-block w-6 h-6 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin" />
+      <p className="text-sm text-slate-400 mt-3 font-mono-tech">Cargando el cuadernillo…</p>
+      <p className="text-xs text-slate-600 mt-2">
+        Son unos segundos la primera vez. No cierres la página.
+      </p>
+    </div>
   );
 }
 

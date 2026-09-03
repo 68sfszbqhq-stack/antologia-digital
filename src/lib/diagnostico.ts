@@ -24,6 +24,8 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
   setPersistence,
@@ -72,27 +74,83 @@ const POR_OMISION: AjustesDiagnostico = {
 // ─── Entrar y salir ──────────────────────────────────────────────────────────
 
 /**
- * Entra con Google.
+ * ¿Estamos dentro del navegador de una app (WhatsApp, Instagram, Facebook,
+ * TikTok)? Ahí las ventanas emergentes sencillamente no abren, así que ni se
+ * intenta: se va derecho por redirección.
  *
- * Con ventana emergente y no con redirección: la redirección depende de cookies
- * de terceros, que Chrome ya bloquea por omisión, y se rompe justo cuando el
- * sitio vive en un dominio (github.io) distinto del de Firebase. La emergente
- * funciona en computadora y en celular siempre que la dispare un toque del
- * alumno, que es como está puesta.
- *
- * Lo que sí falla es abrir el enlace DENTRO de WhatsApp o Instagram: esos
- * navegadores no dejan abrir ventanas. Por eso el mensaje de error lo dice.
+ * Importa porque el enlace de esta evaluación se reparte justamente por
+ * WhatsApp, y lo natural es tocarlo ahí mismo.
  */
-export async function entrarConGoogle(): Promise<User> {
+function dentroDeUnaApp(): boolean {
+  const ua = navigator.userAgent || "";
+  return /FBAN|FBAV|Instagram|Line|WhatsApp|TikTok|MicroMessenger|; wv\)/i.test(ua);
+}
+
+function proveedorGoogle(): GoogleAuthProvider {
+  const p = new GoogleAuthProvider();
+  // Que siempre pregunte cuál cuenta: en un salón es normal que varios alumnos
+  // usen la misma computadora, y sin esto el segundo entraría como el primero.
+  p.setCustomParameters({ prompt: "select_account" });
+  return p;
+}
+
+/**
+ * Entra con Google. Dos caminos, y hacen falta los dos.
+ *
+ *   · VENTANA EMERGENTE. Es la buena donde funciona: no recarga la página y no
+ *     depende de cookies de terceros, que Chrome nuevo ya bloquea.
+ *   · REDIRECCIÓN. Manda al alumno a Google y lo trae de vuelta. Es la que
+ *     salva a los teléfonos viejos y a quien abrió el enlace dentro de WhatsApp,
+ *     donde la emergente ni siquiera abre.
+ *
+ * Se intenta la emergente primero y, si el navegador la bloquea o no la
+ * soporta, se cae a la redirección sin decirle nada al alumno: para él es el
+ * mismo botón. Cuando `signInWithRedirect` toma el control, esta función ya no
+ * regresa —la página se va—, y la sesión se recoge al volver con
+ * `sesionPorRedireccion()`.
+ */
+export async function entrarConGoogle(): Promise<User | null> {
   // Persistencia local: el alumno entra una vez y el navegador lo recuerda,
   // que es lo que permite retomar sin volver a identificarse.
   await setPersistence(auth(), browserLocalPersistence);
-  const proveedor = new GoogleAuthProvider();
-  // Que siempre pregunte cuál cuenta: en un salón es normal que varios alumnos
-  // usen la misma computadora, y sin esto el segundo entraría como el primero.
-  proveedor.setCustomParameters({ prompt: "select_account" });
-  const cred = await signInWithPopup(auth(), proveedor);
-  return cred.user;
+
+  if (dentroDeUnaApp()) {
+    await signInWithRedirect(auth(), proveedorGoogle());
+    return null; // la página se va; no hay nada que devolver
+  }
+
+  try {
+    const cred = await signInWithPopup(auth(), proveedorGoogle());
+    return cred.user;
+  } catch (e: any) {
+    const codigo = e?.code ?? "";
+    const laVentanaNoSirve =
+      codigo === "auth/popup-blocked" ||
+      codigo === "auth/operation-not-supported-in-this-environment" ||
+      codigo === "auth/web-storage-unsupported" ||
+      codigo === "auth/internal-error";
+    if (!laVentanaNoSirve) throw e; // p. ej. el alumno la cerró a propósito
+
+    await signInWithRedirect(auth(), proveedorGoogle());
+    return null;
+  }
+}
+
+/**
+ * Recoge la sesión de quien volvió de Google por redirección.
+ *
+ * Hay que llamarla al cargar la página, siempre: si el alumno no venía de una
+ * redirección devuelve null y no pasa nada. Sin esto, quien entró por ese camino
+ * volvería a la página y parecería que no entró.
+ */
+export async function sesionPorRedireccion(): Promise<User | null> {
+  try {
+    const cred = await getRedirectResult(auth());
+    return cred?.user ?? null;
+  } catch {
+    // Si falla, `observarDiagnostico` acabará avisando igual cuando haya sesión.
+    return null;
+  }
 }
 
 /** Cierra la sesión. Sirve para el "No soy yo": en un salón es normal que varios
@@ -306,7 +364,9 @@ export async function entregarSesion(
 export function mensajeDiagnostico(e: any): string {
   switch (e?.code) {
     case "auth/popup-blocked":
-      return "Tu navegador bloqueó la ventana para entrar con Google. Si abriste el enlace dentro de WhatsApp o Instagram, ábrelo mejor en Chrome o Safari.";
+      return "Tu navegador bloqueó la ventana de Google. Vuelve a tocar el botón: esta vez te va a mandar a Google y te va a regresar aquí.";
+    case "auth/web-storage-unsupported":
+      return "Tu navegador tiene bloqueadas las cookies y sin eso no se puede entrar. Actívalas en los ajustes, o abre esta página fuera del modo privado.";
     case "auth/popup-closed-by-user":
     case "auth/cancelled-popup-request":
       return "Cerraste la ventana de Google antes de terminar. Vuelve a intentarlo.";

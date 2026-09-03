@@ -43,5 +43,71 @@ import { u } from "../lib/url";
 
     <DiagnosticoIntegral client:only="react" />
 
+    <!--
+      LA RED DE SEGURIDAD.
+      ====================
+      Toda esta página es JavaScript: si el navegador del alumno no logra
+      ejecutarlo, no ve un error, ve un HUECO EN BLANCO. Y un hueco en blanco no
+      se puede reportar: el alumno solo dice "no me deja entrar", que es
+      exactamente lo que estaba pasando.
+
+      Esto vigila y, si a los ocho segundos no se dibujó nada, saca un mensaje
+      que sí se entiende y que además dice QUÉ falló, para poder arreglarlo.
+    -->
+    <div id="respaldo-navegador" hidden class="glass-card rounded-2xl p-6 border border-amber-400/40">
+      <h2 class="text-lg font-bold text-amber-300 mb-2">Tu navegador no pudo abrir la evaluación</h2>
+      <p class="text-sm text-slate-300 leading-relaxed mb-4">
+        Casi siempre es porque el navegador está desactualizado, o porque abriste
+        el enlace dentro de WhatsApp. Prueba esto, en orden:
+      </p>
+      <ol class="text-sm text-slate-400 leading-relaxed space-y-2 mb-5 list-decimal pl-5">
+        <li>
+          Si llegaste desde WhatsApp, toca los tres puntos de arriba y elige
+          <strong class="text-slate-200">«Abrir en el navegador»</strong>.
+        </li>
+        <li>
+          Abre <strong class="text-slate-200">Chrome</strong> y actualízalo desde
+          la Play Store si te lo pide.
+        </li>
+        <li>Intenta desde otro teléfono o desde una computadora de la escuela.</li>
+      </ol>
+      <p class="text-xs text-slate-500 leading-relaxed">
+        Si nada funciona, muéstrale esto a tu profesor:
+      </p>
+      <p id="respaldo-detalle" class="text-[11px] font-mono-tech text-slate-600 mt-2 break-words"></p>
+    </div>
+
+    <script is:inline>
+      /* Escrito en JavaScript viejo a propósito: si esto usara algo moderno
+         moriría justo en los navegadores que viene a rescatar. */
+      (function () {
+        var motivo = '';
+
+        window.addEventListener('error', function (e) {
+          if (!motivo) motivo = (e && e.message) ? e.message : 'error al cargar';
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          if (!motivo && e && e.reason) motivo = String(e.reason).slice(0, 200);
+        });
+
+        setTimeout(function () {
+          var isla = document.querySelector('astro-island');
+          // Si la isla de React pintó algo, todo bien: no se hace nada.
+          if (isla && isla.children.length > 0) return;
+
+          var caja = document.getElementById('respaldo-navegador');
+          if (!caja) return;
+          caja.hidden = false;
+
+          var d = document.getElementById('respaldo-detalle');
+          if (d) {
+            d.textContent =
+              (motivo || 'la página no cargó') +
+              ' — ' + navigator.userAgent;
+          }
+        }, 8000);
+      })();
+    </script>
+
   </div>
 </Layout>

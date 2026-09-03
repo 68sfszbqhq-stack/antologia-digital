@@ -30,6 +30,86 @@ const {
     />
     <link rel="icon" type="image/svg+xml" href={u("/favicon.svg")} />
     <title>{title} | BGOCCVESP Plataforma Digital</title>
+
+    <!--
+      REMIENDOS PARA TELÉFONOS VIEJOS.
+      ================================
+      Esto lo usan alumnos de bachillerato con el teléfono que tienen: gama baja,
+      Android viejo, un Chrome que no se actualiza desde hace años. Aquí se
+      rellenan a mano las funciones que esos navegadores no traen y que el
+      compilador NO puede resolver solo (él arregla la sintaxis, no las funciones
+      que falten).
+
+      Va `is:inline` y en el <head> a propósito: así se copia tal cual, sin pasar
+      por el empaquetador, y corre ANTES que todo lo demás. Por eso está escrito
+      en JavaScript viejo —nada de => ni de const— porque si este archivo usara
+      algo moderno moriría justo en los navegadores que viene a rescatar.
+
+      Cuando falta una de estas funciones el navegador no avisa: deja la página
+      EN BLANCO. El alumno solo sabe que "no puede entrar".
+    -->
+    <script is:inline>
+      (function () {
+        // globalThis — Chrome 71. Lo usan Firebase y pdf.js.
+        if (typeof globalThis === 'undefined') {
+          Object.defineProperty(Object.prototype, '__gt__', {
+            get: function () { return this; }, configurable: true
+          });
+          __gt__.globalThis = __gt__;
+          delete Object.prototype.__gt__;
+        }
+
+        // Promise.withResolvers — Chrome 119, de finales de 2023. Es la que más
+        // daño hacía: la usa pdf.js, o sea el cuadernillo de primer año.
+        if (typeof Promise !== 'undefined' && !Promise.withResolvers) {
+          Promise.withResolvers = function () {
+            var res, rej;
+            var p = new Promise(function (a, b) { res = a; rej = b; });
+            return { promise: p, resolve: res, reject: rej };
+          };
+        }
+
+        // String.prototype.replaceAll — Chrome 85. La usa Firebase.
+        if (!String.prototype.replaceAll) {
+          String.prototype.replaceAll = function (busca, pone) {
+            if (Object.prototype.toString.call(busca) === '[object RegExp]') {
+              return this.replace(busca, pone);
+            }
+            return this.split(busca).join(pone);
+          };
+        }
+
+        // Array.prototype.at y String.prototype.at — Chrome 92.
+        if (!Array.prototype.at) {
+          Array.prototype.at = function (i) {
+            i = Math.trunc(i) || 0;
+            if (i < 0) i += this.length;
+            return (i < 0 || i >= this.length) ? undefined : this[i];
+          };
+        }
+        if (!String.prototype.at) {
+          String.prototype.at = function (i) {
+            i = Math.trunc(i) || 0;
+            if (i < 0) i += this.length;
+            return (i < 0 || i >= this.length) ? undefined : this.charAt(i);
+          };
+        }
+
+        // Object.hasOwn — Chrome 93.
+        if (!Object.hasOwn) {
+          Object.hasOwn = function (o, k) {
+            return Object.prototype.hasOwnProperty.call(o, k);
+          };
+        }
+
+        // structuredClone — Chrome 98. La copia por JSON no sirve para todo,
+        // pero sí para lo que este sitio guarda: números, textos y listas.
+        if (typeof structuredClone === 'undefined') {
+          window.structuredClone = function (v) { return JSON.parse(JSON.stringify(v)); };
+        }
+      })();
+    </script>
+
     <ClientRouter />
   </head>
 
