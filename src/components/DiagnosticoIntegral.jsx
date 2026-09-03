@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 
 import TestAnillosLandolt from './TestAnillosLandolt.jsx';
 import TestTemperamento, { ResultadoTemperamento } from './TestTemperamento.jsx';
 import EvaluacionAcademica, { ResultadoAcademico } from './EvaluacionAcademica.jsx';
+import DiagnosticoInicial, { ResultadoInicial } from './DiagnosticoInicial.jsx';
 
 /* El cuadernillo se carga aparte, y solo cuando un alumno de primer año llega a
  * él. NO es una optimización de peso: es lo que permite que el sitio funcione en
