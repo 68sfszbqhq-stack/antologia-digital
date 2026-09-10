@@ -25,57 +25,164 @@ const { dia } = Astro.props;
     <p class="text-sm text-slate-400 mt-3 font-mono-tech">Verificando tu acceso…</p>
   </div>
 
-  <!-- Pedir matrícula y código -->
+  <!-- Identificarse -->
   <div id="aa-login" class="hidden glass-card rounded-2xl p-6 sm:p-8 border border-white/10 mb-8">
     <div class="max-w-md mx-auto">
       <span class="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">// Identifícate</span>
       <h2 class="text-2xl font-bold text-white mb-2">Antes de empezar</h2>
       <p class="text-sm text-slate-400 mb-6">
-        Escribe tu matrícula y el código que te dio tu profesor. Solo tienes que
-        hacerlo una vez: este dispositivo te va a recordar en los demás módulos.
+        Entra con la misma cuenta de Google que usaste en la evaluación de inicio
+        de ciclo. Solo tienes que hacerlo una vez: este dispositivo te va a
+        recordar en los demás módulos.
       </p>
 
-      <form id="aa-form" class="space-y-4" novalidate>
+      <button
+        id="aa-google" type="button"
+        class="w-full flex items-center justify-center gap-3 rounded-xl bg-white text-slate-800 font-semibold
+               px-4 py-3.5 text-sm hover:bg-slate-100 transition disabled:opacity-60"
+      >
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.3 13.2 17.7 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.5 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/>
+          <path fill="#FBBC05" d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.8-6.1z"/>
+          <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.2-8.4 2.2-6.3 0-11.7-3.7-13.6-9.8l-7.8 6.1C6.5 42.6 14.6 48 24 48z"/>
+        </svg>
+        <span id="aa-google-texto">Entrar con Google</span>
+      </button>
+
+      <p id="aa-error-login" class="hidden text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3 mt-4"></p>
+
+      <!-- La entrada de siempre, para quien no tenga cuenta de Google. Se deja
+           plegada: es la excepción, no el camino normal. -->
+      <details class="mt-6 group">
+        <summary class="text-xs font-mono-tech text-slate-500 hover:text-slate-300 cursor-pointer list-none flex items-center gap-2">
+          <span class="transition-transform group-open:rotate-90">›</span>
+          No tengo cuenta de Google
+        </summary>
+
+        <form id="aa-form" class="space-y-4 mt-5" novalidate>
+          <div>
+            <label for="aa-matricula" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+              Matrícula
+            </label>
+            <input
+              id="aa-matricula" name="matricula" type="text"
+              autocomplete="username" inputmode="numeric" autocapitalize="off" spellcheck="false"
+              placeholder="2024001"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono-tech
+                     placeholder:text-slate-600 focus:outline-none focus:border-cyan-400/50 focus:bg-white/[0.07] transition"
+            />
+          </div>
+
+          <div>
+            <label for="aa-codigo" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+              Código de acceso
+            </label>
+            <input
+              id="aa-codigo" name="codigo" type="password"
+              autocomplete="current-password" autocapitalize="characters" spellcheck="false"
+              placeholder="XXXXXXXX"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono-tech tracking-[0.2em]
+                     placeholder:text-slate-600 placeholder:tracking-normal focus:outline-none focus:border-cyan-400/50 focus:bg-white/[0.07] transition"
+            />
+            <p class="text-[11px] text-slate-500 mt-1.5">
+              No importa si lo escribes con mayúsculas o minúsculas.
+            </p>
+          </div>
+
+          <button id="aa-entrar" type="submit" class="btn-primary w-full justify-center py-3 text-sm font-semibold">
+            Entrar
+          </button>
+        </form>
+      </details>
+
+      <p class="text-[11px] text-slate-600 mt-5 leading-relaxed">
+        ¿No te deja entrar? Avísale a tu profesor.
+      </p>
+    </div>
+  </div>
+
+  <!-- Primera vez: de qué grupo eres -->
+  <div id="aa-datos" class="hidden glass-card rounded-2xl p-6 sm:p-8 border border-white/10 mb-8">
+    <div class="max-w-md mx-auto">
+      <span class="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">// Una sola vez</span>
+      <h2 class="text-2xl font-bold text-white mb-2">¿Quién eres?</h2>
+      <p class="text-sm text-slate-400 mb-6">
+        Es la primera vez que entras a los módulos. Dime tu nombre y tu grupo
+        para que tus calificaciones lleguen a la lista correcta. No te lo voy a
+        volver a preguntar.
+      </p>
+
+      <form id="aa-datos-form" class="space-y-4" novalidate>
         <div>
-          <label for="aa-matricula" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
-            Matrícula
+          <label for="aa-nombre" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+            Nombre completo
           </label>
           <input
-            id="aa-matricula" name="matricula" type="text" required
-            autocomplete="username" inputmode="numeric" autocapitalize="off" spellcheck="false"
-            placeholder="2024001"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono-tech
+            id="aa-nombre" name="nombre" type="text" required
+            autocomplete="name" autocapitalize="words" spellcheck="false"
+            placeholder="Apellidos y nombre"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white
                    placeholder:text-slate-600 focus:outline-none focus:border-cyan-400/50 focus:bg-white/[0.07] transition"
           />
-        </div>
-
-        <div>
-          <label for="aa-codigo" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
-            Código de acceso
-          </label>
-          <input
-            id="aa-codigo" name="codigo" type="password" required
-            autocomplete="current-password" autocapitalize="characters" spellcheck="false"
-            placeholder="XXXXXXXX"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono-tech tracking-[0.2em]
-                   placeholder:text-slate-600 placeholder:tracking-normal focus:outline-none focus:border-cyan-400/50 focus:bg-white/[0.07] transition"
-          />
           <p class="text-[11px] text-slate-500 mt-1.5">
-            No importa si lo escribes con mayúsculas o minúsculas.
+            Como aparece en la lista de asistencia: primero apellidos.
           </p>
         </div>
 
-        <p id="aa-error" class="hidden text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3"></p>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label for="aa-grado" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+              Grado
+            </label>
+            <select
+              id="aa-grado" name="grado"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-white font-mono-tech
+                     focus:outline-none focus:border-cyan-400/50 transition"
+            >
+              <option value="1º">1º</option>
+              <option value="2º">2º</option>
+              <option value="3º">3º</option>
+            </select>
+          </div>
 
-        <button id="aa-entrar" type="submit" class="btn-primary w-full justify-center py-3 text-sm font-semibold">
-          Entrar
+          <div>
+            <label for="aa-grupo" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+              Grupo
+            </label>
+            <input
+              id="aa-grupo" name="grupo" type="text" value="A" maxlength="3"
+              autocapitalize="characters" spellcheck="false"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-white font-mono-tech uppercase
+                     focus:outline-none focus:border-cyan-400/50 transition"
+            />
+          </div>
+
+          <div>
+            <label for="aa-turno" class="text-xs font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">
+              Turno
+            </label>
+            <select
+              id="aa-turno" name="turno"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-white font-mono-tech
+                     focus:outline-none focus:border-cyan-400/50 transition"
+            >
+              <option value="Vesp">Vesp.</option>
+              <option value="Mat">Mat.</option>
+            </select>
+          </div>
+        </div>
+
+        <p id="aa-datos-error" class="hidden text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3"></p>
+
+        <button id="aa-datos-guardar" type="submit" class="btn-primary w-full justify-center py-3 text-sm font-semibold">
+          Continuar
         </button>
       </form>
 
-      <p class="text-[11px] text-slate-600 mt-5 leading-relaxed">
-        ¿Perdiste tu código o no te deja entrar? Pídele a tu profesor que te
-        genere uno nuevo.
-      </p>
+      <button id="aa-datos-salir" type="button" class="text-xs font-mono-tech text-slate-500 hover:text-rose-400 transition mt-5">
+        Esa no es mi cuenta
+      </button>
     </div>
   </div>
 
@@ -134,7 +241,9 @@ const { dia } = Astro.props;
 <script>
   import { firebaseConfigurado, auth } from "../lib/firebase";
   import {
-    entrar, salir, observarSesion, fichaDe, modulosAbiertos,
+    entrar, entrarConGoogle, sesionPorRedireccion, esCuentaDeGoogle,
+    salir, observarSesion, fichaDe, crearMiFicha, datosDelDiagnostico,
+    modulosAbiertos,
     intentoPrevio, guardarIntento, mensajeDeError, type Ficha,
   } from "../lib/alumno";
   import type { User } from "firebase/auth";
@@ -155,7 +264,7 @@ const { dia } = Astro.props;
   }
 
   function soloUnEstado(visible: string | null) {
-    for (const id of ["aa-cargando", "aa-login", "aa-cerrado", "aa-hecho", "aa-error"]) {
+    for (const id of ["aa-cargando", "aa-login", "aa-datos", "aa-cerrado", "aa-hecho", "aa-error"]) {
       ver(id, id === visible);
     }
     verQuiz(visible === null);
@@ -175,9 +284,17 @@ const { dia } = Astro.props;
       return;
     }
 
+    // Quien entró por redirección (teléfono viejo, o el enlace abierto dentro
+    // de WhatsApp) vuelve aquí con la sesión lista. Sin esto parecería que no
+    // entró. No estorba a nadie más: si no venía de una redirección, no hace
+    // nada.
+    sesionPorRedireccion();
+
     dejarDeObservar?.();
     dejarDeObservar = observarSesion((u) => decidirQueMostrar(u, dia));
+    prepararGoogle();
     prepararFormulario(dia);
+    prepararDatos(dia);
     prepararSalir();
     prepararReintentar();
     escucharEntrega(dia);
@@ -201,7 +318,29 @@ const { dia } = Astro.props;
         intentoPrevio(u.uid, dia),
       ]);
 
-      mostrarBarra(ficha);
+      // Primera vez de quien entra con Google: todavía no tiene ficha, y sin
+      // ficha activa las reglas no le van a aceptar ninguna entrega.
+      //
+      // Antes de preguntarle nada se buscan sus datos en la evaluación
+      // diagnóstica de inicio de ciclo: entró con esta misma cuenta y ya
+      // escribió ahí su nombre y su grupo. Si aparecen, la ficha se crea sola y
+      // el alumno pasa derecho al cuestionario sin enterarse.
+      //
+      // Solo se le pregunta a quien no hizo aquella evaluación. Y esto no aplica
+      // a la entrada con matrícula y código: esa ficha ya existe, la creó el
+      // profesor al darlo de alta.
+      if (!ficha && esCuentaDeGoogle(u)) {
+        const nueva = await fichaAutomatica(u);
+        if (!nueva) {
+          soloUnEstado("aa-datos");
+          ver("aa-barra", false);
+          proponerNombre(u);
+          return;
+        }
+        mostrarBarra(nueva);
+      } else {
+        mostrarBarra(ficha);
+      }
 
       if (previo) {
         soloUnEstado("aa-hecho");
@@ -221,6 +360,20 @@ const { dia } = Astro.props;
       // para que el guardado fallara al final, o entraría a un módulo cerrado.
       // Mejor decirlo de frente y ofrecer reintentar.
       soloUnEstado("aa-error");
+    }
+  }
+
+  /** Copia los datos del diagnóstico de inicio de ciclo, si los hay. Devuelve
+   *  la ficha recién creada, o null si hay que preguntarle al alumno. */
+  async function fichaAutomatica(u: User): Promise<Ficha | null> {
+    const datos = await datosDelDiagnostico(u);
+    if (!datos) return null;
+    try {
+      return await crearMiFicha(u, datos.nombre, datos.grupo);
+    } catch {
+      // Si la ficha no se pudo crear sola, se le pregunta. Es peor dejarlo
+      // parado frente a un error que no puede resolver.
+      return null;
     }
   }
 
@@ -249,7 +402,7 @@ const { dia } = Astro.props;
   function prepararFormulario(dia: number) {
     const form = document.getElementById("aa-form") as HTMLFormElement | null;
     const boton = document.getElementById("aa-entrar") as HTMLButtonElement | null;
-    const error = document.getElementById("aa-error");
+    const error = document.getElementById("aa-error-login");
     if (!form || form.dataset.listo) return;
     form.dataset.listo = "1";
 
@@ -274,6 +427,88 @@ const { dia } = Astro.props;
         (document.getElementById("aa-codigo") as HTMLInputElement).value = "";
       } finally {
         if (boton) { boton.disabled = false; boton.textContent = "Entrar"; }
+      }
+    });
+  }
+
+  function prepararGoogle() {
+    const boton = document.getElementById("aa-google") as HTMLButtonElement | null;
+    const texto = document.getElementById("aa-google-texto");
+    const error = document.getElementById("aa-error-login");
+    if (!boton || boton.dataset.listo) return;
+    boton.dataset.listo = "1";
+
+    boton.addEventListener("click", async () => {
+      boton.disabled = true;
+      if (texto) texto.textContent = "Abriendo Google…";
+      error?.classList.add("hidden");
+
+      try {
+        await entrarConGoogle();
+        // Si abrió ventana emergente, observarSesion se encarga del resto.
+        // Si se fue por redirección, esta página ya no existe.
+      } catch (e) {
+        mostrarError(error, mensajeDeError(e));
+      } finally {
+        boton.disabled = false;
+        if (texto) texto.textContent = "Entrar con Google";
+      }
+    });
+  }
+
+  /** Propone el nombre que Google ya conoce, para que el alumno no lo teclee.
+   *  Lo puede corregir: en las listas de la escuela van primero los apellidos. */
+  function proponerNombre(u: User) {
+    const campo = document.getElementById("aa-nombre") as HTMLInputElement | null;
+    if (campo && !campo.value.trim()) campo.value = u.displayName ?? "";
+  }
+
+  function prepararDatos(dia: number) {
+    const form = document.getElementById("aa-datos-form") as HTMLFormElement | null;
+    const boton = document.getElementById("aa-datos-guardar") as HTMLButtonElement | null;
+    const error = document.getElementById("aa-datos-error");
+    const salirse = document.getElementById("aa-datos-salir");
+
+    if (salirse && !salirse.dataset.listo) {
+      salirse.dataset.listo = "1";
+      salirse.addEventListener("click", async () => {
+        await salir();
+        location.reload();
+      });
+    }
+
+    if (!form || form.dataset.listo) return;
+    form.dataset.listo = "1";
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const usuario = auth().currentUser;
+      if (!usuario) return;
+
+      const nombre = (document.getElementById("aa-nombre") as HTMLInputElement).value.trim();
+      const grado = (document.getElementById("aa-grado") as HTMLSelectElement).value;
+      const letra = (document.getElementById("aa-grupo") as HTMLInputElement).value.trim().toUpperCase();
+      const turno = (document.getElementById("aa-turno") as HTMLSelectElement).value;
+
+      if (nombre.length < 3) {
+        mostrarError(error, "Escribe tu nombre completo.");
+        return;
+      }
+      if (!letra) {
+        mostrarError(error, "Escribe la letra de tu grupo.");
+        return;
+      }
+
+      if (boton) { boton.disabled = true; boton.textContent = "Guardando…"; }
+      error?.classList.add("hidden");
+
+      try {
+        await crearMiFicha(usuario, nombre, `${grado} ${letra} ${turno}`);
+        await decidirQueMostrar(usuario, dia);
+      } catch (e) {
+        mostrarError(error, mensajeDeError(e));
+      } finally {
+        if (boton) { boton.disabled = false; boton.textContent = "Continuar"; }
       }
     });
   }

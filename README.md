@@ -95,20 +95,66 @@ de publicación no cambia. Todo cabe en el plan gratuito.
 
 ### Cómo funciona
 
-El alumno escribe **su matrícula y un código** que le entrega el profesor. Por
-debajo eso es Firebase Authentication de verdad: la matrícula se convierte en un
+**El alumno entra con su cuenta de Google**, la misma con la que hizo la
+evaluación diagnóstica de inicio de ciclo. No hay códigos que repartir ni que
+reponer, y cada entrega llega con el correo de quien la hizo: no depende de que
+el alumno escriba bien su nombre.
+
+Tampoco se le pregunta quién es. Al entrar por primera vez, el sitio busca los
+datos que ya dejó en aquella evaluación —nombre, grado, grupo— y arma su ficha
+solo. Únicamente a quien no hizo la evaluación se le piden nombre y grupo, una
+sola vez.
+
+El navegador recuerda la sesión, así que se identifica una vez para los ocho
+módulos. No hay ninguna lista pública de nombres.
+
+Sigue existiendo la entrada con **matrícula y código** (`scripts/alta-alumnos.mjs`),
+plegada bajo *"No tengo cuenta de Google"*, para quien no tenga cuenta. Por
+debajo es Firebase Authentication de verdad: la matrícula se convierte en un
 correo interno (`2024001@antologia.local`) que el alumno nunca ve, y el código es
-la contraseña. La ventaja de hacerlo así es que **quien valida el código es
-Firebase, no la página**: si se comprobara en el navegador, cualquiera lo saltaría
-abriendo las herramientas de desarrollo.
+la contraseña. Quien valida el código es Firebase, no la página.
 
-El navegador recuerda la sesión, así que el alumno se identifica una sola vez para
-los ocho módulos. No hay ninguna lista pública de nombres.
+**Lo que sostiene el permiso son las reglas, no la pantalla.** Para entregar
+cualquier diagnóstico hacen falta tres cosas, y las tres se comprueban en
+`firestore.rules`: ficha activa, módulo abierto y ningún intento previo. Que el
+alumno pueda crear su propia ficha no afloja nada de eso; lo que sí se vigila es
+lo que escribe en ella, empezando por que el correo sea el de su propia cuenta y
+no uno tecleado.
 
-**Un intento por módulo.** El registro se guarda con el nombre `<matrícula>_<módulo>`
+**Un intento por módulo.** El registro se guarda con el nombre `<uid>_<módulo>`
 y las reglas solo permiten crearlo, nunca modificarlo. Un segundo envío choca con
 el primero y Firestore lo rechaza. El profesor puede borrar un intento desde el
 panel para que un alumno repita.
+
+### Traer a los alumnos del diagnóstico
+
+Copia los nombres y grupos de la evaluación de inicio de ciclo a la lista de los
+módulos, de golpe. No pisa ninguna ficha que ya exista, así que volver a correrlo
+es seguro: sirve para recoger a los que hicieron la evaluación después.
+
+```sh
+node scripts/sincronizar-alumnos.mjs --ensayo   # dice qué haría, no escribe
+node scripts/sincronizar-alumnos.mjs            # lo hace
+```
+
+No es obligatorio: quien no aparezca ahí se da de alta solo al entrar. Esto solo
+adelanta el trabajo y hace que la tabla salga con los nombres bien escritos desde
+el primer día.
+
+### Probar las reglas antes de publicarlas
+
+```sh
+node scripts/probar-reglas-acceso.mjs
+```
+
+Manda `firestore.rules` a la API de Firebase Rules con una lista de peticiones
+inventadas —"este alumno intenta crear la ficha de otro", "este intenta entregar
+en un módulo cerrado"— y compara la respuesta con lo que debería pasar. No toca
+la base de datos, no publica nada y no necesita el emulador (que pide Java).
+
+Correrlo **siempre** después de tocar las reglas y **antes** de publicarlas: un
+permiso de más no se ve en la pantalla, se ve cuando alguien lee las
+calificaciones del grupo.
 
 ### Configuración inicial (una sola vez)
 
@@ -131,9 +177,10 @@ firebase deploy --only firestore:rules
 > El paso 6 es el que más se olvida: sin él el acceso funciona en local pero falla
 > en el sitio publicado, con un error que no explica nada.
 
-### Dar de alta un grupo
+### Dar de alta un grupo con matrícula y código
 
-Preparar un `alumnos.csv` con estas columnas:
+Solo hace falta para quien no tenga cuenta de Google; con Google los alumnos
+aparecen solos. Preparar un `alumnos.csv` con estas columnas:
 
 ```csv
 matricula,nombre,grupo

@@ -212,7 +212,12 @@ import { u } from "../lib/url";
   );
   const TITULO = new Map<number, string>(sesiones.map((s: any) => [s.dia, s.titulo ?? ""]));
 
-  interface Alumno { matricula: string; nombre: string; grupo: string; activo: boolean }
+  interface Alumno {
+    matricula: string; nombre: string; grupo: string; activo: boolean;
+    /** Lo traen las fichas de quien entró con Google; las de matrícula y código, no. */
+    correo?: string;
+    origen?: "google";
+  }
 
   let alumnos: (Alumno & { uid: string })[] = [];
   let puntajes = new Map<string, { aciertos: number; total: number }>(); // "uid_dia"
@@ -474,7 +479,7 @@ import { u } from "../lib/url";
 
     if (!lista.length) {
       tbody.innerHTML = `<tr><td colspan="${DIAS.length + 2}" class="py-12 text-center text-slate-500 text-sm">
-        Todavía no hay alumnos dados de alta. Usa <span class="font-mono-tech text-slate-400">scripts/alta-alumnos.mjs</span>
+        Todavía no ha entrado nadie. Los alumnos aparecen aquí solos en cuanto entran con su cuenta de Google a cualquier módulo.
       </td></tr>`;
       if (resumen) resumen.textContent = "Sin alumnos";
       return;
@@ -482,7 +487,10 @@ import { u } from "../lib/url";
 
     tbody.innerHTML = lista.map((a) => `
       <tr class="border-b border-white/5 hover:bg-white/[0.02]">
-        <td class="py-3 pr-4 text-slate-200">${escapar(a.nombre)}</td>
+        <td class="py-3 pr-4 text-slate-200">
+          ${escapar(a.nombre)}
+          ${a.correo ? `<span class="block text-[11px] text-slate-600 font-mono-tech">${escapar(a.correo)}</span>` : ""}
+        </td>
         <td class="py-3 pr-4 text-slate-500 font-mono-tech text-xs">${escapar(a.grupo)}</td>
         ${DIAS.map((d) => celda(a.uid, d)).join("")}
       </tr>`).join("");
@@ -548,7 +556,9 @@ import { u } from "../lib/url";
         const r = puntajes.get(`${a.uid}_${d}`);
         if (r) p[d] = r.aciertos;
       }
-      return { nombre: a.nombre, matricula: a.matricula, puntajes: p };
+      // Quien entró con Google no tiene matrícula; su correo identifica igual
+      // de bien en iDoceo, y es lo único único que hay de esa persona.
+      return { nombre: a.nombre, matricula: a.matricula || a.correo || "", puntajes: p };
     });
 
     // Solo se exportan los módulos donde alguien contestó: iDoceo no gana nada

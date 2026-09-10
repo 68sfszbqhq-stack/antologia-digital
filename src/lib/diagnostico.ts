@@ -22,16 +22,15 @@
 // que aún no se entrega, y nada más.
 
 import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   signOut,
   onAuthStateChanged,
-  setPersistence,
-  browserLocalPersistence,
   type User,
 } from "firebase/auth";
+// Entrar con Google vive en google-auth.ts porque lo comparten esta evaluación
+// y el diagnóstico de cada módulo de la antología. Se reexporta para que las
+// páginas que ya lo importaban desde aquí no tengan que cambiar.
+import { esCuentaDeGoogle } from "./google-auth";
+export { entrarConGoogle, sesionPorRedireccion } from "./google-auth";
 import {
   doc, getDoc, setDoc, updateDoc, serverTimestamp,
 } from "firebase/firestore";
@@ -73,112 +72,11 @@ const POR_OMISION: AjustesDiagnostico = {
 
 // ─── Entrar y salir ──────────────────────────────────────────────────────────
 
-/**
- * ¿Estamos dentro del navegador de una app (WhatsApp, Instagram, Facebook,
- * TikTok)? Ahí las ventanas emergentes sencillamente no abren, así que ni se
- * intenta: se va derecho por redirección.
- *
- * Importa porque el enlace de esta evaluación se reparte justamente por
- * WhatsApp, y lo natural es tocarlo ahí mismo.
- */
-function dentroDeUnaApp(): boolean {
-  const ua = navigator.userAgent || "";
-  return /FBAN|FBAV|Instagram|Line|WhatsApp|TikTok|MicroMessenger|; wv\)/i.test(ua);
-}
-
-function proveedorGoogle(): GoogleAuthProvider {
-  const p = new GoogleAuthProvider();
-  // Que siempre pregunte cuál cuenta: en un salón es normal que varios alumnos
-  // usen la misma computadora, y sin esto el segundo entraría como el primero.
-  p.setCustomParameters({ prompt: "select_account" });
-  return p;
-}
-
-/**
- * Entra con Google. Dos caminos, y hacen falta los dos.
- *
- *   · VENTANA EMERGENTE. Es la buena donde funciona: no recarga la página y no
- *     depende de cookies de terceros, que Chrome nuevo ya bloquea.
- *   · REDIRECCIÓN. Manda al alumno a Google y lo trae de vuelta. Es la que
- *     salva a los teléfonos viejos y a quien abrió el enlace dentro de WhatsApp,
- *     donde la emergente ni siquiera abre.
- *
- * Se intenta la emergente primero y, si el navegador la bloquea o no la
- * soporta, se cae a la redirección sin decirle nada al alumno: para él es el
- * mismo botón. Cuando `signInWithRedirect` toma el control, esta función ya no
- * regresa —la página se va—, y la sesión se recoge al volver con
- * `sesionPorRedireccion()`.
- */
-export async function entrarConGoogle(): Promise<User | null> {
-  // Persistencia local: el alumno entra una vez y el navegador lo recuerda,
-  // que es lo que permite retomar sin volver a identificarse.
-  await setPersistence(auth(), browserLocalPersistence);
-
-  if (dentroDeUnaApp()) {
-    await signInWithRedirect(auth(), proveedorGoogle());
-    return null; // la página se va; no hay nada que devolver
-  }
-
-  try {
-    const cred = await signInWithPopup(auth(), proveedorGoogle());
-    return cred.user;
-  } catch (e: any) {
-    const codigo = e?.code ?? "";
-    const laVentanaNoSirve =
-      codigo === "auth/popup-blocked" ||
-      codigo === "auth/operation-not-supported-in-this-environment" ||
-      codigo === "auth/web-storage-unsupported" ||
-      codigo === "auth/internal-error";
-    if (!laVentanaNoSirve) throw e; // p. ej. el alumno la cerró a propósito
-
-    await signInWithRedirect(auth(), proveedorGoogle());
-    return null;
-  }
-}
-
-/**
- * Recoge la sesión de quien volvió de Google por redirección.
- *
- * Hay que llamarla al cargar la página, siempre: si el alumno no venía de una
- * redirección devuelve null y no pasa nada. Sin esto, quien entró por ese camino
- * volvería a la página y parecería que no entró.
- */
-export async function sesionPorRedireccion(): Promise<User | null> {
-  try {
-    const cred = await getRedirectResult(auth());
-    return cred?.user ?? null;
-  } catch {
-    // Si falla, `observarDiagnostico` acabará avisando igual cuando haya sesión.
-    return null;
-  }
-}
-
 /** Cierra la sesión. Sirve para el "No soy yo": en un salón es normal que varios
  *  alumnos usen la misma computadora, y sin esto el segundo entraría como el
  *  primero. Cierra la única sesión que hay, sea cual sea. */
 export async function salirDiagnostico(): Promise<void> {
   await signOut(auth());
-}
-
-/**
- * ¿Esta sesión de Firebase sirve para el diagnóstico?
- *
- * TODO EL SITIO COMPARTE LA MISMA SESIÓN DE FIREBASE, y las otras puertas
- * entran de otra forma: `/landolt` abre una sesión anónima y `/expediente` una
- * con folio (que ante Firebase es un correo y una contraseña de verdad). Si un
- * alumno hizo el test de atención hace un rato, o un papá contestó el
- * cuestionario en esa misma computadora, al llegar aquí Firebase diría que "ya
- * hay alguien identificado" y no lo hay: no es una cuenta de Google, no trae
- * correo real y las reglas rechazarían el documento con un error que nadie
- * entendería.
- *
- * Así que aquí solo cuenta quien entró con Google. Cualquier otra sesión se
- * trata como si no hubiera nadie, y se le pide entrar.
- */
-function esCuentaDeGoogle(u: User | null): boolean {
-  return Boolean(
-    u && !u.isAnonymous && u.providerData.some((p) => p.providerId === "google.com"),
-  );
 }
 
 /** Avisa cada vez que cambia quién está identificado CON GOOGLE. Devuelve cómo
