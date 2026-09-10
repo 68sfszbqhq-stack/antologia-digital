@@ -11,6 +11,8 @@
 // funciona como siempre, sin guardar nada. Así el sitio nunca queda roto por
 // una configuración a medias.
 
+import { u } from "../lib/url";
+
 interface Props {
   dia: number;
 }
@@ -108,9 +110,9 @@ const { dia } = Astro.props;
       <span class="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">// Una sola vez</span>
       <h2 class="text-2xl font-bold text-white mb-2">¿Quién eres?</h2>
       <p class="text-sm text-slate-400 mb-6">
-        Es la primera vez que entras a los módulos. Dime tu nombre y tu grupo
-        para que tus calificaciones lleguen a la lista correcta. No te lo voy a
-        volver a preguntar.
+        No encontré tus datos de la evaluación de inicio de ciclo, así que te
+        los pido una sola vez: tu nombre y tu grupo, para que tus calificaciones
+        lleguen a la lista correcta. No te lo voy a volver a preguntar.
       </p>
 
       <form id="aa-datos-form" class="space-y-4" novalidate>
@@ -186,6 +188,24 @@ const { dia } = Astro.props;
     </div>
   </div>
 
+  <!-- Entró el profesor, no un alumno -->
+  <div id="aa-profesor" class="hidden glass-card rounded-2xl p-8 border border-cyan-500/25 mb-8 text-center">
+    <div class="text-3xl mb-3">👋</div>
+    <h2 class="text-xl font-bold text-white mb-2">Entraste con tu cuenta de profesor</h2>
+    <p class="text-sm text-slate-400 max-w-md mx-auto mb-5">
+      Aquí es donde tus alumnos contestan el diagnóstico. Sus calificaciones y el
+      interruptor de cada módulo están en el panel.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href={u("/profesor")} class="btn-primary px-6 py-2.5 text-xs font-mono-tech">
+        Ir al panel
+      </a>
+      <button id="aa-profesor-salir" type="button" class="text-xs font-mono-tech text-slate-500 hover:text-rose-400 transition">
+        Salir de esta cuenta
+      </button>
+    </div>
+  </div>
+
   <!-- El profesor todavía no abre este módulo -->
   <div id="aa-cerrado" class="hidden glass-card rounded-2xl p-8 border border-amber-500/20 mb-8 text-center">
     <div class="text-3xl mb-3">🔒</div>
@@ -242,8 +262,8 @@ const { dia } = Astro.props;
   import { firebaseConfigurado, auth } from "../lib/firebase";
   import {
     entrar, entrarConGoogle, sesionPorRedireccion, esCuentaDeGoogle,
-    salir, observarSesion, fichaDe, crearMiFicha, datosDelDiagnostico,
-    modulosAbiertos,
+    salir, observarSesion, esProfesor, fichaDe, crearMiFicha,
+    datosDelDiagnostico, modulosAbiertos,
     intentoPrevio, guardarIntento, mensajeDeError, type Ficha,
   } from "../lib/alumno";
   import type { User } from "firebase/auth";
@@ -264,7 +284,7 @@ const { dia } = Astro.props;
   }
 
   function soloUnEstado(visible: string | null) {
-    for (const id of ["aa-cargando", "aa-login", "aa-datos", "aa-cerrado", "aa-hecho", "aa-error"]) {
+    for (const id of ["aa-cargando", "aa-login", "aa-datos", "aa-profesor", "aa-cerrado", "aa-hecho", "aa-error"]) {
       ver(id, id === visible);
     }
     verQuiz(visible === null);
@@ -329,6 +349,14 @@ const { dia } = Astro.props;
       // Solo se le pregunta a quien no hizo aquella evaluación. Y esto no aplica
       // a la entrada con matrícula y código: esa ficha ya existe, la creó el
       // profesor al darlo de alta.
+      // El profesor entra aquí a revisar, no a contestar. Si se le pidieran
+      // nombre y grupo acabaría dado de alta en su propia lista.
+      if (!ficha && esProfesor(u)) {
+        soloUnEstado("aa-profesor");
+        ver("aa-barra", false);
+        return;
+      }
+
       if (!ficha && esCuentaDeGoogle(u)) {
         const nueva = await fichaAutomatica(u);
         if (!nueva) {
@@ -527,6 +555,15 @@ const { dia } = Astro.props;
   }
 
   function prepararSalir() {
+    const delProfesor = document.getElementById("aa-profesor-salir");
+    if (delProfesor && !delProfesor.dataset.listo) {
+      delProfesor.dataset.listo = "1";
+      delProfesor.addEventListener("click", async () => {
+        await salir();
+        location.reload();
+      });
+    }
+
     const boton = document.getElementById("aa-salir");
     if (!boton || boton.dataset.listo) return;
     boton.dataset.listo = "1";

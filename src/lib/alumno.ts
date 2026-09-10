@@ -91,6 +91,22 @@ export async function entrarConGoogle(): Promise<User | null> {
 export { sesionPorRedireccion, esCuentaDeGoogle };
 
 /**
+ * Los correos que en `firestore.rules` cuentan como profesor.
+ *
+ * Aquí no dan ningún permiso —los permisos los decide Firestore, no esta
+ * página—; sirven para no tratar al profesor como alumno. Sin esto, José entra
+ * a revisar un módulo, el sitio no le encuentra ficha y le pide su nombre y su
+ * grupo como si fuera de primero; si los llena, aparece en su propia lista de
+ * calificaciones. Mantener igual que correosDeProfesor() en firestore.rules.
+ */
+const CORREOS_DE_PROFESOR = ["jose.mendoza.buap@gmail.com"];
+
+export function esProfesor(u: User | null): boolean {
+  const correo = u?.email?.toLowerCase() ?? "";
+  return Boolean(correo) && CORREOS_DE_PROFESOR.includes(correo);
+}
+
+/**
  * Busca los datos que el alumno ya dejó en la evaluación diagnóstica de inicio
  * de ciclo, para no volvérselos a pedir.
  *
