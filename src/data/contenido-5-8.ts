@@ -404,6 +404,15 @@ export const modulo6: ContenidoModulo = {
       acento: "purple",
     },
     {
+      icono: "💬",
+      etiqueta: "Convivencia",
+      titulo: "Netiqueta: las reglas de convivencia en línea",
+      cuerpo:
+        "Son las normas de respeto y cortesía para comunicarnos en internet: tratar a compañeros, maestros y autoridades con el mismo respeto que en persona; no crear stickers, memes ni burlas con la imagen de otros; escribir claro y sin mayúsculas sostenidas, que se leen como gritos; no llenar los grupos de cadenas o mensajes fuera de tema, y pensar dos veces antes de comentar o publicar. Si ves una conducta inadecuada, no la compartas: repórtala.",
+      dato: "Lo que publicas deja huella y tiene consecuencias reales: el reglamento escolar sanciona las ofensas en línea y en México la Ley Olimpia castiga difundir contenido íntimo de otra persona sin su consentimiento.",
+      acento: "rose",
+    },
+    {
       icono: "🤝",
       etiqueta: "Síntesis",
       titulo: "Ciudadanía digital",

@@ -363,6 +363,18 @@
         "descripcion": "Fuente de los 415 TWh consumidos por centros de datos en 2024 y la proyección de 945 TWh para 2030."
       },
       {
+        "tipo": "Lectura",
+        "titulo": "Netiqueta: comportamiento en línea (INCIBE)",
+        "url": "https://www.incibe.es/menores/materiales/netiqueta-comportamiento-en-linea",
+        "descripcion": "Material del Instituto Nacional de Ciberseguridad de España sobre las normas de conducta y cortesía para comunicarnos con respeto en la red."
+      },
+      {
+        "tipo": "Lectura",
+        "titulo": "Prácticas morales y normas de netiqueta en las interacciones virtuales de estudiantes (Innovación Educativa, 2015)",
+        "url": "https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1665-26732015000300005",
+        "descripcion": "Artículo académico mexicano: los estudiantes de secundaria estudiados no conocían las normas de netiqueta y tendían a ver internet como un espacio sin consecuencias."
+      },
+      {
         "tipo": "Actividad",
         "titulo": "Campaña escolar de reducción de huella digital y electrónica",
         "url": "/sesion/6",
