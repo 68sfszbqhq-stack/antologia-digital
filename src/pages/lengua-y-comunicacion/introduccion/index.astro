@@ -1,0 +1,78 @@
+---
+// Portada del Máster en Comunicación Consciente: la introducción de Lengua y
+// Comunicación, en dos sesiones de 50 minutos. Las presentaciones están en
+// [sesion].astro y el contenido en src/data/lengua/master.ts.
+//
+// Antes, en esta misma dirección, había una presentación de 13 diapositivas
+// solo para leer. Se conserva la dirección para no romper el enlace que ya
+// tenían los alumnos.
+import Layout from "../../../layouts/Layout.astro";
+import { u } from "../../../lib/url";
+import { SESIONES_MASTER, QUIZZES } from "../../../data/lengua/master";
+
+const votos = (n: number) =>
+  SESIONES_MASTER[n].diapositivas.filter((d) => d.tipo === "voto").length;
+---
+
+<Layout title="Máster en Comunicación Consciente" description="Introducción a Lengua y Comunicación: Los cuatro acuerdos e Influencia, puestos a prueba por la ciencia. Dos sesiones con votación en vivo y quizzes.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,800;1,600&display=swap" />
+
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 py-12 master">
+    <nav class="text-xs font-mono-tech text-slate-500 mb-10">
+      <a href={u("/")} class="hover:text-amber-300 transition">Inicio</a>
+      <span class="mx-2">/</span>
+      <a href={u("/lengua-y-comunicacion")} class="hover:text-amber-300 transition">Lengua y Comunicación</a>
+      <span class="mx-2">/</span>
+      <span class="text-slate-400">Máster</span>
+    </nav>
+
+    <p class="kicker">Lengua y Comunicación · Introducción</p>
+    <h1 class="titulo">Máster en Comunicación Consciente</h1>
+    <p class="lema">Cómo te hablas. Cómo te convencen. Y cómo decidir tú.</p>
+
+    <div class="grid md:grid-cols-2 gap-5 mt-12">
+      {SESIONES_MASTER.map((s, i) => (
+        <a href={u(`/lengua-y-comunicacion/introduccion/${s.slug}`)} class="tarjeta group">
+          <p class="modulo">{s.modulo}</p>
+          <h2 class="text-2xl md:text-3xl font-extrabold text-white mt-1 group-hover:text-amber-200 transition" style="font-family: 'Playfair Display', serif;">{s.titulo}</h2>
+          <p class="text-white/60 mt-2">{s.resumen}</p>
+          <p class="text-xs font-mono-tech text-white/40 mt-5">
+            50 min · {votos(i)} votaciones en vivo · Quiz {s.numero} ({QUIZZES[s.numero].preguntas.length} preguntas)
+          </p>
+          <p class="text-sm font-bold text-amber-200 mt-4">Presentar →</p>
+        </a>
+      ))}
+    </div>
+
+    <div class="tarjeta mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <p class="modulo">Alumnos</p>
+        <p class="text-white mt-1">Para votar y contestar los quizzes, entra desde tu celular:</p>
+      </div>
+      <a href={u("/en-vivo/")} class="boton-oro text-center">Entrar a la clase en vivo</a>
+    </div>
+
+    <details class="mt-12 guia">
+      <summary class="cursor-pointer text-sm font-bold text-amber-200">Guía para el profesor: cómo dar la clase</summary>
+      <div class="text-sm text-white/70 leading-relaxed space-y-3 mt-4">
+        <p><b class="text-white">Antes de clase.</b> Abre la presentación y toca «A mano alzada» (abajo a la derecha) para entrar con tu cuenta de profesor. Cuando diga «En vivo», la votación está conectada.</p>
+        <p><b class="text-white">Durante la clase.</b> Al llegar a una diapositiva de votación, la pregunta aparece sola en los celulares, y al avanzar se cierra. Las barras no se ven hasta que tocas «Revelar»: así nadie vota copiando a la mayoría.</p>
+        <p><b class="text-white">Quizzes.</b> En la diapositiva del quiz toca «Abrir quiz»; al terminar, «Cerrar quiz». Cada alumno tiene un intento y ve la retroalimentación al enviar. Las calificaciones se descargan para iDoceo en el panel del profesor.</p>
+        <p><b class="text-white">Sin internet o sin sesión.</b> La presentación funciona igual: votan a mano alzada y tú revelas la respuesta.</p>
+        <p><b class="text-white">En qué se basa.</b> Los alumnos predicen antes de cada experimento, porque la curiosidad nace del hueco entre lo que creen y lo que pasó (Loewenstein, 1994). Además, cada pocos minutos deciden o discuten (Chi y Wylie, 2014; Freeman et al., 2014), practican recordar con repasos y quizzes (Roediger y Karpicke, 2006) y cazan trucos de persuasión para aprender a resistirlos (Roozenbeek y van der Linden, 2019).</p>
+      </div>
+    </details>
+  </section>
+</Layout>
+
+<style>
+  .master { --oro: #e2c275; }
+  .kicker { color: var(--oro); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase; }
+  .titulo { font-family: "Playfair Display", serif; font-weight: 800; color: #fff; font-size: clamp(2.2rem, 6vw, 4.2rem); line-height: 1.05; margin-top: 0.6rem; }
+  .lema { font-family: "Playfair Display", serif; font-style: italic; color: rgba(255,255,255,0.7); font-size: clamp(1.1rem, 2.4vw, 1.5rem); margin-top: 1rem; }
+  .modulo { color: var(--oro); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+  .tarjeta { display: block; border-radius: 1.25rem; padding: 1.75rem; border: 1px solid rgba(226,194,117,0.22); background: radial-gradient(ellipse at top right, rgba(226,194,117,0.08), transparent 60%), #0a0a0f; transition: border-color .3s, transform .3s; }
+  a.tarjeta:hover { border-color: rgba(226,194,117,0.55); transform: translateY(-2px); }
+  .boton-oro { border-radius: 999px; background: var(--oro); color: #07070b; font-weight: 800; padding: 0.8rem 1.4rem; white-space: nowrap; }
+  .guia { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; }
+</style>

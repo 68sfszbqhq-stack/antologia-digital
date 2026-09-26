@@ -165,6 +165,25 @@ Correrlo **siempre** después de tocar las reglas y **antes** de publicarlas: un
 permiso de más no se ve en la pantalla, se ve cuando alguien lee las
 calificaciones del grupo.
 
+### Máster de Lengua y Comunicación: votos en vivo y quizzes
+
+La introducción de Lengua y Comunicación (`/lengua-y-comunicacion/introduccion/`)
+son dos presentaciones para proyectar y una página para el celular del alumno
+(`/en-vivo/`). El contenido está en `src/data/lengua/master.ts`.
+
+- **`config/lyc`** lo escribe la presentación cuando el profesor entra con su
+  cuenta: `activa` es la pregunta abierta (con una "ronda" pegada, para que los
+  votos de un grupo no se sumen a los de otro) y `quizzes` los que se pueden
+  contestar. Los celulares lo escuchan y cambian de pantalla solos.
+- **`lyc_votos`**: un voto por alumno y ronda, solo en la pregunta abierta. No
+  califica. Solo el profesor puede listarlos.
+- **`lyc_quizzes`**: un intento por alumno y quiz (`<uid>_<quiz>`), solo con el
+  quiz abierto. Se descargan para iDoceo desde `/profesor`.
+
+Las respuestas correctas de los quizzes viajan en el código de la página, igual
+que las de los diagnósticos de los módulos: la calificación la calcula el
+navegador y las reglas solo acotan los números.
+
 ### Configuración inicial (una sola vez)
 
 1. Crear el proyecto en [console.firebase.google.com](https://console.firebase.google.com).

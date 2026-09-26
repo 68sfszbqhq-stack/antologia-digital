@@ -1,0 +1,433 @@
+---
+// Lo que el alumno ve en su celular durante el Máster en Comunicación
+// Consciente (introducción de Lengua y Comunicación).
+//
+// El alumno entra una vez y deja la página abierta. Esta página escucha
+// config/lyc: cuando el profesor llega a una pregunta en la presentación, aquí
+// aparece sola; cuando abre un quiz, aparece el quiz. No hay nada que recargar.
+//
+// La dirección es corta a propósito (/en-vivo): se proyecta como QR y a veces
+// hay que teclearla.
+//
+// Mismo camino de entrada que los módulos: cuenta de Google, y la ficha se arma
+// sola con los datos de la evaluación diagnóstica. Solo a quien no la hizo se le
+// piden nombre y grupo.
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="En vivo · Lengua y Comunicación" description="Vota y contesta los quizzes de la clase de Lengua y Comunicación desde tu celular.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap" />
+
+  <section id="ev" class="ev max-w-lg mx-auto px-4 py-8">
+    <p class="kicker text-center">Máster en Comunicación Consciente</p>
+    <p id="ev-quien" class="text-center text-xs text-white/40 mt-1 h-4"></p>
+
+    <div id="ev-cargando" class="caja text-center">
+      <div class="inline-block w-6 h-6 border-2 border-amber-200/30 border-t-amber-200 rounded-full animate-spin"></div>
+      <p class="text-sm text-white/50 mt-3">Conectando…</p>
+    </div>
+
+    <div id="ev-sinfirebase" class="caja text-center" hidden>
+      <p class="text-white">La votación en vivo no está disponible todavía.</p>
+      <p class="text-sm text-white/50 mt-2">Sigue la clase en la pantalla del salón.</p>
+    </div>
+
+    <div id="ev-login" class="caja" hidden>
+      <h1 class="titulo">Entra a la clase</h1>
+      <p class="text-sm text-white/60 mt-2">Usa la misma cuenta de Google de tu evaluación diagnóstica. Solo se hace una vez.</p>
+      <button id="ev-google" type="button" class="boton-oro w-full mt-6">Entrar con Google</button>
+      <p id="ev-login-error" class="error" hidden></p>
+    </div>
+
+    <form id="ev-datos" class="caja space-y-4" hidden novalidate>
+      <h1 class="titulo">¿Quién eres?</h1>
+      <p class="text-sm text-white/60">No encontramos tu evaluación diagnóstica. Dinos tu nombre y tu grupo, solo esta vez.</p>
+      <label class="block">
+        <span class="etiqueta">Nombre completo (apellidos primero)</span>
+        <input id="ev-nombre" type="text" autocomplete="name" class="campo" />
+      </label>
+      <div class="grid grid-cols-3 gap-3">
+        <label class="block"><span class="etiqueta">Grado</span>
+          <select id="ev-grado" class="campo"><option>1º</option><option>2º</option><option>3º</option></select>
+        </label>
+        <label class="block"><span class="etiqueta">Grupo</span>
+          <input id="ev-grupo" type="text" maxlength="2" placeholder="A" class="campo uppercase" />
+        </label>
+        <label class="block"><span class="etiqueta">Turno</span>
+          <select id="ev-turno" class="campo"><option value="Vesp">Vesp.</option><option value="Mat">Mat.</option></select>
+        </label>
+      </div>
+      <button type="submit" class="boton-oro w-full">Continuar</button>
+      <p id="ev-datos-error" class="error" hidden></p>
+    </form>
+
+    <div id="ev-profesor" class="caja text-center" hidden>
+      <p class="text-white">Entraste como profesor.</p>
+      <p class="text-sm text-white/50 mt-2">Esta página es para los celulares de los alumnos. Tú maneja la clase desde la presentación.</p>
+      <button type="button" data-salir class="boton-fantasma mt-5">Salir</button>
+    </div>
+
+    <div id="ev-esperando" class="caja text-center" hidden>
+      <div class="pulso mx-auto"></div>
+      <p class="text-white mt-5">Estás dentro. Mira la pantalla del salón.</p>
+      <p class="text-sm text-white/50 mt-2">Cuando haya una pregunta, aparecerá aquí sola. No cierres esta página.</p>
+    </div>
+
+    <div id="ev-votar" class="caja" hidden>
+      <p class="etiqueta">Vota</p>
+      <h1 id="ev-pregunta" class="titulo mt-1"></h1>
+      <div id="ev-opciones" class="space-y-3 mt-5"></div>
+      <p id="ev-votar-error" class="error" hidden></p>
+    </div>
+
+    <div id="ev-votado" class="caja text-center" hidden>
+      <p class="text-3xl">✓</p>
+      <p class="text-white mt-2">Tu voto: <strong id="ev-mi-voto" class="text-amber-200"></strong></p>
+      <p class="text-sm text-white/50 mt-2">Los resultados se ven en la pantalla del salón.</p>
+    </div>
+
+    <div id="ev-quiz-invita" class="caja text-center" hidden>
+      <p class="etiqueta">Evaluación · un solo intento</p>
+      <h1 id="ev-quiz-titulo" class="titulo mt-1"></h1>
+      <p id="ev-quiz-cuantas" class="text-sm text-white/60 mt-2"></p>
+      <button id="ev-quiz-empezar" type="button" class="boton-oro w-full mt-6">Empezar</button>
+    </div>
+
+    <form id="ev-quiz" hidden novalidate>
+      <p class="etiqueta">Quiz · contesta todas</p>
+      <div id="ev-quiz-preguntas" class="space-y-5 mt-3"></div>
+      <button id="ev-quiz-enviar" type="submit" class="boton-oro w-full mt-6" disabled>Enviar respuestas</button>
+      <p id="ev-quiz-error" class="error" hidden></p>
+    </form>
+
+    <div id="ev-quiz-hecho" hidden>
+      <div class="caja text-center">
+        <p class="etiqueta">Tu resultado</p>
+        <p id="ev-quiz-puntaje" class="puntaje"></p>
+        <p class="text-sm text-white/50">Revisa abajo por qué. Equivocarte aquí también te enseña.</p>
+      </div>
+      <div id="ev-quiz-revision" class="space-y-4 mt-4"></div>
+    </div>
+
+    <div id="ev-error" class="caja text-center" hidden>
+      <p id="ev-error-texto" class="text-white">No se pudo conectar.</p>
+      <button type="button" onclick="location.reload()" class="boton-fantasma mt-5">Reintentar</button>
+    </div>
+
+    <p class="text-center mt-8"><button type="button" data-salir id="ev-salir" class="text-xs text-white/30 hover:text-white/60" hidden>Salir de esta cuenta</button></p>
+  </section>
+</Layout>
+
+<style>
+  .ev { --oro: #e2c275; color: rgba(255,255,255,0.8); }
+  .kicker { color: var(--oro); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; }
+  .etiqueta { color: var(--oro); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; display: block; }
+  .titulo { font-family: "Playfair Display", serif; font-weight: 800; color: #fff; font-size: 1.55rem; line-height: 1.15; }
+  .caja { margin-top: 1.25rem; padding: 1.5rem; border-radius: 1.25rem; border: 1px solid rgba(226,194,117,0.2); background: rgba(10,10,15,0.85); }
+  .campo { margin-top: 0.35rem; width: 100%; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #fff; padding: 0.75rem 0.9rem; font-size: 1rem; }
+  .campo:focus { outline: none; border-color: var(--oro); }
+  .boton-oro { border-radius: 999px; background: var(--oro); color: #07070b; font-weight: 800; padding: 0.9rem 1.5rem; font-size: 1rem; }
+  .boton-oro:disabled { opacity: 0.4; }
+  .boton-fantasma { border-radius: 999px; border: 1px solid rgba(226,194,117,0.5); color: #f5d78e; padding: 0.6rem 1.4rem; font-size: 0.9rem; }
+  .error { margin-top: 1rem; font-size: 0.875rem; color: #fda4af; background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.25); border-radius: 0.75rem; padding: 0.75rem 1rem; }
+  .pulso { width: 1rem; height: 1rem; border-radius: 999px; background: var(--oro); animation: pulso 1.8s infinite; }
+  @keyframes pulso { 0% { box-shadow: 0 0 0 0 rgba(226,194,117,0.5); } 100% { box-shadow: 0 0 0 1.6rem rgba(226,194,117,0); } }
+  .puntaje { font-family: "Playfair Display", serif; font-weight: 800; color: #fff; font-size: 3rem; margin: 0.4rem 0; }
+  .ev :global(.op) { width: 100%; text-align: left; display: flex; gap: 0.8rem; align-items: center; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.03); color: #fff; padding: 0.95rem 1rem; font-size: 1rem; line-height: 1.3; }
+  .ev :global(.op:active), .ev :global(.op.elegida) { border-color: var(--oro); background: rgba(226,194,117,0.1); }
+  .ev :global(.op .letra) { flex-shrink: 0; width: 1.8rem; height: 1.8rem; border-radius: 999px; display: grid; place-items: center; background: var(--oro); color: #07070b; font-weight: 800; font-size: 0.85rem; }
+  .ev :global(.p-quiz) { padding: 1.25rem; border-radius: 1.25rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(10,10,15,0.85); }
+  .ev :global(.p-quiz .texto) { color: #fff; font-weight: 600; line-height: 1.35; }
+  .ev :global(.bien) { color: #86efac; }
+  .ev :global(.mal) { color: #fda4af; }
+</style>
+
+<script>
+  import type { User } from "firebase/auth";
+  import type { Unsubscribe } from "firebase/firestore";
+  import { firebaseConfigurado } from "../lib/firebase-config";
+  import { PREGUNTAS_VIVO, QUIZZES } from "../data/lengua/master";
+  import type { ConfigLyc, ResultadoQuiz } from "../lib/lyc-vivo";
+
+  const ESTADOS = ["ev-cargando", "ev-sinfirebase", "ev-login", "ev-datos", "ev-profesor", "ev-esperando",
+                   "ev-votar", "ev-votado", "ev-quiz-invita", "ev-quiz", "ev-quiz-hecho", "ev-error"];
+  const LETRAS = ["A", "B", "C", "D", "E", "F"];
+
+  let yo: User | null = null;
+  let config: ConfigLyc = { activa: "", quizzes: [] };
+  let contestandoQuiz = false;
+  let quitarConfig: Unsubscribe | null = null;
+  let quitarSesion: (() => void) | null = null;
+  let turno = 0; // descarta respuestas viejas si config cambia dos veces seguidas
+
+  const vivo = () => import("../lib/lyc-vivo");
+  const alumno = () => import("../lib/alumno");
+
+  function solo(id: string) {
+    for (const e of ESTADOS) {
+      const el = document.getElementById(e);
+      if (el) el.hidden = e !== id;
+    }
+  }
+  function $(id: string) { return document.getElementById(id)!; }
+  function error(id: string, texto: string) { const el = $(id); el.textContent = texto; el.hidden = false; }
+
+  // ─── Quién es ──────────────────────────────────────────────────────────────
+
+  async function alCambiarSesion(u: User | null) {
+    yo = u;
+    quitarConfig?.(); quitarConfig = null;
+    $("ev-salir").hidden = !u;
+    $("ev-quien").textContent = "";
+    if (!u) { solo("ev-login"); return; }
+
+    solo("ev-cargando");
+    const a = await alumno();
+    if (a.esProfesor(u)) { solo("ev-profesor"); return; }
+
+    try {
+      let ficha = await a.fichaDe(u.uid);
+      if (!ficha && a.esCuentaDeGoogle(u)) {
+        const datos = await a.datosDelDiagnostico(u);
+        if (datos) ficha = await a.crearMiFicha(u, datos.nombre, datos.grupo).catch(() => null);
+      }
+      if (!ficha) {
+        (document.getElementById("ev-nombre") as HTMLInputElement).value ||= u.displayName ?? "";
+        solo("ev-datos");
+        return;
+      }
+      if (!ficha.activo) {
+        $("ev-error-texto").textContent = "Tu acceso está desactivado. Avísale a tu profesor.";
+        solo("ev-error");
+        return;
+      }
+      $("ev-quien").textContent = `${ficha.nombre} · ${ficha.grupo}`;
+      await escucharClase();
+    } catch {
+      solo("ev-error");
+    }
+  }
+
+  async function escucharClase() {
+    const { observarConfig } = await vivo();
+    solo("ev-esperando");
+    quitarConfig?.();
+    quitarConfig = observarConfig(
+      (c) => { config = c; decidir(); },
+      () => solo("ev-error"),
+    );
+  }
+
+  // ─── Qué mostrar ───────────────────────────────────────────────────────────
+
+  async function decidir() {
+    if (!yo || contestandoQuiz) return;
+    const mio = ++turno;
+    const { idDePregunta, miVoto, quizPrevio } = await vivo();
+
+    const pregunta = config.activa ? PREGUNTAS_VIVO[idDePregunta(config.activa)] : undefined;
+    if (pregunta) {
+      const previo = await miVoto(yo.uid, config.activa).catch(() => null);
+      if (mio !== turno) return;
+      if (previo !== null) { mostrarVotado(pregunta.opciones[previo]); return; }
+      mostrarPregunta(config.activa, pregunta.texto, pregunta.opciones);
+      return;
+    }
+
+    for (const n of config.quizzes) {
+      const quiz = QUIZZES[n as 1 | 2];
+      if (!quiz) continue;
+      const previo = await quizPrevio(yo.uid, n).catch(() => null);
+      if (mio !== turno) return;
+      if (!previo) { invitarQuiz(n); return; }
+      mostrarResultado(n, previo);
+      return;
+    }
+
+    if (mio === turno) solo("ev-esperando");
+  }
+
+  // ─── Votar ─────────────────────────────────────────────────────────────────
+
+  function mostrarPregunta(clave: string, texto: string, opciones: string[]) {
+    $("ev-pregunta").textContent = texto;
+    $("ev-votar-error").hidden = true;
+    const cont = $("ev-opciones");
+    cont.innerHTML = "";
+    opciones.forEach((o, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "op";
+      b.innerHTML = `<span class="letra">${LETRAS[i]}</span><span></span>`;
+      b.lastElementChild!.textContent = o;
+      b.addEventListener("click", async () => {
+        cont.querySelectorAll("button").forEach((x) => ((x as HTMLButtonElement).disabled = true));
+        b.classList.add("elegida");
+        try {
+          await (await vivo()).votar(yo!.uid, clave, i);
+          mostrarVotado(o);
+        } catch {
+          error("ev-votar-error", "No se registró tu voto: la votación ya se cerró o se perdió la conexión.");
+          cont.querySelectorAll("button").forEach((x) => ((x as HTMLButtonElement).disabled = false));
+          b.classList.remove("elegida");
+        }
+      });
+      cont.appendChild(b);
+    });
+    solo("ev-votar");
+    navigator.vibrate?.(60);
+  }
+
+  function mostrarVotado(opcion: string) {
+    $("ev-mi-voto").textContent = opcion;
+    solo("ev-votado");
+  }
+
+  // ─── Quiz ──────────────────────────────────────────────────────────────────
+
+  function invitarQuiz(n: number) {
+    const quiz = QUIZZES[n as 1 | 2];
+    $("ev-quiz-titulo").textContent = `Quiz ${n}: ${quiz.titulo}`;
+    $("ev-quiz-cuantas").textContent = `${quiz.preguntas.length} preguntas. Cuenta para tu calificación y solo tienes un intento.`;
+    const empezar = $("ev-quiz-empezar");
+    empezar.onclick = () => armarQuiz(n);
+    solo("ev-quiz-invita");
+  }
+
+  function armarQuiz(n: number) {
+    contestandoQuiz = true;
+    const quiz = QUIZZES[n as 1 | 2];
+    const respuestas: number[] = Array(quiz.preguntas.length).fill(-1);
+    const cont = $("ev-quiz-preguntas");
+    const enviar = $("ev-quiz-enviar") as HTMLButtonElement;
+    cont.innerHTML = "";
+    $("ev-quiz-error").hidden = true;
+
+    quiz.preguntas.forEach((p, i) => {
+      const caja = document.createElement("div");
+      caja.className = "p-quiz";
+      const t = document.createElement("p");
+      t.className = "texto";
+      t.textContent = `${i + 1}. ${p.texto}`;
+      caja.appendChild(t);
+      const ops = document.createElement("div");
+      ops.className = "space-y-2 mt-3";
+      p.opciones.forEach((o, j) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "op";
+        b.innerHTML = `<span class="letra">${LETRAS[j]}</span><span></span>`;
+        b.lastElementChild!.textContent = o;
+        b.addEventListener("click", () => {
+          respuestas[i] = j;
+          ops.querySelectorAll(".op").forEach((x) => x.classList.toggle("elegida", x === b));
+          enviar.disabled = respuestas.includes(-1);
+        });
+        ops.appendChild(b);
+      });
+      caja.appendChild(ops);
+      cont.appendChild(caja);
+    });
+
+    const form = $("ev-quiz") as HTMLFormElement;
+    form.onsubmit = async (ev) => {
+      ev.preventDefault();
+      if (respuestas.includes(-1)) return;
+      enviar.disabled = true;
+      enviar.textContent = "Enviando…";
+      const aciertos = respuestas.filter((r, i) => r === quiz.preguntas[i].correcta).length;
+      const total = quiz.preguntas.length;
+      const resultado: ResultadoQuiz = { quiz: n, aciertos, total, porcentaje: Math.round((aciertos / total) * 100), respuestas };
+      try {
+        await (await vivo()).guardarQuiz(yo!.uid, resultado);
+        contestandoQuiz = false;
+        mostrarResultado(n, resultado);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e: any) {
+        enviar.disabled = false;
+        enviar.textContent = "Enviar respuestas";
+        error("ev-quiz-error", e?.message === "QUIZ_RECHAZADO"
+          ? "No se guardó: el quiz ya se cerró o ya lo habías contestado. Avísale a tu profesor."
+          : "No se guardó por la conexión. Vuelve a tocar «Enviar».");
+      }
+    };
+    enviar.textContent = "Enviar respuestas";
+    enviar.disabled = true;
+    solo("ev-quiz");
+  }
+
+  function mostrarResultado(n: number, r: ResultadoQuiz) {
+    const quiz = QUIZZES[n as 1 | 2];
+    $("ev-quiz-puntaje").textContent = `${r.aciertos} / ${r.total}`;
+    const cont = $("ev-quiz-revision");
+    cont.innerHTML = "";
+    quiz.preguntas.forEach((p, i) => {
+      const mia = r.respuestas[i];
+      const ok = mia === p.correcta;
+      const caja = document.createElement("div");
+      caja.className = "p-quiz";
+      const partes: [string, string][] = [
+        ["texto", `${i + 1}. ${p.texto}`],
+        [ok ? "bien text-sm mt-2" : "mal text-sm mt-2", `${ok ? "✓" : "✗"} Tu respuesta: ${p.opciones[mia] ?? "—"}`],
+      ];
+      if (!ok) partes.push(["bien text-sm mt-1", `Correcta: ${p.opciones[p.correcta]}`]);
+      partes.push(["text-sm text-white/60 mt-2", p.explicacion]);
+      for (const [clase, texto] of partes) {
+        const el = document.createElement("p");
+        el.className = clase;
+        el.textContent = texto;
+        caja.appendChild(el);
+      }
+      cont.appendChild(caja);
+    });
+    solo("ev-quiz-hecho");
+  }
+
+  // ─── Botones de entrada ────────────────────────────────────────────────────
+
+  function preparar() {
+    $("ev-google").onclick = async () => {
+      const { entrarConGoogle, mensajeDeError } = await alumno();
+      $("ev-login-error").hidden = true;
+      try { await entrarConGoogle(); }
+      catch (e) { error("ev-login-error", mensajeDeError(e)); }
+    };
+
+    ($("ev-datos") as HTMLFormElement).onsubmit = async (ev) => {
+      ev.preventDefault();
+      const nombre = (document.getElementById("ev-nombre") as HTMLInputElement).value.trim();
+      const grado = (document.getElementById("ev-grado") as HTMLSelectElement).value;
+      const letra = (document.getElementById("ev-grupo") as HTMLInputElement).value.trim().toUpperCase();
+      const turnoEsc = (document.getElementById("ev-turno") as HTMLSelectElement).value;
+      if (nombre.length < 3) return error("ev-datos-error", "Escribe tu nombre completo.");
+      if (!letra) return error("ev-datos-error", "Escribe la letra de tu grupo.");
+      const a = await alumno();
+      try {
+        await a.crearMiFicha(yo!, nombre, `${grado} ${letra} ${turnoEsc}`);
+        await alCambiarSesion(yo);
+      } catch (e) {
+        error("ev-datos-error", a.mensajeDeError(e));
+      }
+    };
+
+    document.querySelectorAll<HTMLElement>("[data-salir]").forEach((b) => {
+      b.onclick = async () => { await (await alumno()).salir(); location.reload(); };
+    });
+  }
+
+  document.addEventListener("astro:page-load", async () => {
+    if (!document.getElementById("ev")) return;
+    if (!firebaseConfigurado()) { solo("ev-sinfirebase"); return; }
+    contestandoQuiz = false;
+    preparar();
+    const { observarSesion, sesionPorRedireccion } = await alumno();
+    sesionPorRedireccion();
+    quitarSesion?.();
+    quitarSesion = observarSesion(alCambiarSesion);
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    quitarConfig?.(); quitarSesion?.();
+    quitarConfig = null; quitarSesion = null;
+  });
+</script>

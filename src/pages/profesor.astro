@@ -179,6 +179,21 @@ import { u } from "../lib/url";
           intento y dejar que el alumno lo repita.
         </p>
       </section>
+
+      <!-- Quizzes de la introducción de Lengua y Comunicación (Máster) -->
+      <section class="glass-card rounded-2xl p-6 border border-white/10 mt-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white mb-1">Lengua y Comunicación · quizzes del Máster</h2>
+            <p id="pr-lyc-resumen" class="text-xs text-slate-400 font-mono-tech">
+              Se abren y se cierran desde la presentación. Usa el mismo filtro de grupo de arriba.
+            </p>
+          </div>
+          <button id="pr-lyc-exportar" class="btn-primary px-5 py-2.5 text-xs font-mono-tech">
+            Descargar CSV para iDoceo
+          </button>
+        </div>
+      </section>
     </div>
 
     <div id="pr-cargando" class="text-center py-24">
@@ -349,6 +364,7 @@ import { u } from "../lib/url";
       setTimeout(() => (b.textContent = "Copiar"), 1500);
     });
     una("pr-exportar", exportar);
+    una("pr-lyc-exportar", exportarLyc);
 
     const sel = document.getElementById("pr-grupo");
     if (sel && !sel.dataset.listo) {
@@ -570,5 +586,39 @@ import { u } from "../lib/url";
     const grupo = (document.getElementById("pr-grupo") as HTMLSelectElement)?.value || "todos";
     const hoy = new Date().toISOString().slice(0, 10);
     descargarCSV(`idoceo-${grupo.replace(/[^\w-]/g, "_")}-${hoy}.csv`, csv);
+  }
+
+  /** Los quizzes del Máster de Lengua y Comunicación, en su propio CSV: son de
+   *  otra materia y en iDoceo van en otra clase. Se leen al tocar el botón, no
+   *  al abrir el panel, para no cargar datos que casi nunca se piden. */
+  async function exportarLyc() {
+    const resumen = document.getElementById("pr-lyc-resumen");
+    let snap;
+    try {
+      snap = await getDocs(collection(db(), "lyc_quizzes"));
+    } catch (e: any) {
+      if (resumen) resumen.textContent = "No pude leer los quizzes: " + (e?.message ?? "error desconocido");
+      return;
+    }
+    const porAlumno = new Map<string, Record<number, number>>();
+    for (const d of snap.docs) {
+      const q = d.data();
+      const p = porAlumno.get(q.uid) ?? {};
+      p[q.quiz] = q.aciertos;
+      porAlumno.set(q.uid, p);
+    }
+    const filas: FilaAlumno[] = alumnosFiltrados().map((a) => ({
+      nombre: a.nombre,
+      matricula: a.matricula || a.correo || "",
+      puntajes: porAlumno.get(a.uid) ?? {},
+    }));
+    const quizzes = [1, 2].filter((n) => filas.some((f) => f.puntajes[n] !== undefined));
+    if (!quizzes.length) { alert("Todavía nadie ha contestado un quiz del Máster en este grupo."); return; }
+
+    const csv = csvParaIdoceo(filas, quizzes, (n) => `LyC Quiz ${n}`);
+    const grupo = (document.getElementById("pr-grupo") as HTMLSelectElement)?.value || "todos";
+    const hoy = new Date().toISOString().slice(0, 10);
+    descargarCSV(`idoceo-lyc-${grupo.replace(/[^\w-]/g, "_")}-${hoy}.csv`, csv);
+    if (resumen) resumen.textContent = `${snap.size} entregas en total. CSV descargado.`;
   }
 </script>

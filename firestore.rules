@@ -589,6 +589,87 @@ service cloud.firestore {
       allow update, delete: if esProfesor();
     }
 
+    // ─── Lengua y Comunicación: votaciones en vivo y quizzes ───────────────
+    //
+    // La introducción de Lengua y Comunicación se da con la presentación en el
+    // proyector y los celulares de los alumnos. El profesor escribe en
+    // config/lyc qué pregunta está abierta (`activa`) y qué quizzes se pueden
+    // contestar (`quizzes`); los celulares lo escuchan.
+    //
+    // Mismos candados que en /intentos: ficha activa, algo abierto y un solo
+    // documento por alumno, que solo se puede crear.
+
+    function lycConfig() {
+      return get(/databases/$(database)/documents/config/lyc).data;
+    }
+
+    function lycExiste() {
+      return exists(/databases/$(database)/documents/config/lyc);
+    }
+
+    // VOTOS. No califican: son las barras que se proyectan. Aun así, uno por
+    // alumno y por ronda (el nombre del documento lleva el uid y la ronda), y
+    // solo en la pregunta que el profesor tiene abierta en ese momento: con la
+    // votación cerrada no entra nada, ni desde la consola.
+    //
+    // Leer la colección entera es solo del profesor. Sin eso, un alumno podría
+    // ver quién votó qué.
+    match /lyc_votos/{votoId} {
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      allow list: if esProfesor();
+
+      allow create: if alumnoActivo()
+        && votoId == request.auth.uid + '_' + request.resource.data.pregunta
+        && request.resource.data.keys().hasOnly(['uid', 'pregunta', 'opcion', 'enviado'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.pregunta is string
+        && request.resource.data.pregunta.size() <= 60
+        && lycExiste()
+        && lycConfig().get('activa', '') == request.resource.data.pregunta
+        && request.resource.data.opcion is int
+        && request.resource.data.opcion >= 0
+        && request.resource.data.opcion <= 5
+        && request.resource.data.enviado == request.time;
+
+      allow update, delete: if esProfesor();
+    }
+
+    // QUIZZES. Estos sí califican, así que el candado es el de /intentos: el
+    // documento se llama "<uid>_<quiz>" y solo se concede `create`. Un segundo
+    // envío choca con el primero. El profesor puede borrar uno para que el
+    // alumno repita.
+    match /lyc_quizzes/{quizId} {
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      allow list: if esProfesor();
+
+      allow create: if alumnoActivo()
+        && quizId == request.auth.uid + '_' + string(request.resource.data.quiz)
+        && request.resource.data.keys().hasOnly(['uid', 'quiz', 'aciertos', 'total',
+                                                 'porcentaje', 'respuestas', 'enviado'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.quiz is int
+        && lycExiste()
+        && request.resource.data.quiz in lycConfig().get('quizzes', [])
+        && request.resource.data.total is int
+        && request.resource.data.total > 0
+        && request.resource.data.total <= 20
+        && request.resource.data.aciertos is int
+        && request.resource.data.aciertos >= 0
+        && request.resource.data.aciertos <= request.resource.data.total
+        && request.resource.data.porcentaje is int
+        && request.resource.data.porcentaje >= 0
+        && request.resource.data.porcentaje <= 100
+        && request.resource.data.respuestas is list
+        && request.resource.data.respuestas.size() == request.resource.data.total
+        && request.resource.data.enviado == request.time;
+
+      allow update, delete: if esProfesor();
+    }
+
     // ─── Qué módulos están abiertos ────────────────────────────────────────
 
     match /config/{doc} {

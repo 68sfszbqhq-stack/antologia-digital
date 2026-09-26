@@ -137,6 +137,52 @@ caso("No abre módulos por su cuenta", "DENY", "update", "/config/modulos", goog
 caso("El profesor sí abre módulos", "ALLOW", "update", "/config/modulos", profesor(),
      { data: { abiertos: [1] } });
 
+// ─── Lengua y Comunicación: votos y quizzes ─────────────────────────────────
+const RONDA = "s1-kross@abc123";
+const lyc = (config) => [...conFicha, existe(`${DB}/config/lyc`, true), get(`${DB}/config/lyc`, config)];
+const lycAbierta = lyc({ activa: RONDA, quizzes: [1] });
+const lycCerrada = lyc({ activa: "", quizzes: [] });
+const VOTO = { uid: UID, pregunta: RONDA, opcion: 1, enviado: AHORA };
+const QUIZ = { uid: UID, quiz: 1, aciertos: 6, total: 8, porcentaje: 75,
+               respuestas: [0, 1, 2, 1, 1, 1, 2, 1], enviado: AHORA };
+
+caso("Vota en la pregunta abierta", "ALLOW", "create", `/lyc_votos/${UID}_${RONDA}`, googleDe(),
+     { data: VOTO, mocks: lycAbierta });
+caso("No vota con la votación cerrada", "DENY", "create", `/lyc_votos/${UID}_${RONDA}`, googleDe(),
+     { data: VOTO, mocks: lycCerrada });
+caso("No vota en otra pregunta", "DENY", "create", `/lyc_votos/${UID}_s1-ross@abc123`, googleDe(),
+     { data: { ...VOTO, pregunta: "s1-ross@abc123" }, mocks: lycAbierta });
+caso("No vota a nombre de otro", "DENY", "create", `/lyc_votos/${OTRO}_${RONDA}`, googleDe(),
+     { data: { ...VOTO, uid: OTRO }, mocks: lycAbierta });
+caso("No cambia su voto", "DENY", "update", `/lyc_votos/${UID}_${RONDA}`, googleDe(),
+     { data: VOTO, actual: VOTO, mocks: lycAbierta });
+caso("Opción fuera de rango, no", "DENY", "create", `/lyc_votos/${UID}_${RONDA}`, googleDe(),
+     { data: { ...VOTO, opcion: 9 }, mocks: lycAbierta });
+caso("Sin ficha no vota", "DENY", "create", `/lyc_votos/${UID}_${RONDA}`, googleDe(),
+     { data: VOTO, mocks: [existe(`${DB}/alumnos/${UID}`, false), existe(`${DB}/config/lyc`, true),
+                           get(`${DB}/config/lyc`, { activa: RONDA, quizzes: [1] })] });
+caso("El alumno no lista los votos", "DENY", "list", `/lyc_votos/${UID}_${RONDA}`, googleDe());
+caso("El profesor sí lista los votos", "ALLOW", "list", `/lyc_votos/${UID}_${RONDA}`, profesor());
+
+caso("Entrega el quiz abierto", "ALLOW", "create", `/lyc_quizzes/${UID}_1`, googleDe(),
+     { data: QUIZ, mocks: lycAbierta });
+caso("Quiz cerrado: no entrega", "DENY", "create", `/lyc_quizzes/${UID}_2`, googleDe(),
+     { data: { ...QUIZ, quiz: 2 }, mocks: lycAbierta });
+caso("No cambia su calificación del quiz", "DENY", "update", `/lyc_quizzes/${UID}_1`, googleDe(),
+     { data: { ...QUIZ, aciertos: 8, porcentaje: 100 }, actual: QUIZ, mocks: lycAbierta });
+caso("No entrega el quiz de otro", "DENY", "create", `/lyc_quizzes/${OTRO}_1`, googleDe(),
+     { data: { ...QUIZ, uid: OTRO }, mocks: lycAbierta });
+caso("Más aciertos que preguntas, no", "DENY", "create", `/lyc_quizzes/${UID}_1`, googleDe(),
+     { data: { ...QUIZ, aciertos: 9 }, mocks: lycAbierta });
+caso("No lee el quiz de otro", "DENY", "get", `/lyc_quizzes/${OTRO}_1`, googleDe(),
+     { mocks: [get(`${DB}/lyc_quizzes/${OTRO}_1`, { ...QUIZ, uid: OTRO })] });
+caso("No lista los quizzes", "DENY", "list", `/lyc_quizzes/${UID}_1`, googleDe());
+caso("El profesor sí lista los quizzes", "ALLOW", "list", `/lyc_quizzes/${UID}_1`, profesor());
+caso("El alumno no abre la votación", "DENY", "update", "/config/lyc", googleDe(),
+     { data: { activa: RONDA, quizzes: [1, 2] } });
+caso("El profesor sí abre la votación", "ALLOW", "update", "/config/lyc", profesor(),
+     { data: { activa: RONDA, quizzes: [1] } });
+
 // ─── A correr ────────────────────────────────────────────────────────────────
 let token;
 try {
