@@ -1,0 +1,167 @@
+---
+// Un tema de la antología de Lengua y Comunicación. Se arma con los datos de
+// src/data/lengua/; para cambiar el contenido no hay que tocar esta plantilla.
+import Layout from "../../layouts/Layout.astro";
+import { temas } from "../../data/lengua";
+import { coloresLyC } from "../../data/lengua/colores";
+import { u } from "../../lib/url";
+
+export function getStaticPaths() {
+  return temas.map((t, i) => ({
+    params: { tema: t.tema.slug },
+    props: { i },
+  }));
+}
+
+const { i } = Astro.props;
+const { unidad, tema, numero } = temas[i];
+const anterior = temas[i - 1];
+const siguiente = temas[i + 1];
+const c = coloresLyC[unidad.acento];
+
+const escapar = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Cada "(Autor, año)" se vuelve un enlace a su ficha en "Fuentes". El índice ya
+// comprobó al construir que todas las citas tienen ficha.
+const indice = new Map(tema.fuentes.map((f, n) => [f.clave, n]));
+function conCitas(texto: string) {
+  return escapar(texto).replace(/\(([^()]+)\)/g, (todo, dentro: string) => {
+    const partes = dentro.split(";").map((trozo) => {
+      const limpio = trozo.trim();
+      const n = indice.get(limpio.replace(/, art\. \d+$/, ""));
+      return n === undefined
+        ? trozo
+        : `${trozo.startsWith(" ") ? " " : ""}<a href="#fuente-${n}" class="underline decoration-dotted underline-offset-2 hover:text-amber-400">${limpio}</a>`;
+    });
+    return `(${partes.join(";")})`;
+  });
+}
+---
+
+<Layout title={tema.titulo} description={`${tema.titulo}: ${tema.subtitulo}. Antología de Lengua y Comunicación.`}>
+
+  <article class="max-w-3xl mx-auto px-5 sm:px-6 py-12">
+
+    <nav class="flex flex-wrap items-center gap-2 text-xs font-mono-tech text-slate-500 mb-8">
+      <a href={u("/")} class="hover:text-cyan-400 transition">Inicio</a>
+      <span class="text-slate-700">/</span>
+      <a href={u("/lengua-y-comunicacion")} class="hover:text-amber-400 transition">Lengua y Comunicación</a>
+      <span class="text-slate-700">/</span>
+      <a href={u(`/lengua-y-comunicacion#unidad-${unidad.numero}`)} class="hover:text-amber-400 transition">Unidad {unidad.numero}</a>
+    </nav>
+
+    <header class="mb-10">
+      <span class={`font-black font-mono-tech text-xs px-3 py-1.5 rounded-lg border ${c.chip}`}>Tema {numero}</span>
+      <h1 class="text-3xl md:text-4xl font-black text-white leading-tight mt-4">{tema.titulo}</h1>
+      <p class={`text-lg font-semibold mt-2 ${c.texto}`}>{tema.subtitulo}</p>
+    </header>
+
+    <!-- Para abrir -->
+    <div class={`rounded-2xl p-5 border ${c.borde} ${c.fondo} mb-8`}>
+      <span class="text-[11px] font-mono-tech text-slate-500 uppercase tracking-widest block mb-2">Para empezar</span>
+      <p class="text-white leading-relaxed">{tema.detonadora}</p>
+    </div>
+
+    <p class="text-lg text-slate-200 leading-relaxed mb-10" set:html={conCitas(tema.idea)} />
+
+    <!-- Lectura -->
+    {tema.secciones.map((s) => (
+      <section class="mb-8">
+        <h2 class="text-xl font-bold text-white mb-3">{s.titulo}</h2>
+        {s.parrafos.map((p) => (
+          <p class="text-slate-300 leading-relaxed mb-4" set:html={conCitas(p)} />
+        ))}
+      </section>
+    ))}
+
+    <!-- Errores comunes -->
+    <section class="mb-10">
+      <h2 class="text-xl font-bold text-white mb-4">Error común y cómo hacerlo mejor</h2>
+      <div class="space-y-3">
+        {tema.errores.map((e) => (
+          <div class="grid sm:grid-cols-2 gap-px rounded-xl overflow-hidden border border-white/10">
+            <p class="bg-rose-500/5 p-4 text-sm text-slate-300 leading-relaxed">
+              <span class="text-rose-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Error</span>
+              {e.error}
+            </p>
+            <p class="bg-emerald-500/5 p-4 text-sm text-slate-300 leading-relaxed">
+              <span class="text-emerald-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Mejor</span>
+              {e.mejor}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {tema.ejemplo && (
+      <section class="mb-10">
+        <h2 class="text-xl font-bold text-white mb-2">Ejemplo</h2>
+        <p class="text-sm text-slate-400 mb-4">{tema.ejemplo.contexto}</p>
+        <div class="space-y-3">
+          <blockquote class="rounded-xl p-4 border border-rose-500/30 bg-rose-500/5 text-slate-300 text-sm leading-relaxed">
+            <span class="text-rose-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Así no</span>
+            {tema.ejemplo.mal}
+          </blockquote>
+          <blockquote class="rounded-xl p-4 border border-emerald-500/30 bg-emerald-500/5 text-slate-300 text-sm leading-relaxed">
+            <span class="text-emerald-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Así sí</span>
+            <span set:html={conCitas(tema.ejemplo.bien)} />
+          </blockquote>
+        </div>
+        <p class="text-sm text-slate-400 leading-relaxed mt-3"><strong class="text-slate-300">Por qué:</strong> {tema.ejemplo.porque}</p>
+      </section>
+    )}
+
+    <!-- Actividad -->
+    <section class={`glass-card rounded-2xl p-6 border ${c.borde} mb-10`}>
+      <span class={`text-[11px] font-mono-tech uppercase tracking-widest ${c.texto}`}>Actividad</span>
+      <h2 class="text-xl font-bold text-white mt-1 mb-4">{tema.actividad.titulo}</h2>
+      <ol class="list-decimal pl-5 space-y-2 text-slate-300 text-sm leading-relaxed">
+        {tema.actividad.pasos.map((p) => <li>{p}</li>)}
+      </ol>
+      <p class="text-sm text-slate-400 mt-4"><strong class="text-slate-300">Producto:</strong> {tema.actividad.producto}</p>
+    </section>
+
+    <!-- Reflexión -->
+    <section class="mb-10">
+      <h2 class="text-xl font-bold text-white mb-3">Para reflexionar</h2>
+      <ul class="list-disc pl-5 space-y-2 text-slate-300 leading-relaxed">
+        {tema.reflexion.map((r) => <li>{r}</li>)}
+      </ul>
+    </section>
+
+    <!-- Fuentes -->
+    <section id="fuentes" class="border-t border-white/10 pt-8 mb-12">
+      <h2 class="text-sm font-mono-tech text-slate-500 uppercase tracking-widest mb-4">Fuentes</h2>
+      <ol class="space-y-3">
+        {tema.fuentes.map((f, n) => (
+          <li id={`fuente-${n}`} class="text-sm text-slate-400 leading-relaxed pl-6 -indent-6 scroll-mt-24">
+            {f.cita}{" "}
+            {f.url && (
+              <a href={f.url} target="_blank" rel="noopener noreferrer" class="text-amber-400/90 hover:text-amber-300 break-all">
+                {f.url}
+              </a>
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- Anterior / siguiente -->
+    <nav class="grid grid-cols-2 gap-3 text-sm">
+      {anterior ? (
+        <a href={u(`/lengua-y-comunicacion/${anterior.tema.slug}`)} class="glass-card rounded-xl p-4 border border-white/10 hover:border-amber-400/40 transition">
+          <span class="text-[11px] font-mono-tech text-slate-500 block">← {anterior.numero}</span>
+          <span class="text-slate-300">{anterior.tema.titulo}</span>
+        </a>
+      ) : <span />}
+      {siguiente && (
+        <a href={u(`/lengua-y-comunicacion/${siguiente.tema.slug}`)} class="glass-card rounded-xl p-4 border border-white/10 hover:border-amber-400/40 transition text-right">
+          <span class="text-[11px] font-mono-tech text-slate-500 block">{siguiente.numero} →</span>
+          <span class="text-slate-300">{siguiente.tema.titulo}</span>
+        </a>
+      )}
+    </nav>
+  </article>
+
+</Layout>

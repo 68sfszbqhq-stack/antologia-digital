@@ -1,0 +1,71 @@
+---
+// Índice de la antología de Lengua y Comunicación: cinco unidades, 26 temas.
+//
+// Los temas salieron de las exposiciones del grupo y se ampliaron con autores
+// y artículos. El contenido vive en src/data/lengua/; esta página solo lo lista.
+import Layout from "../../layouts/Layout.astro";
+import { unidades } from "../../data/lengua";
+import { coloresLyC } from "../../data/lengua/colores";
+import { u } from "../../lib/url";
+
+const totalTemas = unidades.reduce((n, un) => n + un.temas.length, 0);
+---
+
+<Layout title="Lengua y Comunicación" description="Antología de Lengua y Comunicación: barreras de la comunicación, escucha, asertividad, escritura digital, presentaciones, ética y seguridad, con fuentes citadas.">
+
+  <section class="max-w-5xl mx-auto px-6 py-12">
+
+    <nav class="text-xs font-mono-tech text-slate-500 mb-8">
+      <a href={u("/")} class="hover:text-cyan-400 transition">Inicio</a>
+      <span class="mx-2">/</span>
+      <span class="text-slate-400">Lengua y Comunicación</span>
+    </nav>
+
+    <p class="text-xs font-mono-tech text-amber-400 tracking-widest uppercase mb-2">// Materia</p>
+    <h1 class="text-3xl md:text-5xl font-black text-white">Lengua y Comunicación</h1>
+    <p class="text-amber-400 font-bold mt-2">Antología · {unidades.length} unidades · {totalTemas} temas</p>
+
+    <p class="text-slate-400 leading-relaxed mt-6 max-w-3xl">
+      Estos temas los eligió y expuso el grupo. Aquí cada uno se amplía con lo
+      que dicen investigadores de la comunicación, la psicología y la educación.
+      Cada nombre y año entre paréntesis te lleva a una fuente real que aparece
+      al final del tema, para que puedas consultarla y citarla.
+    </p>
+
+    <div class="space-y-12 mt-12">
+      {unidades.map((unidad) => {
+        const c = coloresLyC[unidad.acento];
+        return (
+          <section id={`unidad-${unidad.numero}`}>
+            <div class="flex items-baseline gap-3 mb-2">
+              <span class={`font-black font-mono-tech text-xs px-3 py-1.5 rounded-lg border ${c.chip}`}>
+                Unidad {unidad.numero}
+              </span>
+              <h2 class="text-xl md:text-2xl font-bold text-white">{unidad.titulo}</h2>
+            </div>
+            <p class="text-sm text-slate-400 leading-relaxed mb-5 max-w-3xl">{unidad.proposito}</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {unidad.temas.map((tema, i) => (
+                <a
+                  href={u(`/lengua-y-comunicacion/${tema.slug}`)}
+                  class={`glass-card rounded-2xl p-5 border ${c.borde} hover:-translate-y-0.5 transition-all duration-300 group block`}
+                >
+                  <span class={`text-[11px] font-mono-tech ${c.texto}`}>{unidad.numero}.{i + 1}</span>
+                  <h3 class="text-base font-bold text-white leading-snug mt-1 group-hover:text-amber-400 transition">
+                    {tema.titulo}
+                  </h3>
+                  <p class="text-xs text-slate-400 leading-relaxed mt-1.5">{tema.subtitulo}</p>
+                  <p class="text-[11px] font-mono-tech text-slate-600 mt-3">
+                    {tema.fuentes.length} {tema.fuentes.length === 1 ? "fuente" : "fuentes"}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  </section>
+
+</Layout>
