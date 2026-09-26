@@ -64,3 +64,7 @@ clave-*.csv
 
 # caché del CLI de Firebase
 .firebase/
+
+# Carga masiva a la SEMS (Fortalece tu aprendizaje): CURP, nombre y respuestas
+# de menores. Los genera scripts/exportar-sems.mjs
+sems-*.csv

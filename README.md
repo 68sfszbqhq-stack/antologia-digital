@@ -60,7 +60,8 @@ src/
 │   ├── contenido-1-4.ts    # contenido de los módulos 1.1 a 1.4
 │   ├── contenido-5-8.ts    # contenido de los módulos 1.5 a 1.8
 │   ├── contenido.ts        # une ambos, indexado por número de sesión
-│   └── sesiones.json       # metadatos, videos y fuentes de cada módulo
+│   ├── sesiones.json       # metadatos, videos y fuentes de cada módulo
+│   └── avisos.ts           # avisos de la portada (instrucciones dentro)
 ├── lib/
 │   ├── url.ts              # helper para enlaces internos (respeta el base de Pages)
 │   ├── firebase.ts         # conexión con Firebase (la config pública va aquí)
@@ -71,7 +72,9 @@ src/
 │   └── AccesoAlumno.astro  # pantalla de matrícula + código
 ├── layouts/Layout.astro
 └── pages/
-    ├── index.astro
+    ├── index.astro         # portada: bienvenida y avisos
+    ├── cultura-digital.astro        # los ocho módulos
+    ├── lengua-y-comunicacion/       # índice + [tema].astro (datos en src/data/lengua/)
     ├── profesor.astro      # panel: resultados y exportación
     └── sesion/[dia].astro  # plantilla única: se arma con los datos
 
@@ -81,6 +84,12 @@ scripts/                    # corren en la Mac, no en el navegador
 ```
 
 Para editar el contenido de un módulo no hay que tocar la plantilla: todo vive en `src/data/`.
+
+**Consejo para mejorar.** Al terminar el diagnóstico de un módulo, el alumno ve, además de sus barras por eje, un consejo armado con sus respuestas reales: el eje donde salió más bajo, las preguntas que falló con su explicación y qué repasar. Lo que se recomienda por eje vive en `repasar`, dentro de `ejes` de cada módulo: títulos exactos de conceptos, hitos o recursos de ese módulo. Si uno no coincide, el build falla. Quien ya entregó lo vuelve a ver desde el aviso "Ya contestaste". El diagnóstico solo se entrega con todas las preguntas contestadas.
+
+**Lengua y Comunicación.** Cinco unidades y 26 temas en `src/data/lengua/`, uno por archivo de unidad. Cada cita del texto, como "(Kruger et al., 2005)", debe tener su ficha en `fuentes.ts` con la misma `clave`, y cada ficha debe citarse: si no, el build falla. Antes de agregar una fuente, comprobar que existe (el DOI en `https://api.crossref.org/works/<doi>`).
+
+**Avisos de la portada.** Se publican agregando un bloque al principio de `src/data/avisos.ts`; aparecen al hacer push. No pasan por Firebase: nadie puede publicar uno desde el navegador. Las materias no están en la portada sino en el menú hamburguesa.
 
 > **Nota sobre enlaces internos:** el sitio se publica en un subdirectorio, así que todo `href` interno debe construirse con el helper `u()` de `src/lib/url.ts`. Un `href="/sesion/1"` escrito a mano funciona en local pero da 404 al publicarse.
 

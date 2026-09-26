@@ -90,6 +90,32 @@ const respuestasCorrectas = cont.preguntas.map((p) => p.correcta);
 const categoriasPorPregunta = cont.preguntas.map((p) => p.categoria);
 const nombresEjes = cont.ejes.map((e) => e.nombre);
 const totalPreguntas = cont.preguntas.length;
+
+// Para el consejo: qué repasar en cada eje. Cada título se busca en los
+// conceptos, la línea del tiempo y los recursos de este módulo, en ese orden.
+// Si no aparece en ninguno el build truena aquí, con el nombre del eje, en vez
+// de publicar un consejo que manda a un lugar que no existe.
+const repasoPorEje = cont.ejes.map((eje) => {
+  if (!eje.repasar?.length) {
+    throw new Error(`Módulo ${modulo.dia}, eje «${eje.nombre}»: falta la lista "repasar".`);
+  }
+  return eje.repasar.map((titulo) => {
+    const c = cont.conceptos.findIndex((k) => k.titulo === titulo);
+    if (c >= 0) return { tipo: "concepto", paso: 3, destino: `concepto-${c}`, titulo };
+    const h = cont.hitos.findIndex((k) => k.titulo === titulo);
+    if (h >= 0) return { tipo: "hito", paso: 4, destino: `hito-${h}`, titulo };
+    const r = modulo.recursos.find((k) => k.titulo === titulo && (k.tipo === "Lectura" || k.tipo === "YouTube"));
+    if (r) return { tipo: r.tipo === "YouTube" ? "video" : "lectura", url: r.url, titulo };
+    throw new Error(`Módulo ${modulo.dia}, eje «${eje.nombre}»: "${titulo}" no es un concepto, hito ni recurso de este módulo.`);
+  });
+});
+
+const preguntasRepaso = cont.preguntas.map((p) => ({
+  pregunta: p.pregunta,
+  correcta: p.opciones[p.correcta],
+  explicacion: p.explicacion,
+}));
+const tituloTarea = cont.tarea.titulo;
 ---
 
 <Layout
@@ -100,7 +126,7 @@ const totalPreguntas = cont.preguntas.length;
 
     <!-- ─── BREADCRUMB ─── -->
     <nav class="flex items-center gap-2 text-xs font-mono-tech text-slate-500 mb-8" aria-label="Navegación de migas de pan">
-      <a href={u("/")} class="hover:text-cyan-400 transition-colors">Cultura Digital</a>
+      <a href={u("/cultura-digital")} class="hover:text-cyan-400 transition-colors">Cultura Digital</a>
       <span class="text-slate-700">/</span>
       <span class="text-slate-400">Presentaciones de Clase</span>
       <span class="text-slate-700">/</span>
@@ -291,6 +317,32 @@ const totalPreguntas = cont.preguntas.length;
           </div>
         </div>
 
+        <!-- ── CONSEJO PARA MEJORAR ──
+             Lo llena el script de abajo con las respuestas reales: el eje más
+             bajo, las preguntas que falló y qué repasar de este mismo módulo.
+             Solo aparece con el cuestionario completo. -->
+        <div id="consejo-incompleto" class="hidden rounded-2xl p-5 border border-white/10 bg-white/[0.03] text-sm text-slate-400 text-center mb-8"></div>
+
+        <div id="consejo" class="hidden glass-card rounded-2xl p-6 sm:p-8 border border-amber-500/30 bg-amber-500/5 mb-8">
+          <h3 class="text-sm font-mono-tech text-amber-400 uppercase tracking-widest mb-4">
+            💡 Tu consejo para mejorar
+          </h3>
+          <p id="consejo-titular" class="text-lg sm:text-xl text-white font-bold leading-snug mb-2"></p>
+          <p id="consejo-texto" class="text-sm text-slate-300 leading-relaxed"></p>
+
+          <div id="consejo-repaso" class="hidden mt-6">
+            <span class="text-[11px] font-mono-tech text-slate-500 uppercase tracking-widest block mb-3">Qué repasar</span>
+            <div id="consejo-repaso-lista" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div id="consejo-errores" class="hidden mt-6">
+            <span class="text-[11px] font-mono-tech text-slate-500 uppercase tracking-widest block mb-3">Lo que se te escapó</span>
+            <div id="consejo-errores-lista" class="space-y-3"></div>
+          </div>
+
+          <p id="consejo-cierre" class="text-sm text-slate-300 leading-relaxed mt-6 pt-4 border-t border-white/10"></p>
+        </div>
+
         <div class="text-center pt-4">
           <button class="btn-primary px-8 py-3.5 text-sm font-semibold" data-action="step" data-step="3">
             Ir a la clase completa →
@@ -378,8 +430,8 @@ const totalPreguntas = cont.preguntas.length;
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cont.conceptos.map((c) => (
-            <div class={`glass-card rounded-2xl p-6 border border-white/10 hover:${ac(c.acento).border} transition-all duration-300 flex flex-col`}>
+          {cont.conceptos.map((c, ci) => (
+            <div id={`concepto-${ci}`} class={`glass-card rounded-2xl p-6 border border-white/10 hover:${ac(c.acento).border} transition-all duration-300 flex flex-col scroll-mt-24`}>
               <div class={`w-12 h-12 rounded-xl ${ac(c.acento).bg} border ${ac(c.acento).border} flex items-center justify-center text-xl mb-4`}>
                 {c.icono}
               </div>
@@ -701,8 +753,8 @@ const totalPreguntas = cont.preguntas.length;
         </div>
 
         <div class="relative border-l-2 border-cyan-500/30 ml-4 sm:ml-8 pl-6 sm:pl-10 space-y-8 font-mono-tech">
-          {cont.hitos.map((hito) => (
-            <div class="timeline-item relative group text-xs text-slate-300" data-cat={hito.categoria}>
+          {cont.hitos.map((hito, hi) => (
+            <div id={`hito-${hi}`} class="timeline-item relative group text-xs text-slate-300 scroll-mt-24 rounded-xl transition-all duration-300" data-cat={hito.categoria}>
               <div class="absolute -left-[31px] sm:-left-[47px] top-1.5 w-5 h-5 rounded-full bg-slate-950 border-2 border-cyan-400 group-hover:bg-cyan-400 group-hover:shadow-lg group-hover:shadow-cyan-500/50 transition-all duration-300 flex items-center justify-center">
                 <div class="w-1.5 h-1.5 rounded-full bg-cyan-400 group-hover:bg-black"></div>
               </div>
@@ -840,7 +892,7 @@ const totalPreguntas = cont.preguntas.length;
     <script
       type="application/json"
       id="modulo-config"
-      set:html={JSON.stringify({ respuestasCorrectas, categoriasPorPregunta, nombresEjes, totalPreguntas })}
+      set:html={JSON.stringify({ respuestasCorrectas, categoriasPorPregunta, nombresEjes, totalPreguntas, repasoPorEje, preguntasRepaso, tituloTarea })}
     />
 
   </div>
@@ -860,6 +912,9 @@ const totalPreguntas = cont.preguntas.length;
     // Candado de entrega: impide mandar el mismo diagnóstico dos veces por
     // carga de página (p. ej. al volver a abrir la pestaña de resultados).
     let yaEntregado = false;
+    // Verdadero cuando las respuestas vienen de un intento ya guardado: se
+    // muestra el análisis y el consejo, pero no se entrega nada.
+    let modoRevision = false;
 
     function leerConfig() {
       const el = document.getElementById("modulo-config");
@@ -872,6 +927,7 @@ const totalPreguntas = cont.preguntas.length;
       currentQIndex = 0;
       userAnswers = {};
       yaEntregado = false;
+      modoRevision = false;
       return true;
     }
 
@@ -882,7 +938,10 @@ const totalPreguntas = cont.preguntas.length;
         : "step-tab flex items-center justify-center gap-2 py-3.5 px-3 rounded-xl border border-white/5 bg-white/5 text-slate-400 hover:text-white transition-all duration-300" + extra;
     }
 
-    function switchStep(stepNum) {
+    // `sinSubir`: no regresar al inicio de la página. Lo usa el consejo, que
+    // después baja a una tarjeta; dos desplazamientos suaves seguidos compiten
+    // y la página se queda a medio camino.
+    function switchStep(stepNum, sinSubir) {
       for (let i = 1; i <= 5; i++) {
         const stepEl = document.getElementById("step-" + i);
         const tabEl = document.getElementById("tab-btn-" + i);
@@ -898,7 +957,7 @@ const totalPreguntas = cont.preguntas.length;
         }
       }
       if (stepNum === 2) calculateResults();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (!sinSubir) window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function selectAnswer(qIdx, optIdx) {
@@ -1015,7 +1074,177 @@ const totalPreguntas = cont.preguntas.length;
         });
       }, 100);
 
-      entregarDiagnostico(score, total, pct, porEje);
+      // Solo se entrega con el cuestionario completo. Las pestañas se pueden
+      // tocar en cualquier momento, y antes bastaba con abrir "Resultados" a
+      // medio contestar para mandar el intento incompleto —y como es de un solo
+      // intento, el alumno ya no podía terminarlo. En modo revisión (alguien
+      // que ya entregó) no se entrega nada: solo se vuelve a mostrar.
+      if (contestadas === total || modoRevision) {
+        pintarConsejo(total, pct, porEje);
+        entregarDiagnostico(score, total, pct, porEje);
+      } else {
+        esperarConsejo(total - contestadas, contestadas === 0);
+      }
+    }
+
+    // ─── Consejo para mejorar ────────────────────────────────────────────────
+    //
+    // Sale de las respuestas reales, sin nada inventado: el eje más bajo, las
+    // preguntas que falló (con la respuesta correcta y su porqué, que ya vienen
+    // en los datos del módulo) y los conceptos, hitos o recursos que el propio
+    // módulo tiene para ese eje (campo `repasar`).
+
+    function nodo(tag, clase, texto) {
+      const n = document.createElement(tag);
+      if (clase) n.className = clase;
+      if (texto != null) n.textContent = texto;
+      return n;
+    }
+
+    function esperarConsejo(faltan, nada) {
+      const caja = document.getElementById("consejo");
+      const aviso = document.getElementById("consejo-incompleto");
+      if (caja) caja.classList.add("hidden");
+      if (!aviso) return;
+      aviso.textContent = nada
+        ? "Primero contesta el diagnóstico del paso 1. Con tus respuestas se arma aquí tu consejo para mejorar."
+        : "Te " + (faltan === 1 ? "falta 1 pregunta" : "faltan " + faltan + " preguntas") +
+          ". Cuando contestes todas aparecerá aquí tu consejo para mejorar.";
+      aviso.classList.remove("hidden");
+    }
+
+    function pintarConsejo(total, pct, porEje) {
+      const caja = document.getElementById("consejo");
+      if (!caja) return;
+      const aviso = document.getElementById("consejo-incompleto");
+      if (aviso) aviso.classList.add("hidden");
+
+      // Del eje más flojo al más fuerte. En empate, primero el que tiene más
+      // preguntas falladas (ahí hay más que ganar) y luego el orden del módulo.
+      const flojos = cfg.nombresEjes
+        .map(function (nombre, i) {
+          const d = porEje[nombre] || { ok: 0, total: 0 };
+          return { nombre: nombre, i: i, ok: d.ok, total: d.total };
+        })
+        .filter(function (e) { return e.total > 0 && e.ok < e.total; })
+        .sort(function (a, b) {
+          return (a.ok / a.total) - (b.ok / b.total) || (b.total - b.ok) - (a.total - a.ok) || a.i - b.i;
+        });
+
+      const set = function (id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; };
+      const foco = flojos[0];
+      const segundo = flojos[1];
+
+      if (!foco) {
+        set("consejo-titular", "Acertaste las " + total + ": dominas este módulo.");
+        set("consejo-texto", "No te quedes solo con el diagnóstico. En la clase busca el dato que no conocías y en la actividad apunta a cumplir la rúbrica completa.");
+        set("consejo-cierre", "Tu reto: explícale a un compañero el tema que a él le costó. Enseñarlo es la mejor prueba de que lo entendiste.");
+      } else {
+        const detalle = "acertaste " + foco.ok + " de " + foco.total;
+        const luego = segundo ? " Después sigue con «" + segundo.nombre + "»." : "";
+        if (pct >= 80) {
+          set("consejo-titular", "Vas muy bien. Para cerrar el módulo, afina «" + foco.nombre + "».");
+          set("consejo-texto", (flojos.length === 1 ? "Es lo único que se te escapó: " : "Ahí ") + detalle + ". Repasa lo de abajo y lo tienes.");
+        } else if (pct >= 50) {
+          set("consejo-titular", "Tienes buena base. Tu siguiente paso es reforzar «" + foco.nombre + "».");
+          set("consejo-texto", "Ahí " + detalle + "." + luego + " Empieza por lo de abajo antes de pasar a la actividad.");
+        } else {
+          set("consejo-titular", "Este tema es nuevo para ti, y está bien: para eso es la clase.");
+          set("consejo-texto", "Empieza por «" + foco.nombre + "», donde " + detalle + "." + luego + " No intentes verlo todo de golpe: un tema a la vez.");
+        }
+        set("consejo-cierre", "Cuando hagas la actividad «" + cfg.tituloTarea + "», pon especial atención en «" + foco.nombre + "»: es donde más puedes subir.");
+      }
+
+      pintarRepaso(foco ? cfg.repasoPorEje[foco.i] : []);
+      pintarErrores(flojos, foco);
+      caja.classList.remove("hidden");
+    }
+
+    function pintarRepaso(items) {
+      const bloque = document.getElementById("consejo-repaso");
+      const lista = document.getElementById("consejo-repaso-lista");
+      if (!bloque || !lista) return;
+      lista.textContent = "";
+      const ICONO = { concepto: "📘 ", hito: "🕰️ ", lectura: "📄 ", video: "▶️ " };
+      const clase = "text-left text-xs px-3 py-2 rounded-lg border border-amber-400/30 bg-amber-400/5 text-amber-100 hover:bg-amber-400/15 hover:border-amber-400/60 transition";
+      (items || []).forEach(function (it) {
+        let n;
+        if (it.url) {
+          n = nodo("a", clase, ICONO[it.tipo] + it.titulo + " ↗");
+          n.href = it.url;
+          n.target = "_blank";
+          n.rel = "noopener noreferrer";
+        } else {
+          n = nodo("button", clase, ICONO[it.tipo] + it.titulo);
+          n.type = "button";
+          n.setAttribute("data-action", "ir-repaso");
+          n.setAttribute("data-paso", String(it.paso));
+          n.setAttribute("data-destino", it.destino);
+        }
+        lista.appendChild(n);
+      });
+      bloque.classList.toggle("hidden", !lista.children.length);
+    }
+
+    // Las del eje en foco van a la vista; las demás, plegadas, para no
+    // enterrar al alumno bajo diez explicaciones de golpe.
+    function pintarErrores(flojos, foco) {
+      const bloque = document.getElementById("consejo-errores");
+      const lista = document.getElementById("consejo-errores-lista");
+      if (!bloque || !lista) return;
+      lista.textContent = "";
+
+      const fallos = function (eje) {
+        const out = [];
+        for (let i = 0; i < cfg.totalPreguntas; i++) {
+          if (cfg.categoriasPorPregunta[i] === eje && userAnswers[i] !== cfg.respuestasCorrectas[i]) out.push(i);
+        }
+        return out;
+      };
+      const tarjeta = function (i) {
+        const p = cfg.preguntasRepaso[i];
+        const t = nodo("div", "rounded-xl bg-black/20 border border-white/5 p-4");
+        t.appendChild(nodo("p", "text-sm text-white font-semibold leading-snug mb-2", p.pregunta));
+        t.appendChild(nodo("p", "text-xs text-emerald-300 mb-1",
+          (userAnswers[i] === undefined ? "No la contestaste. " : "") + "Respuesta correcta: " + p.correcta));
+        t.appendChild(nodo("p", "text-xs text-slate-400 leading-relaxed", p.explicacion));
+        return t;
+      };
+
+      if (foco) fallos(foco.nombre).forEach(function (i) { lista.appendChild(tarjeta(i)); });
+
+      const otras = [];
+      flojos.slice(1).forEach(function (e) { fallos(e.nombre).forEach(function (i) { otras.push(i); }); });
+      if (otras.length) {
+        const plegado = nodo("details", "rounded-xl border border-white/5 bg-white/[0.02]");
+        plegado.appendChild(nodo("summary", "cursor-pointer text-xs font-mono-tech text-slate-400 hover:text-white px-4 py-3",
+          "Ver " + (otras.length === 1 ? "la otra pregunta" : "las otras " + otras.length + " preguntas") + " que fallaste"));
+        const dentro = nodo("div", "space-y-3 px-4 pb-4");
+        otras.forEach(function (i) { dentro.appendChild(tarjeta(i)); });
+        plegado.appendChild(dentro);
+        lista.appendChild(plegado);
+      }
+      bloque.classList.toggle("hidden", !lista.children.length);
+    }
+
+    // Lleva a la tarjeta del concepto (paso 3) o al hito (paso 4) y la resalta
+    // un momento, para que el alumno no tenga que buscarla.
+    function irARepaso(paso, destinoId) {
+      // Sin subir al inicio: se baja directo a la tarjeta con UN solo
+      // desplazamiento. El pequeño retraso deja que el paso recién mostrado
+      // tome su altura real antes de medir a dónde bajar.
+      switchStep(paso, true);
+      if (paso === 4) {
+        const todos = document.querySelector('.tl-filter[data-filter="all"]');
+        if (todos) filterTimeline("all", todos);
+      }
+      setTimeout(function () {
+        const destino = document.getElementById(destinoId);
+        if (!destino) return;
+        destino.scrollIntoView({ behavior: "smooth", block: "center" });
+        destino.classList.add("ring-2", "ring-amber-400/70");
+        setTimeout(function () { destino.classList.remove("ring-2", "ring-amber-400/70"); }, 2500);
+      }, 60);
     }
 
     // Avisa que el diagnóstico terminó, para que AccesoAlumno lo guarde en
@@ -1114,7 +1343,21 @@ const totalPreguntas = cont.preguntas.length;
       } else if (accion === "ir-conceptos") {
         const destino = document.getElementById("conceptos-clave");
         if (destino) destino.scrollIntoView({ behavior: "smooth" });
+      } else if (accion === "ir-repaso") {
+        irARepaso(parseInt(btn.getAttribute("data-paso"), 10), btn.getAttribute("data-destino"));
       }
+    });
+
+    // Quien ya entregó: AccesoAlumno manda las respuestas guardadas para que la
+    // pestaña de resultados muestre su análisis y su consejo. Se marca como ya
+    // entregado para que abrir esa pestaña no intente guardar otra vez.
+    document.addEventListener("antologia:intento-previo", function (ev) {
+      const r = ev.detail && ev.detail.respuestas;
+      if (!Array.isArray(r) || r.length !== cfg.totalPreguntas) return;
+      userAnswers = {};
+      r.forEach(function (v, i) { if (typeof v === "number" && v >= 0) userAnswers[i] = v; });
+      yaEntregado = true;
+      modoRevision = true;
     });
 
     leerConfig();

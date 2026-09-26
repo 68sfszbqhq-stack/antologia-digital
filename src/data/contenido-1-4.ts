@@ -219,10 +219,14 @@ export const modulo1: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Hardware", acento: "cyan" },
-    { nombre: "Software y Firmware", acento: "purple" },
-    { nombre: "Evolución histórica", acento: "amber" },
-    { nombre: "Software Libre", acento: "emerald" },
+    { nombre: "Hardware", acento: "cyan",
+      repasar: ["Hardware: lo que sí puedes patear", "¿Cómo funciona un PC y qué hace cada pieza?"] },
+    { nombre: "Software y Firmware", acento: "purple",
+      repasar: ["Software: lo que solo puedes maldecir", "Firmware: el que despierta a los demás"] },
+    { nombre: "Evolución histórica", acento: "amber",
+      repasar: ["Las cinco generaciones", "Invención del transistor", "Historia y evolución de las computadoras y sus generaciones"] },
+    { nombre: "Software Libre", acento: "emerald",
+      repasar: ["Se anuncia el Proyecto GNU", "Linus Torvalds libera el núcleo Linux", "El Proyecto GNU, contado por Richard Stallman"] },
   ],
   preguntas: [
     {
@@ -529,10 +533,14 @@ export const modulo2: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Licencias libres", acento: "emerald" },
-    { nombre: "Derecho de autor", acento: "violet" },
-    { nombre: "Conectividad", acento: "teal" },
-    { nombre: "Unidades de medida", acento: "cyan" },
+    { nombre: "Licencias libres", acento: "emerald",
+      repasar: ["Copyleft y la licencia GPL", "Creative Commons: seis licencias, cuatro piezas", "Las seis licencias Creative Commons"] },
+    { nombre: "Derecho de autor", acento: "violet",
+      repasar: ["Derecho de autor: todos los derechos reservados", "Software privativo y software como servicio", "Niveles de acceso", "Se funda Creative Commons"] },
+    { nombre: "Conectividad", acento: "teal",
+      repasar: ["Velocidad, latencia y procesamiento", "Qué pasa cuando escribes una dirección web", "ENDUTIH 2024: comunicado de prensa del INEGI"] },
+    { nombre: "Unidades de medida", acento: "cyan",
+      repasar: ["Bit, byte y sus múltiplos", "Diferencia entre bit, byte, KB, MB, GB y TB"] },
   ],
   preguntas: [
     {
@@ -823,10 +831,14 @@ export const modulo3: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Economía de la atención", acento: "amber" },
-    { nombre: "Datos y vigilancia", acento: "violet" },
-    { nombre: "Brecha digital", acento: "cyan" },
-    { nombre: "Dependencia tecnológica", acento: "emerald" },
+    { nombre: "Economía de la atención", acento: "amber",
+      repasar: ["Tu atención es un recurso escaso y cotizado", "Recompensa variable: por qué no puedes soltarlo"] },
+    { nombre: "Datos y vigilancia", acento: "violet",
+      repasar: ["Colonialismo de datos", "Burbuja de filtro y cámara de eco", "Colonialismo de datos y cultura de la conectividad"] },
+    { nombre: "Brecha digital", acento: "cyan",
+      repasar: ["La brecha digital no es una sola", "ENDUTIH 2024: brecha por estado, zona y género"] },
+    { nombre: "Dependencia tecnológica", acento: "emerald",
+      repasar: ["Dependencia tecnológica"] },
   ],
   preguntas: [
     {
@@ -1133,10 +1145,14 @@ export const modulo4: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Las 4 libertades", acento: "emerald" },
-    { nombre: "GNU/Linux", acento: "cyan" },
-    { nombre: "Alternativas libres", acento: "violet" },
-    { nombre: "Cultura hacker", acento: "amber" },
+    { nombre: "Las 4 libertades", acento: "emerald",
+      repasar: ["Usar el programa para lo que tú quieras", "Estudiar cómo funciona y modificarlo", "Las 4 libertades del software libre"] },
+    { nombre: "GNU/Linux", acento: "cyan",
+      repasar: ["GNU/Linux y sus distribuciones", "TOP500: sistemas operativos de las supercomputadoras"] },
+    { nombre: "Alternativas libres", acento: "violet",
+      repasar: ["El equivalente libre de lo que ya usas", "Nace LibreOffice"] },
+    { nombre: "Cultura hacker", acento: "amber",
+      repasar: ["Software libre no es lo mismo que open source", "Cultura hacker y el hazlo tú mismo", "La impresora que no se dejó reparar"] },
   ],
   preguntas: [
     {

@@ -240,6 +240,14 @@ const { dia } = Astro.props;
       <span class="text-sm text-slate-400 font-mono-tech">aciertos</span>
     </div>
     <p id="aa-hecho-fecha" class="text-xs text-slate-500 font-mono-tech mt-4"></p>
+
+    <!-- Lo atiende el script de [dia].astro (data-action="step"). Solo aparece
+         si el intento guardado trae las respuestas con que armar el consejo. -->
+    <div id="aa-hecho-analisis" class="hidden mt-6">
+      <button type="button" data-action="step" data-step="2" class="btn-primary px-6 py-2.5 text-xs font-mono-tech">
+        Ver mi análisis y mi consejo →
+      </button>
+    </div>
   </div>
 
   <!-- Barra de sesión: aparece cuando ya entró -->
@@ -422,6 +430,17 @@ const { dia } = Astro.props;
       fecha.textContent = "Entregado el " + previo.enviado.toDate().toLocaleString("es-MX", {
         day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
       });
+    }
+
+    // Con las respuestas guardadas, la pestaña de resultados arma el análisis y
+    // el consejo igual que el día que contestó. No se entrega nada otra vez: el
+    // script de [dia].astro marca el intento como ya entregado.
+    const conRespuestas = Array.isArray(previo.respuestas) && previo.respuestas.length === previo.total;
+    ver("aa-hecho-analisis", conRespuestas);
+    if (conRespuestas) {
+      document.dispatchEvent(new CustomEvent("antologia:intento-previo", {
+        detail: { respuestas: previo.respuestas },
+      }));
     }
   }
 

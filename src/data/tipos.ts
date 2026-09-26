@@ -79,8 +79,15 @@ export interface ContenidoModulo {
   hitosTitulo: string;
   hitosSubtitulo: string;
   hitos: Hito[];
-  /** Las 4 categorías del cuestionario, en el orden en que se grafican */
-  ejes: { nombre: string; acento: Acento }[];
+  /**
+   * Las 4 categorías del cuestionario, en el orden en que se grafican.
+   *
+   * `repasar` es lo que el consejo le recomienda a quien sale bajo en ese eje:
+   * títulos EXACTOS de conceptos, de hitos de la línea del tiempo o de recursos
+   * (lecturas y videos) de este mismo módulo. Si un título no coincide con nada,
+   * el build falla a propósito: mejor eso que publicar un consejo con enlace roto.
+   */
+  ejes: { nombre: string; acento: Acento; repasar: string[] }[];
   preguntas: Pregunta[];
   tarea: Tarea;
 }

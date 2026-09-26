@@ -182,10 +182,14 @@ export const modulo5: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Normatividad y ARCO", acento: "emerald" },
-    { nombre: "Seguridad digital", acento: "rose" },
-    { nombre: "Privacidad de datos", acento: "violet" },
-    { nombre: "Ética e IA", acento: "purple" },
+    { nombre: "Normatividad y ARCO", acento: "emerald",
+      repasar: ["Los derechos ARCO", "La nueva LFPDPPP de 2025", "Nueva LFPDPPP y nueva autoridad"] },
+    { nombre: "Seguridad digital", acento: "rose",
+      repasar: ["Phishing, smishing y vishing", "Contraseñas y gestores", "Verificación en dos pasos", "CONDUSEF: estadísticas de fraude financiero"] },
+    { nombre: "Privacidad de datos", acento: "violet",
+      repasar: ["Datos personales sensibles"] },
+    { nombre: "Ética e IA", acento: "purple",
+      repasar: ["Uso responsable de la inteligencia artificial", "Licencias, copyleft y contenido generado por IA"] },
   ],
   preguntas: [
     {
@@ -485,10 +489,14 @@ export const modulo6: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Identidad digital", acento: "cyan" },
-    { nombre: "Credenciales y seguridad", acento: "amber" },
-    { nombre: "Contaminación digital", acento: "teal" },
-    { nombre: "Ciudadanía digital", acento: "blue" },
+    { nombre: "Identidad digital", acento: "cyan",
+      repasar: ["Huella digital activa y pasiva", "Reputación digital: lo que no se borra"] },
+    { nombre: "Credenciales y seguridad", acento: "amber",
+      repasar: ["Credenciales: la llave de toda tu vida digital"] },
+    { nombre: "Contaminación digital", acento: "teal",
+      repasar: ["Basura electrónica (e-waste)", "Contaminación digital", "Global E-waste Monitor 2024 (ONU, UIT y UNITAR)"] },
+    { nombre: "Ciudadanía digital", acento: "blue",
+      repasar: ["Obsolescencia programada y percibida", "Ciudadanía digital", "El derecho a reparar se vuelve agenda pública"] },
   ],
   preguntas: [
     {
@@ -787,10 +795,14 @@ export const modulo7: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Definición de algoritmo", acento: "amber" },
-    { nombre: "Método de resolución", acento: "emerald" },
-    { nombre: "Diagramas de flujo", acento: "teal" },
-    { nombre: "Historia y lógica", acento: "violet" },
+    { nombre: "Definición de algoritmo", acento: "amber",
+      repasar: ["Abstracción y reconocimiento de patrones", "¿Qué es un algoritmo? Diagrama de flujo y pseudocódigo"] },
+    { nombre: "Método de resolución", acento: "emerald",
+      repasar: ["Comprender: entradas, salidas y restricciones", "Descomposición", "Pseudocódigo", "Prueba de escritorio"] },
+    { nombre: "Diagramas de flujo", acento: "teal",
+      repasar: ["Diagrama de flujo y su simbología", "Norma ISO 5807: símbolos de diagramas de flujo"] },
+    { nombre: "Historia y lógica", acento: "violet",
+      repasar: ["Al-Juarismi y el nacimiento de la palabra algoritmo", "Ada Lovelace publica el primer algoritmo para una máquina"] },
   ],
   preguntas: [
     {
@@ -1108,10 +1120,14 @@ export const modulo8: ContenidoModulo = {
   ],
 
   ejes: [
-    { nombre: "Datos y variables", acento: "cyan" },
-    { nombre: "Operadores", acento: "emerald" },
-    { nombre: "Estructuras de control", acento: "amber" },
-    { nombre: "Lógica booleana", acento: "violet" },
+    { nombre: "Datos y variables", acento: "cyan",
+      repasar: ["Dato e información no son lo mismo", "Variables y constantes", "Tipos de dato"] },
+    { nombre: "Operadores", acento: "emerald",
+      repasar: ["Aritméticos", "Relacionales"] },
+    { nombre: "Estructuras de control", acento: "amber",
+      repasar: ["Con tres estructuras basta para todo", "Repetitiva o iterativa"] },
+    { nombre: "Lógica booleana", acento: "violet",
+      repasar: ["Lógicos y tablas de verdad", "Shannon conecta la lógica con los circuitos eléctricos"] },
   ],
   preguntas: [
     {

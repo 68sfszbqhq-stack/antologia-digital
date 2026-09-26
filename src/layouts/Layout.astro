@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import ClientRouter from "astro/components/ClientRouter.astro";
 import sesiones from "../data/sesiones.json";
+import { unidades as unidadesLyC } from "../data/lengua";
 import { u } from "../lib/url";
 
 export interface Props {
@@ -178,10 +179,10 @@ const {
 
     <!-- ─── MENÚ DESPLEGABLE ─── -->
     <!--
-      Es el índice del sitio entero: la antología por un lado y las evaluaciones
-      por otro, que son las dos cosas distintas que se hacen aquí. Los módulos
-      van como etiquetas y no como lista larga porque son ocho y así caben de
-      un vistazo, sin desplazarse.
+      Es el índice del sitio entero: las materias primero —la portada ya no las
+      muestra, así que este es el camino para llegar a ellas— y luego las
+      evaluaciones. Los módulos van como etiquetas y no como lista larga porque
+      son ocho y así caben de un vistazo, sin desplazarse.
     -->
     <div
       id="menu-principal"
@@ -216,10 +217,18 @@ const {
 
         <div class="px-6 py-7 space-y-8">
 
-          <!-- Antología -->
+          <a href={u("/#avisos")} class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 transition">
+            ← Inicio y avisos
+          </a>
+
+          <!-- Mis materias -->
           <section>
+            <span class="text-xs font-mono-tech text-slate-600 uppercase tracking-widest block mb-4">
+              // Mis materias
+            </span>
+
             <a
-              href={u("/#modulos")}
+              href={u("/cultura-digital")}
               class="flex items-start gap-3 group mb-4"
             >
               <span class="mt-0.5 w-8 h-8 shrink-0 rounded-lg border border-cyan-400/40 bg-cyan-400/10 flex items-center justify-center">
@@ -230,7 +239,7 @@ const {
               </span>
               <span>
                 <span class="block font-bold text-white group-hover:text-cyan-400 transition">
-                  Antología de Cultura Digital
+                  Cultura Digital
                 </span>
                 <span class="block text-xs text-slate-500 mt-0.5">
                   Ocho módulos con lecturas, videos y actividades.
@@ -246,6 +255,36 @@ const {
                   title={m.titulo}
                 >
                   {m.modulo.replace("Módulo ", "")} · {m.titulo}
+                </a>
+              ))}
+            </div>
+
+            <a
+              href={u("/lengua-y-comunicacion")}
+              class="flex items-start gap-3 group mt-6"
+            >
+              <span class="mt-0.5 w-8 h-8 shrink-0 rounded-lg border border-amber-400/40 bg-amber-400/10 flex items-center justify-center">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-400">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </span>
+              <span>
+                <span class="block font-bold text-white group-hover:text-amber-400 transition">
+                  Lengua y Comunicación
+                </span>
+                <span class="block text-xs text-slate-500 mt-0.5">
+                  Antología en cinco unidades, con fuentes citadas.
+                </span>
+              </span>
+            </a>
+
+            <div class="flex flex-wrap gap-1.5 pl-11 mt-4">
+              {unidadesLyC.map((un) => (
+                <a
+                  href={u(`/lengua-y-comunicacion#unidad-${un.numero}`)}
+                  class="text-[11px] font-mono-tech px-2.5 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/5 hover:border-amber-400/40 hover:text-amber-400 hover:bg-amber-400/5 transition"
+                >
+                  U{un.numero} · {un.titulo}
                 </a>
               ))}
             </div>
