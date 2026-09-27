@@ -670,6 +670,97 @@ service cloud.firestore {
       allow update, delete: if esProfesor();
     }
 
+    // ─── Taller 3D del Módulo 1.1: armar una PC o una laptop ───────────────
+    //
+    // No es calificación: es una práctica con cronómetro. Se guarda el MEJOR
+    // tiempo de cada alumno por armado (escritorio / laptop) y modo (guía /
+    // reto), con una captura de la pantalla final como evidencia, y el
+    // profesor ve el ranking en /profesor.
+    //
+    // A diferencia de /intentos, aquí SÍ se permite `update`, porque el
+    // alumno puede volver a armar para mejorar su tiempo. El candado es que
+    // solo entra un tiempo MENOR al guardado: repetir para empeorar, o para
+    // reescribir otra cosa, se rechaza.
+    //
+    // Lo que las reglas NO pueden saber es si el tiempo es real: alguien
+    // hábil podría mandar un número desde la consola. Por eso el piso de 20
+    // segundos y, sobre todo, la captura: un tiempo sospechoso se compara con
+    // su imagen. El profesor puede borrar un registro.
+    //
+    // Nombre y grupo se copian de la ficha, y las reglas lo comprueban contra
+    // la ficha misma: nadie aparece en el ranking con un nombre inventado.
+
+    function tallerBienFormado() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['uid', 'nombre', 'grupo', 'armado', 'reto',
+                               'segundos', 'errores', 'enviado'])
+        && d.uid == request.auth.uid
+        && d.nombre == fichaAlumno().nombre
+        && d.grupo == fichaAlumno().grupo
+        && d.armado in ['escritorio', 'laptop']
+        && d.reto is bool
+        && d.segundos is int && d.segundos >= 20 && d.segundos <= 7200
+        && d.errores is int  && d.errores >= 0   && d.errores <= 500
+        && d.enviado == request.time;
+    }
+
+    function idTaller() {
+      return request.auth.uid + '_' + request.resource.data.armado
+        + (request.resource.data.reto ? '_reto' : '');
+    }
+
+    match /taller3d/{registroId} {
+      // Cada alumno lee su propio récord (para saber si mejoró); la lista
+      // completa, con nombres, solo el profesor.
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      allow list: if esProfesor();
+
+      allow create: if alumnoActivo()
+        && registroId == idTaller()
+        && tallerBienFormado();
+
+      allow update: if esProfesor() || (
+        alumnoActivo()
+        && registroId == idTaller()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.segundos < resource.data.segundos
+        && tallerBienFormado()
+      );
+
+      allow delete: if esProfesor();
+    }
+
+    // La captura va en su propio documento, con el mismo nombre que el
+    // récord. Así el ranking del profesor se carga sin descargar decenas de
+    // imágenes; cada una se pide solo al darle "ver".
+    //
+    // Solo se escribe JUNTO con su récord, en el mismo lote: getAfter() mira
+    // cómo queda /taller3d al terminar la operación y exige que ese récord
+    // sea del alumno y se haya escrito en este mismo instante. Como el récord
+    // solo acepta tiempos que mejoran, la captura tampoco se puede cambiar
+    // por otra sin haber mejorado de verdad.
+    match /taller3d_capturas/{registroId} {
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      allow list: if esProfesor();
+
+      allow create, update: if request.auth != null
+        && request.resource.data.keys().hasOnly(['uid', 'captura', 'enviado'])
+        && request.resource.data.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/taller3d/$(registroId)).data.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/taller3d/$(registroId)).data.enviado == request.time
+        // Una JPEG pequeña en texto. El tope evita usar esto como almacén.
+        && request.resource.data.captura is string
+        && request.resource.data.captura.size() <= 400000
+        && request.resource.data.captura.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+')
+        && request.resource.data.enviado == request.time;
+
+      allow delete: if esProfesor();
+    }
+
     // ─── Qué módulos están abiertos ────────────────────────────────────────
 
     match /config/{doc} {

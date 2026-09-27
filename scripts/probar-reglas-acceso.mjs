@@ -183,6 +183,57 @@ caso("El alumno no abre la votación", "DENY", "update", "/config/lyc", googleDe
 caso("El profesor sí abre la votación", "ALLOW", "update", "/config/lyc", profesor(),
      { data: { activa: RONDA, quizzes: [1] } });
 
+// ─── Taller 3D ───────────────────────────────────────────────────────────────
+const CAPTURA = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==";
+const TALLER = { uid: UID, nombre: FICHA.nombre, grupo: FICHA.grupo, armado: "escritorio",
+                 reto: false, segundos: 95, errores: 3, enviado: AHORA };
+const despues = (ruta, data) => ({ function: "getAfter", args: [{ exactValue: ruta.replace(DB, DBM) }],
+                                   result: { value: { data } } });
+const FOTO = { uid: UID, captura: CAPTURA, enviado: AHORA };
+const conRecord = (r) => [despues(`${DB}/taller3d/${UID}_escritorio`, r)];
+
+caso("Guarda su tiempo del taller", "ALLOW", "create", `/taller3d/${UID}_escritorio`, googleDe(),
+     { data: TALLER, mocks: conFicha });
+caso("Guarda su tiempo en modo reto", "ALLOW", "create", `/taller3d/${UID}_laptop_reto`, googleDe(),
+     { data: { ...TALLER, armado: "laptop", reto: true }, mocks: conFicha });
+caso("Taller: el nombre del documento no cuadra", "DENY", "create", `/taller3d/${UID}_laptop`, googleDe(),
+     { data: TALLER, mocks: conFicha });
+caso("Taller: no guarda a nombre de otro", "DENY", "create", `/taller3d/${OTRO}_escritorio`, googleDe(),
+     { data: { ...TALLER, uid: OTRO }, mocks: conFicha });
+caso("Taller: sin ficha no guarda", "DENY", "create", `/taller3d/${UID}_escritorio`, googleDe(),
+     { data: TALLER, mocks: [existe(`${DB}/alumnos/${UID}`, false)] });
+caso("Taller: nombre inventado, no", "DENY", "create", `/taller3d/${UID}_escritorio`, googleDe(),
+     { data: { ...TALLER, nombre: "El Mejor" }, mocks: conFicha });
+caso("Taller: tiempo imposible, no", "DENY", "create", `/taller3d/${UID}_escritorio`, googleDe(),
+     { data: { ...TALLER, segundos: 3 }, mocks: conFicha });
+caso("Captura junto con su récord", "ALLOW", "create", `/taller3d_capturas/${UID}_escritorio`, googleDe(),
+     { data: FOTO, mocks: conRecord(TALLER) });
+caso("Captura: sin escribir el récord a la vez, no", "DENY", "update", `/taller3d_capturas/${UID}_escritorio`, googleDe(),
+     { data: FOTO, actual: FOTO, mocks: conRecord({ ...TALLER, enviado: "2026-09-01T10:00:00Z" }) });
+caso("Captura: tiene que ser imagen", "DENY", "create", `/taller3d_capturas/${UID}_escritorio`, googleDe(),
+     { data: { ...FOTO, captura: "hola" }, mocks: conRecord(TALLER) });
+caso("Captura: no la de otro", "DENY", "create", `/taller3d_capturas/${UID}_escritorio`, googleDe(),
+     { data: FOTO, mocks: conRecord({ ...TALLER, uid: OTRO }) });
+caso("Captura: el alumno no las lista", "DENY", "list", `/taller3d_capturas/${UID}_escritorio`, googleDe());
+caso("Captura: el profesor sí la ve", "ALLOW", "get", `/taller3d_capturas/${UID}_escritorio`, profesor(),
+     { actual: FOTO });
+caso("Taller: campos inventados, no", "DENY", "create", `/taller3d/${UID}_escritorio`, googleDe(),
+     { data: { ...TALLER, lugar: 1 }, mocks: conFicha });
+caso("Taller: mejora su tiempo", "ALLOW", "update", `/taller3d/${UID}_escritorio`, googleDe(),
+     { data: { ...TALLER, segundos: 80 }, actual: TALLER, mocks: conFicha });
+caso("Taller: no guarda un tiempo peor", "DENY", "update", `/taller3d/${UID}_escritorio`, googleDe(),
+     { data: { ...TALLER, segundos: 120 }, actual: TALLER, mocks: conFicha });
+caso("Taller: no pisa el récord de otro", "DENY", "update", `/taller3d/${OTRO}_escritorio`, googleDe(),
+     { data: { ...TALLER, uid: OTRO, segundos: 30 }, actual: { ...TALLER, uid: OTRO }, mocks: conFicha });
+caso("Taller: lee su récord", "ALLOW", "get", `/taller3d/${UID}_escritorio`, googleDe(),
+     { actual: TALLER });
+caso("Taller: no lee el récord de otro", "DENY", "get", `/taller3d/${OTRO}_escritorio`, googleDe(),
+     { actual: { ...TALLER, uid: OTRO } });
+caso("Taller: el alumno no lista el ranking", "DENY", "list", `/taller3d/${UID}_escritorio`, googleDe());
+caso("Taller: el profesor sí lista el ranking", "ALLOW", "list", `/taller3d/${UID}_escritorio`, profesor());
+caso("Taller: el alumno no borra", "DENY", "delete", `/taller3d/${UID}_escritorio`, googleDe(),
+     { actual: TALLER, mocks: conFicha });
+
 // ─── A correr ────────────────────────────────────────────────────────────────
 let token;
 try {

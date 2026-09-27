@@ -194,6 +194,40 @@ import { u } from "../lib/url";
           </button>
         </div>
       </section>
+
+      <!-- Taller 3D del Módulo 1.1: ranking de tiempos con captura -->
+      <section class="glass-card rounded-2xl p-6 border border-white/10 mt-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-white mb-1">Taller 3D · armar una computadora</h2>
+            <p id="pr-taller-resumen" class="text-xs text-slate-400 font-mono-tech">
+              El mejor tiempo de cada alumno, con la captura de su pantalla final. Usa el filtro de grupo de arriba.
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <select id="pr-taller-armado" class="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white font-mono-tech focus:outline-none focus:border-cyan-400/50">
+              <option value="escritorio">PC de escritorio</option>
+              <option value="escritorio_reto">PC · modo reto</option>
+              <option value="laptop">Laptop</option>
+              <option value="laptop_reto">Laptop · modo reto</option>
+            </select>
+            <button id="pr-taller-cargar" class="btn-primary px-5 py-2.5 text-xs font-mono-tech">Ver ranking</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody id="pr-taller-tbody" class="text-slate-300"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div id="pr-taller-foto" class="hidden fixed inset-0 z-[200] bg-black/85 flex items-center justify-center p-4">
+        <div class="max-w-4xl w-full">
+          <img id="pr-taller-img" alt="Captura del armado" class="w-full rounded-xl border border-white/10" />
+          <p id="pr-taller-foto-aviso" class="text-sm text-slate-300 text-center mt-3"></p>
+          <button id="pr-taller-cerrar" class="block mx-auto mt-3 text-xs font-mono-tech text-slate-400 hover:text-white">Cerrar ✕</button>
+        </div>
+      </div>
     </div>
 
     <div id="pr-cargando" class="text-center py-24">
@@ -365,11 +399,18 @@ import { u } from "../lib/url";
     });
     una("pr-exportar", exportar);
     una("pr-lyc-exportar", exportarLyc);
+    una("pr-taller-cargar", cargarTaller);
+    una("pr-taller-cerrar", () => ver("pr-taller-foto", false));
+    const armadoSel = document.getElementById("pr-taller-armado");
+    if (armadoSel && !armadoSel.dataset.listo) {
+      armadoSel.dataset.listo = "1";
+      armadoSel.addEventListener("change", () => { if (taller) pintarTaller(); });
+    }
 
     const sel = document.getElementById("pr-grupo");
     if (sel && !sel.dataset.listo) {
       sel.dataset.listo = "1";
-      sel.addEventListener("change", pintarTabla);
+      sel.addEventListener("change", () => { pintarTabla(); if (taller) pintarTaller(); });
     }
   }
 
@@ -620,5 +661,112 @@ import { u } from "../lib/url";
     const hoy = new Date().toISOString().slice(0, 10);
     descargarCSV(`idoceo-lyc-${grupo.replace(/[^\w-]/g, "_")}-${hoy}.csv`, csv);
     if (resumen) resumen.textContent = `${snap.size} entregas en total. CSV descargado.`;
+  }
+
+  // ─── Taller 3D ─────────────────────────────────────────────────────────────
+  //
+  // /taller3d guarda el mejor tiempo de cada alumno por armado y modo; la
+  // captura vive aparte, en /taller3d_capturas, y solo se descarga al darle
+  // "ver" (cada una pesa cientos de kilobytes). Se lee al tocar el botón, no
+  // al abrir el panel.
+
+  interface RegistroTaller {
+    id: string; uid: string; nombre: string; grupo: string;
+    armado: string; reto: boolean; segundos: number; errores: number;
+    enviado?: { toDate(): Date };
+  }
+  let taller: RegistroTaller[] | null = null;
+
+  async function cargarTaller() {
+    const resumen = document.getElementById("pr-taller-resumen");
+    if (resumen) resumen.textContent = "Cargando…";
+    try {
+      const snap = await getDocs(collection(db(), "taller3d"));
+      taller = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<RegistroTaller, "id">) }));
+      pintarTaller();
+    } catch (e: any) {
+      if (resumen) resumen.textContent = "No pude leer el taller: " + (e?.message ?? "error desconocido");
+    }
+  }
+
+  const minSeg = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+  function pintarTaller() {
+    const tbody = document.getElementById("pr-taller-tbody");
+    const resumen = document.getElementById("pr-taller-resumen");
+    if (!tbody || !taller) return;
+    const [armado, modo] = (document.getElementById("pr-taller-armado") as HTMLSelectElement).value.split("_");
+    const grupo = (document.getElementById("pr-grupo") as HTMLSelectElement)?.value ?? "";
+    const lista = taller
+      .filter((r) => r.armado === armado && r.reto === (modo === "reto") && (!grupo || r.grupo === grupo))
+      .sort((a, b) => a.segundos - b.segundos || a.errores - b.errores);
+
+    if (!lista.length) {
+      tbody.innerHTML = `<tr><td class="py-10 text-center text-slate-500 text-sm">Nadie ha terminado este armado todavía${grupo ? " en este grupo" : ""}.</td></tr>`;
+      if (resumen) resumen.textContent = "Sin registros";
+      return;
+    }
+    const medalla = ["🥇", "🥈", "🥉"];
+    tbody.innerHTML = `<tr class="border-b border-white/10 text-xs font-mono-tech text-slate-400 uppercase tracking-wider">
+        <th class="text-left py-3 pr-3 font-medium">#</th>
+        <th class="text-left py-3 pr-4 font-medium">Alumno</th>
+        <th class="text-left py-3 pr-4 font-medium">Grupo</th>
+        <th class="text-center py-3 px-2 font-medium">Tiempo</th>
+        <th class="text-center py-3 px-2 font-medium">Errores</th>
+        <th class="text-left py-3 px-2 font-medium">Cuándo</th>
+        <th></th>
+      </tr>` + lista.map((r, i) => `
+      <tr class="border-b border-white/5 hover:bg-white/[0.02]">
+        <td class="py-3 pr-3 font-mono-tech text-slate-400">${medalla[i] ?? i + 1}</td>
+        <td class="py-3 pr-4 text-slate-200">${escapar(r.nombre)}</td>
+        <td class="py-3 pr-4 text-slate-500 font-mono-tech text-xs">${escapar(r.grupo)}</td>
+        <td class="py-3 px-2 text-center font-mono-tech font-bold text-cyan-300">${minSeg(r.segundos)}</td>
+        <td class="py-3 px-2 text-center font-mono-tech ${r.errores ? "text-rose-300" : "text-emerald-300"}">${r.errores}</td>
+        <td class="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">${r.enviado ? r.enviado.toDate().toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }) : ""}</td>
+        <td class="py-3 pl-2 text-right whitespace-nowrap">
+          <button data-foto="${r.id}" class="text-xs font-mono-tech text-cyan-400 hover:underline mr-3">Ver captura</button>
+          <button data-quitar="${r.id}" class="text-xs font-mono-tech text-slate-600 hover:text-rose-400" title="Borrar este tiempo">Borrar</button>
+        </td>
+      </tr>`).join("");
+    tbody.querySelectorAll<HTMLElement>("[data-foto]").forEach((el) =>
+      el.addEventListener("click", () => verCaptura(el.dataset.foto!)));
+    tbody.querySelectorAll<HTMLElement>("[data-quitar]").forEach((el) =>
+      el.addEventListener("click", () => borrarTaller(el.dataset.quitar!)));
+    if (resumen) resumen.textContent = `${lista.length} alumnos en este ranking · el mejor: ${minSeg(lista[0].segundos)}`;
+  }
+
+  async function verCaptura(id: string) {
+    const img = document.getElementById("pr-taller-img") as HTMLImageElement;
+    const aviso = document.getElementById("pr-taller-foto-aviso");
+    img.removeAttribute("src");
+    if (aviso) aviso.textContent = "Cargando captura…";
+    ver("pr-taller-foto", true);
+    try {
+      const snap = await getDoc(doc(db(), "taller3d_capturas", id));
+      if (!snap.exists()) { if (aviso) aviso.textContent = "Este registro no tiene captura."; return; }
+      img.src = snap.data().captura;
+      if (aviso) aviso.textContent = "";
+    } catch {
+      if (aviso) aviso.textContent = "No se pudo cargar la captura.";
+    }
+  }
+
+  async function borrarTaller(id: string) {
+    const r = taller?.find((x) => x.id === id);
+    const ok = confirm(
+      `¿Borrar el tiempo de ${r?.nombre ?? id} (${r ? minSeg(r.segundos) : ""})?\n\n` +
+      `Sale del ranking y su captura se pierde. Si lo vuelve a armar, entra su nuevo tiempo. No se puede deshacer.`,
+    );
+    if (!ok) return;
+    try {
+      await Promise.all([
+        deleteDoc(doc(db(), "taller3d", id)),
+        deleteDoc(doc(db(), "taller3d_capturas", id)),
+      ]);
+      taller = (taller ?? []).filter((x) => x.id !== id);
+      pintarTaller();
+    } catch {
+      alert("No se pudo borrar. Revisa tu conexión e intenta de nuevo.");
+    }
   }
 </script>

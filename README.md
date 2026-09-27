@@ -184,6 +184,24 @@ Las respuestas correctas de los quizzes viajan en el código de la página, igua
 que las de los diagnósticos de los módulos: la calificación la calcula el
 navegador y las reglas solo acotan los números.
 
+### Taller 3D del Módulo 1.1: armar una computadora
+
+En la sesión 1.1 (paso "La Clase") el alumno arma una PC de escritorio o una
+laptop pieza por pieza, en 3D, con el dedo o el mouse. El código está en
+`src/components/TallerEnsamble.jsx` (interfaz) y `src/lib/taller-3d/` (el 3D;
+las piezas, textos y el orden de armado viven en `armados.js`).
+
+- **`taller3d`**: el MEJOR tiempo de cada alumno por armado y modo
+  (`<uid>_<armado>` o `<uid>_<armado>_reto`). A diferencia de los diagnósticos,
+  aquí sí se permite volver a escribir, pero solo con un tiempo menor.
+- **`taller3d_capturas`**: la captura de la pantalla final, con una franja con
+  nombre, grupo, tiempo y fecha. Solo se escribe en el mismo lote que su récord.
+- El ranking y las capturas se ven en `/profesor`, sección *Taller 3D*.
+
+Las reglas no pueden saber si un tiempo es real: la captura es la evidencia.
+Solo se guarda si el alumno entró con su cuenta al inicio de la sesión; si no,
+puede descargar la captura y mandarla por otro lado.
+
 ### Configuración inicial (una sola vez)
 
 1. Crear el proyecto en [console.firebase.google.com](https://console.firebase.google.com).

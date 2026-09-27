@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import AccesoAlumno from "../../components/AccesoAlumno.astro";
+import TallerEnsamble from "../../components/TallerEnsamble.jsx";
 import sesiones from "../../data/sesiones.json";
 import contenido from "../../data/contenido";
 import { u } from "../../lib/url";
@@ -659,6 +660,9 @@ const tituloTarea = cont.tarea.titulo;
           </div>
         </div>
       )}
+
+      <!-- ── TALLER 3D: ARMAR UNA PC O UNA LAPTOP (solo Módulo 1.1) ── -->
+      {modulo.dia === 1 && <TallerEnsamble client:only="react" />}
 
       <!-- ── VIDEOS DEL MÓDULO ── -->
       {videos.length > 0 && (
