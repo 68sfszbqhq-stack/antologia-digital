@@ -114,6 +114,12 @@
       },
       {
         "tipo": "Lectura",
+        "titulo": "Comprender las licencias (Rosario Rogel-Salazar)",
+        "url": "https://rosariorogel.net/cc-oer-mexico/licencias-cc/",
+        "descripcion": "Guía en español de una autora mexicana, con licencia CC BY 4.0: explica las licencias CC con un caso práctico. Fíjate en la imagen de arriba: tiene otra licencia (CC BY-NC-SA 2.0), así que revisa cada elemento, no solo el pie de página."
+      },
+      {
+        "tipo": "Lectura",
         "titulo": "ENDUTIH 2024: comunicado de prensa del INEGI",
         "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2025/endutih/ENDUTIH_24.pdf",
         "descripcion": "Fuente oficial de las cifras de conectividad en México: 100.2 millones de usuarios y 73.6 % de hogares con internet."
