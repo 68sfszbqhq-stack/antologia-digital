@@ -18,6 +18,7 @@ const { unidad, tema, numero } = temas[i];
 const anterior = temas[i - 1];
 const siguiente = temas[i + 1];
 const c = coloresLyC[unidad.acento];
+const ejemplos = [tema.ejemplo, ...(tema.ejemplos ?? [])].filter((e) => e !== undefined);
 
 const escapar = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -65,6 +66,21 @@ function conCitas(texto: string) {
 
     <p class="text-lg text-slate-200 leading-relaxed mb-10" set:html={conCitas(tema.idea)} />
 
+    {tema.definiciones && (
+      <section class="mb-10">
+        <h2 class="text-xl font-bold text-white mb-4">Conceptos clave</h2>
+        <dl class="grid sm:grid-cols-2 gap-3">
+          {tema.definiciones.map((d) => (
+            <div class={`rounded-xl p-4 border ${c.borde} bg-white/[0.02]`}>
+              <dt class={`font-bold ${c.texto}`}>{d.termino}</dt>
+              <dd class="text-sm text-slate-300 leading-relaxed mt-1" set:html={conCitas(d.definicion)} />
+              {d.ejemplo && <dd class="text-sm text-slate-400 leading-relaxed mt-2 italic">Ej.: {d.ejemplo}</dd>}
+            </div>
+          ))}
+        </dl>
+      </section>
+    )}
+
     <!-- Lectura -->
     {tema.secciones.map((s) => (
       <section class="mb-8">
@@ -72,8 +88,39 @@ function conCitas(texto: string) {
         {s.parrafos.map((p) => (
           <p class="text-slate-300 leading-relaxed mb-4" set:html={conCitas(p)} />
         ))}
+        {s.lista && (
+          <ul class="space-y-2 mb-4">
+            {s.lista.map((item) => (
+              <li class="text-slate-300 leading-relaxed pl-5 relative before:content-['•'] before:absolute before:left-0 before:text-amber-400" set:html={conCitas(item)} />
+            ))}
+          </ul>
+        )}
       </section>
     ))}
+
+    {ejemplos.length > 0 && (
+      <section class="mb-10">
+        <h2 class="text-xl font-bold text-white mb-4">{ejemplos.length === 1 ? "Ejemplo" : "Ejemplos resueltos"}</h2>
+        <div class="space-y-8">
+          {ejemplos.map((e, n) => (
+            <div>
+              <p class="text-sm text-slate-400 mb-3">{ejemplos.length > 1 && <strong class="text-slate-300">{n + 1}. </strong>}{e.contexto}</p>
+              <div class="space-y-3">
+                <blockquote class="rounded-xl p-4 border border-rose-500/30 bg-rose-500/5 text-slate-300 text-sm leading-relaxed">
+                  <span class="text-rose-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Así no</span>
+                  <span set:html={conCitas(e.mal)} />
+                </blockquote>
+                <blockquote class="rounded-xl p-4 border border-emerald-500/30 bg-emerald-500/5 text-slate-300 text-sm leading-relaxed">
+                  <span class="text-emerald-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Así sí</span>
+                  <span set:html={conCitas(e.bien)} />
+                </blockquote>
+              </div>
+              <p class="text-sm text-slate-400 leading-relaxed mt-3"><strong class="text-slate-300">Por qué:</strong> <span set:html={conCitas(e.porque)} /></p>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
 
     <!-- Errores comunes -->
     <section class="mb-10">
@@ -94,21 +141,45 @@ function conCitas(texto: string) {
       </div>
     </section>
 
-    {tema.ejemplo && (
-      <section class="mb-10">
-        <h2 class="text-xl font-bold text-white mb-2">Ejemplo</h2>
-        <p class="text-sm text-slate-400 mb-4">{tema.ejemplo.contexto}</p>
-        <div class="space-y-3">
-          <blockquote class="rounded-xl p-4 border border-rose-500/30 bg-rose-500/5 text-slate-300 text-sm leading-relaxed">
-            <span class="text-rose-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Así no</span>
-            {tema.ejemplo.mal}
-          </blockquote>
-          <blockquote class="rounded-xl p-4 border border-emerald-500/30 bg-emerald-500/5 text-slate-300 text-sm leading-relaxed">
-            <span class="text-emerald-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Así sí</span>
-            <span set:html={conCitas(tema.ejemplo.bien)} />
-          </blockquote>
+    {tema.ejercicios && (
+      <section class="mb-10" data-practica>
+        <div class="flex items-baseline justify-between gap-3 mb-1">
+          <h2 class="text-xl font-bold text-white">Practica</h2>
+          <span data-marcador class="text-xs font-mono-tech text-slate-500"></span>
         </div>
-        <p class="text-sm text-slate-400 leading-relaxed mt-3"><strong class="text-slate-300">Por qué:</strong> {tema.ejemplo.porque}</p>
+        <p class="text-sm text-slate-400 mb-5">No cuenta para tu calificación. Contesta y revisa al momento si acertaste.</p>
+        <ol class="space-y-5">
+          {tema.ejercicios.map((ej, n) => (
+            <li class="rounded-2xl p-5 border border-white/10 bg-white/[0.02]" data-ejercicio={ej.tipo}
+                data-correcta={ej.tipo === "opcion" ? ej.correcta : undefined}>
+              <p class="text-white leading-relaxed"><span class={`font-mono-tech text-xs ${c.texto} mr-2`}>{n + 1}</span>{ej.enunciado}</p>
+              {ej.tipo === "opcion" ? (
+                <>
+                  <div class="grid gap-2 mt-4">
+                    {ej.opciones.map((o, j) => (
+                      <button type="button" data-op={j}
+                        class="text-left text-sm text-slate-300 rounded-xl px-4 py-3 border border-white/10 hover:border-amber-400/40 transition">
+                        {o}
+                      </button>
+                    ))}
+                  </div>
+                  <p data-retro hidden class="text-sm leading-relaxed mt-3 rounded-xl px-4 py-3"></p>
+                  <p data-explicacion hidden class="text-sm text-slate-400 leading-relaxed mt-2" set:html={conCitas(ej.explicacion)} />
+                </>
+              ) : (
+                <>
+                  <textarea rows="3" placeholder="Escribe tu respuesta…"
+                    class="w-full mt-4 rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-400/50"></textarea>
+                  <button type="button" data-ver-modelo class={`text-sm font-semibold mt-2 ${c.texto} hover:underline`}>Comparar con una respuesta modelo</button>
+                  <p data-modelo hidden class="text-sm text-slate-300 leading-relaxed mt-2 rounded-xl px-4 py-3 border border-emerald-500/30 bg-emerald-500/5">
+                    <span class="text-emerald-400 font-mono-tech text-[11px] uppercase tracking-widest block mb-1">Respuesta modelo</span>
+                    <span set:html={conCitas(ej.modelo)} />
+                  </p>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
       </section>
     )}
 
@@ -165,3 +236,52 @@ function conCitas(texto: string) {
   </article>
 
 </Layout>
+
+<script>
+  // Práctica con retroalimentación inmediata. No guarda nada: es para que el
+  // alumno se ponga a prueba mientras lee (recordar fija más que releer).
+  document.addEventListener("astro:page-load", () => {
+    const practica = document.querySelector<HTMLElement>("[data-practica]");
+    if (!practica) return;
+    const marcador = practica.querySelector<HTMLElement>("[data-marcador]")!;
+    const cerradas = practica.querySelectorAll<HTMLElement>("[data-ejercicio='opcion']");
+    let contestadas = 0, aciertos = 0;
+    const pintar = () => {
+      marcador.textContent = cerradas.length ? `${aciertos} de ${contestadas} correctas · ${cerradas.length - contestadas} por contestar` : "";
+    };
+    pintar();
+
+    cerradas.forEach((ej) => {
+      const correcta = ej.dataset.correcta;
+      const botones = ej.querySelectorAll<HTMLButtonElement>("[data-op]");
+      botones.forEach((b) => b.addEventListener("click", () => {
+        if (ej.dataset.hecho) return;
+        ej.dataset.hecho = "1";
+        const bien = b.dataset.op === correcta;
+        contestadas++; if (bien) aciertos++;
+        botones.forEach((x) => {
+          x.disabled = true;
+          x.classList.remove("hover:border-amber-400/40");
+          if (x.dataset.op === correcta) x.classList.add("border-emerald-500/60", "bg-emerald-500/10", "text-white");
+          else if (x === b) x.classList.add("border-rose-500/60", "bg-rose-500/10");
+          else x.classList.add("opacity-50");
+        });
+        const retro = ej.querySelector<HTMLElement>("[data-retro]")!;
+        retro.textContent = bien ? "✓ Correcto." : "✗ No es esa. La correcta está marcada en verde.";
+        retro.className = bien
+          ? "text-sm leading-relaxed mt-3 rounded-xl px-4 py-3 bg-emerald-500/10 text-emerald-300"
+          : "text-sm leading-relaxed mt-3 rounded-xl px-4 py-3 bg-rose-500/10 text-rose-300";
+        retro.hidden = false;
+        ej.querySelector<HTMLElement>("[data-explicacion]")!.hidden = false;
+        pintar();
+      }));
+    });
+
+    practica.querySelectorAll<HTMLElement>("[data-ejercicio='abierta']").forEach((ej) => {
+      ej.querySelector("[data-ver-modelo]")!.addEventListener("click", (ev) => {
+        ej.querySelector<HTMLElement>("[data-modelo]")!.hidden = false;
+        (ev.currentTarget as HTMLElement).hidden = true;
+      });
+    });
+  });
+</script>

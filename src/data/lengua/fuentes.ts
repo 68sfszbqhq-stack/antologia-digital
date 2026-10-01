@@ -80,6 +80,9 @@ export const F = {
     "https://doi.org/10.1016/S0363-8111(97)90023-0"),
 
   // ── Comunicación por medios digitales ───────────────────────────────────
+  camerer: f("Camerer et al., 1989",
+    "Camerer, C., Loewenstein, G., y Weber, M. (1989). The curse of knowledge in economic settings: An experimental analysis. Journal of Political Economy, 97(5), 1232–1254.",
+    "https://doi.org/10.1086/261651"),
   kruger: f("Kruger et al., 2005",
     "Kruger, J., Epley, N., Parker, J., y Ng, Z.-W. (2005). Egocentrism over e-mail: Can we communicate as well as we think? Journal of Personality and Social Psychology, 89(6), 925–936.",
     "https://doi.org/10.1037/0022-3514.89.6.925"),

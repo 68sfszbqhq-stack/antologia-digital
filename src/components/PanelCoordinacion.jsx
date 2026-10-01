@@ -11,6 +11,8 @@ import { GRADOS } from '../lib/diagnostico-materias.js';
 import { TEMPERAMENTOS } from '../lib/temperamento.js';
 import { SUBESCALAS, NIVELES } from '../lib/diagnostico-inicial.js';
 import { AREAS as AREAS_CHASIDE } from '../lib/chaside.js';
+import ResultadosAlumno from './ResultadosAlumno.jsx';
+import { pdfRetroalimentacion, archivoAlumno, descargarMarkdownGrupos } from '../lib/informes.js';
 import { Barras, BarrasApiladas, Histograma, Leyenda, SERIE, MAGNITUD } from './Graficas.jsx';
 import {
   normalizarGrupo, claveGrupo, entregados, aMedias, conteo, redondear,
@@ -1063,22 +1065,47 @@ function FichaAlumno({ r, clave, onCerrar, perfil, vocacional }) {
 
   const cuando = (t) => (t?.toDate ? t.toDate().toLocaleString('es-MX') : '—');
 
+  // "Como lo ve el alumno" usa el mismo componente que su pantalla final, así
+  // que aquí aparece tal cual su retroalimentación, no un resumen para el profesor.
+  const [comoAlumno, setComoAlumno] = useState(false);
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onCerrar} />
       <div role="dialog" aria-modal="true" aria-label={`Detalle de ${r.nombre}`}
-           className="glass relative rounded-2xl border border-white/10 w-full max-w-2xl max-h-[85vh] flex flex-col">
+           className={`glass relative rounded-2xl border border-white/10 w-full ${comoAlumno ? 'max-w-3xl' : 'max-w-2xl'} max-h-[85vh] flex flex-col`}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="min-w-0">
             <h3 className="text-sm font-bold text-white truncate">{r.nombre}</h3>
             <p className="text-[11px] font-mono-tech text-slate-500 truncate">{r.correo}</p>
           </div>
+          <button type="button" onClick={() => pdfRetroalimentacion([{ r, perfil, vocacional }], archivoAlumno(r))}
+                  className="ml-auto mr-2 shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg border border-cyan-400/40 text-cyan-300 hover:bg-cyan-400/10 transition">
+            Descargar PDF
+          </button>
           <button onClick={onCerrar} aria-label="Cerrar"
                   className="w-8 h-8 shrink-0 rounded-lg border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition">
             ✕
           </button>
         </div>
 
+        <div className="flex gap-2 px-5 pt-4">
+          {[[false, 'Datos'], [true, 'Ver como lo ve el alumno']].map(([v, t]) => (
+            <button key={t} type="button" onClick={() => setComoAlumno(v)}
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition ${
+                      comoAlumno === v
+                        ? 'bg-cyan-400/15 border-cyan-400/60 text-cyan-200'
+                        : 'border-white/10 text-slate-400 hover:text-white'}`}>
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {comoAlumno ? (
+          <div className="overflow-y-auto p-5">
+            <ResultadosAlumno entrega={r} perfil={perfil} vocacional={vocacional} />
+          </div>
+        ) : (
         <div className="overflow-y-auto p-5 space-y-5">
           <Campos filas={[
             ['Grado', r.grado], ['Grupo (como lo escribió)', r.grupo],
@@ -1177,6 +1204,7 @@ function FichaAlumno({ r, clave, onCerrar, perfil, vocacional }) {
             </Bloque>
           )}
         </div>
+        )}
       </div>
     </div>
   );
@@ -1435,6 +1463,19 @@ function Descargas({ registros, clave, perfiles = [], vocacionales = [] }) {
     bajar('vocacional-chaside', filas);
   };
 
+  // Para el PDF: solo quien ya contestó algo; una hoja en blanco no le sirve a nadie.
+  const conDatos = registros.filter((r) => r.academica || r.cuadernillo || r.temperamento || r.atencion);
+  const pdfTodos = () => pdfRetroalimentacion(
+    [...conDatos]
+      .sort((a, b) => claveGrupo(a).localeCompare(claveGrupo(b), 'es') || String(a.nombre).localeCompare(String(b.nombre), 'es'))
+      .map((r) => ({
+        r,
+        perfil: perfiles.find((p) => p.correo === r.correo),
+        vocacional: vocacionales.find((v) => v.correo === r.correo),
+      })),
+    `retroalimentacion-alumnos-${new Date().toISOString().slice(0, 10)}.pdf`,
+  );
+
   const botones = [
     ['Cobertura', 'Cuántos presentaron, por grado y turno', cobertura],
     ['Sin terminar', 'Quiénes van a medias y qué bloque les falta', pendientesCSV],
@@ -1458,6 +1499,23 @@ function Descargas({ registros, clave, perfiles = [], vocacionales = [] }) {
         Cada bloque por separado, con los filtros que tengas puestos arriba.
         Abren directo en Excel sin romper los acentos.
       </p>
+      <div className="grid sm:grid-cols-2 gap-2.5 mb-2.5">
+        <button type="button" onClick={pdfTodos} disabled={!conDatos.length}
+                className="text-left rounded-xl bg-cyan-400/5 border border-cyan-400/40 hover:bg-cyan-400/10 p-3.5 transition disabled:opacity-40">
+          <span className="block text-sm font-semibold text-white mb-0.5">Retroalimentación en PDF</span>
+          <span className="block text-xs text-slate-400">
+            Una hoja por alumno con lo que él ve y tus recomendaciones ({conDatos.length} alumnos)
+          </span>
+        </button>
+        <button type="button" onClick={() => descargarMarkdownGrupos({ registros, perfiles, vocacionales })}
+                disabled={!registros.length}
+                className="text-left rounded-xl bg-cyan-400/5 border border-cyan-400/40 hover:bg-cyan-400/10 p-3.5 transition disabled:opacity-40">
+          <span className="block text-sm font-semibold text-white mb-0.5">Características del grupo (Markdown)</span>
+          <span className="block text-xs text-slate-400">
+            Anónimo, para tu IA de planeación. Un apartado por grupo filtrado
+          </span>
+        </button>
+      </div>
       <div className="grid sm:grid-cols-2 gap-2.5">
         {botones.map(([titulo, nota, fn]) => (
           <button key={titulo} onClick={fn}

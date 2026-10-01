@@ -21,8 +21,10 @@ export const temas = unidades.flatMap((unidad) =>
 function revisarCitas(tema: TemaLyC) {
   const texto = [
     tema.idea,
-    ...tema.secciones.flatMap((s) => s.parrafos),
-    tema.ejemplo ? `${tema.ejemplo.mal} ${tema.ejemplo.bien} ${tema.ejemplo.porque}` : "",
+    ...tema.secciones.flatMap((s) => [...s.parrafos, ...(s.lista ?? [])]),
+    ...(tema.definiciones ?? []).map((d) => `${d.definicion} ${d.ejemplo ?? ""}`),
+    ...[tema.ejemplo, ...(tema.ejemplos ?? [])].map((e) => (e ? `${e.mal} ${e.bien} ${e.porque}` : "")),
+    ...(tema.ejercicios ?? []).map((e) => (e.tipo === "opcion" ? e.explicacion : e.modelo)),
   ].join(" ");
 
   const claves = new Set(tema.fuentes.map((f) => f.clave));

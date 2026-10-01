@@ -125,25 +125,91 @@ export const unidad1: UnidadLyC = {
       detonadora:
         "Si alguien te dice «ahorita lo hago», ¿cuándo esperas que lo haga? Pregunta a tres compañeros y compara respuestas.",
       idea:
-        "Las palabras no traen el significado pegado: cada persona lo interpreta desde su experiencia, su cultura y el contexto. Cuando emisor y receptor no comparten el significado, el mensaje llega, pero se entiende otra cosa.",
+        "Las palabras no traen el significado pegado: cada persona lo interpreta desde su experiencia, su cultura y el contexto. Una barrera semántica aparece cuando el mensaje llega completo, pero el receptor le da un significado distinto del que quiso el emisor.",
+      definiciones: [
+        {
+          termino: "Semántica",
+          definicion: "Parte de la lingüística que estudia el significado de las palabras y de las frases.",
+        },
+        {
+          termino: "Barrera semántica",
+          definicion: "Obstáculo en la comunicación causado por el significado: el receptor entiende las palabras, pero no lo que el emisor quiso decir.",
+          ejemplo: "El profe pide «algo breve» y un alumno entrega media hoja y otro cinco.",
+        },
+        {
+          termino: "Denotación",
+          definicion: "El significado básico y compartido de una palabra, el que aparece en el diccionario.",
+          ejemplo: "«Perro»: mamífero doméstico de la familia de los cánidos.",
+        },
+        {
+          termino: "Connotación",
+          definicion: "Los significados extra que una palabra despierta por la cultura, las emociones o la experiencia de cada quien.",
+          ejemplo: "«Barato» puede sonar a «buena oferta» o a «de mala calidad».",
+        },
+        {
+          termino: "Polisemia",
+          definicion: "Cuando una misma palabra tiene varios significados relacionados.",
+          ejemplo: "«Banco»: para sentarse o para guardar dinero; «red»: de pesca, de internet o social.",
+        },
+        {
+          termino: "Ambigüedad",
+          definicion: "Cuando una frase completa admite más de una interpretación, por sus palabras o por cómo están ordenadas.",
+          ejemplo: "«Vi a Carlos con los binoculares»: ¿quién tenía los binoculares?",
+        },
+        {
+          termino: "Tecnicismo",
+          definicion: "Palabra propia de una ciencia, oficio o profesión, que quien no pertenece a ese campo puede no conocer.",
+          ejemplo: "«Hipertensión», «software libre», «progresión de aprendizaje».",
+        },
+        {
+          termino: "Regionalismo y jerga",
+          definicion: "El regionalismo es una palabra propia de un lugar; la jerga, el lenguaje de un grupo (edad, oficio, afición). Dentro del grupo agilizan; fuera, confunden.",
+          ejemplo: "«¿Mande?», «está chido», «me dejó en visto», «GG».",
+        },
+      ],
       secciones: [
         {
           titulo: "El triángulo del significado",
           parrafos: [
-            "C. K. Ogden e I. A. Richards explicaron que entre una palabra y la cosa a la que se refiere no hay un vínculo directo: la conexión pasa siempre por el pensamiento de quien la usa. Por eso «ahorita», «tarde» o «formal» pueden evocar ideas distintas en dos personas (Ogden y Richards, 1923).",
+            "C. K. Ogden e I. A. Richards explicaron que entre una palabra y la cosa a la que se refiere no hay un vínculo directo: la conexión pasa siempre por el pensamiento de quien la usa (Ogden y Richards, 1923). Lo representaron con un triángulo: en un vértice está la palabra (el símbolo), en otro la cosa real (el referente) y en el tercero la idea que cada persona tiene (la referencia).",
+            "La base del triángulo, la que uniría directamente la palabra con la cosa, está punteada: es una relación indirecta. Por eso «ahorita», «tarde» o «formal» pueden evocar ideas distintas en dos personas: cada una pasa la palabra por su propia experiencia.",
           ],
         },
         {
-          titulo: "Fuentes típicas de confusión",
+          titulo: "Tipos de barreras semánticas",
+          parrafos: ["Se pueden agrupar según de dónde viene la confusión:"],
+          lista: [
+            "Palabras con varios significados (polisemia): «Entrega el trabajo en la red», ¿en la plataforma o por correo?",
+            "Frases ambiguas por su orden: «Se venden sillas para bebés de madera».",
+            "Términos vagos: «pronto», «un rato», «bien hecho», «algo breve». Cada quien los mide distinto.",
+            "Tecnicismos sin explicar: el médico que dice «ayuno de ocho horas» sin aclarar si se puede tomar agua.",
+            "Siglas y abreviaturas: «Entrégalo en el SIE antes del EGEL». Para quien no las conoce, no dicen nada.",
+            "Regionalismos y jerga: «ahorita» en México puede significar «ahora mismo», «en un rato» o «nunca».",
+            "Connotaciones distintas: decirle a alguien «estás muy directo» puede sonar a elogio o a reclamo.",
+          ],
+        },
+        {
+          titulo: "Por qué no lo notamos: la «maldición del conocimiento»",
           parrafos: [
-            "Tecnicismos que el receptor no domina; palabras con varios significados (polisemia); regionalismos y jerga de un grupo; abreviaturas y siglas sin explicar; y términos vagos como «pronto», «bien hecho» o «algo breve».",
-            "Estas barreras causan errores en instrucciones, pérdida de tiempo, conflictos y la frustración de sentir que «no nos entendemos», aunque ambas partes hablen el mismo idioma.",
+            "Una vez que sabemos algo, nos cuesta imaginar cómo es no saberlo. En experimentos económicos, las personas que tenían información de más no podían dejar de usarla aunque les convenía ponerse en el lugar de quien no la tenía; los investigadores lo llamaron «la maldición del conocimiento» (Camerer et al., 1989).",
+            "En la comunicación diaria pasa lo mismo: quien da una instrucción ya sabe qué quiere, así que «breve» le parece clarísimo. El receptor, que no está dentro de su cabeza, tiene que adivinar. Por eso la barrera casi nunca la ve quien habla, sino quien escucha.",
+          ],
+        },
+        {
+          titulo: "Consecuencias",
+          parrafos: [
+            "Las barreras semánticas causan errores en tareas e instrucciones, trabajo repetido, pérdida de tiempo y conflictos entre personas que creen que el otro «no puso atención» o «lo hizo a propósito». También dañan la confianza: después de varios malentendidos, dejamos de creer que el otro nos entiende.",
           ],
         },
         {
           titulo: "Cómo reducirlas",
-          parrafos: [
-            "Usa palabras concretas y medibles («el viernes a las 12:00», no «pronto»). Define los términos técnicos la primera vez que los uses. Da un ejemplo. Y, sobre todo, pide que la otra persona te devuelva el mensaje con sus palabras: si su paráfrasis no coincide con lo que querías decir, encontraste la barrera a tiempo.",
+          parrafos: ["Cinco estrategias que funcionan tanto al hablar como al escribir:"],
+          lista: [
+            "Cambia lo vago por lo medible: «el viernes a las 12:00», no «pronto»; «200 palabras», no «breve».",
+            "Define el tecnicismo la primera vez que lo uses, o cámbialo por una palabra común.",
+            "Escribe la sigla completa la primera vez: «Sistema de Información Escolar (SIE)».",
+            "Da un ejemplo: un ejemplo aclara más que tres explicaciones.",
+            "Pide que te devuelvan el mensaje con sus palabras («¿cómo lo harías tú?»). Si su paráfrasis no coincide con lo que querías decir, encontraste la barrera a tiempo.",
           ],
         },
       ],
@@ -151,6 +217,7 @@ export const unidad1: UnidadLyC = {
         { error: "Suponer que si yo lo entiendo, el otro también.", mejor: "Verifica con una pregunta: «¿cómo lo harías tú?»." },
         { error: "Usar términos vagos en instrucciones.", mejor: "Cambia «pronto» por una fecha y «breve» por un número de palabras o minutos." },
         { error: "Usar siglas sin explicarlas.", mejor: "La primera vez, escribe el nombre completo y la sigla entre paréntesis." },
+        { error: "Preguntar «¿me entendiste?».", mejor: "Casi todos contestan que sí. Mejor pide que te lo expliquen con sus palabras." },
       ],
       ejemplo: {
         contexto: "Instrucciones de una tarea.",
@@ -158,20 +225,94 @@ export const unidad1: UnidadLyC = {
         bien: "Resumen del texto de 150 a 200 palabras, a mano, para el jueves 9 al inicio de la clase.",
         porque: "«Breve» y «la próxima» significan cosas distintas para cada alumno; la segunda versión no deja espacio a interpretaciones.",
       },
+      ejemplos: [
+        {
+          contexto: "Un mensaje al equipo de trabajo por WhatsApp.",
+          mal: "Ahorita les mando mi parte.",
+          bien: "Les mando mi parte hoy antes de las 8 de la noche.",
+          porque: "«Ahorita» puede ser en cinco minutos o en tres días. Una hora concreta evita que el equipo se quede esperando.",
+        },
+        {
+          contexto: "Un aviso en la puerta del laboratorio.",
+          mal: "Prohibido entrar con alimentos al laboratorio de cómputo sin bata.",
+          bien: "Para entrar al laboratorio de cómputo: usa bata. No se permiten alimentos.",
+          porque: "La primera frase es ambigua: ¿se puede entrar con alimentos si llevas bata? Separar las dos reglas quita la duda.",
+        },
+        {
+          contexto: "Una enfermera explica una indicación a una familia.",
+          mal: "El paciente debe estar en ayuno y tomar el medicamento c/8 h.",
+          bien: "Mañana, no coma nada desde las 10 de la noche; solo puede tomar agua. La pastilla, una cada 8 horas: 6 a. m., 2 p. m. y 10 p. m.",
+          porque: "«Ayuno» y «c/8 h» son claros para el personal de salud, no para la familia. Traducirlos y dar los horarios evita un error que puede ser grave.",
+        },
+      ],
+      ejercicios: [
+        {
+          tipo: "opcion",
+          enunciado: "«Nos vemos en el banco a las 5». Tu amigo te espera en el banco del parque y tú en la sucursal bancaria. ¿Qué causó el malentendido?",
+          opciones: ["Un tecnicismo", "La polisemia de «banco»", "Una sigla", "Ruido físico"],
+          correcta: 1,
+          explicacion: "«Banco» tiene varios significados. El contexto no alcanzó para saber cuál se quería decir.",
+        },
+        {
+          tipo: "opcion",
+          enunciado: "¿Cuál de estas instrucciones tiene MENOS riesgo de barrera semántica?",
+          opciones: ["Entreguen algo breve pronto", "Entreguen un texto corto la próxima semana", "Entreguen 1 cuartilla el lunes 13 a las 7:00", "Entreguen lo que puedan cuando puedan"],
+          correcta: 2,
+          explicacion: "Es la única que usa medidas y fechas concretas. Las demás dependen de lo que cada quien entienda por «breve», «corto» o «pronto».",
+        },
+        {
+          tipo: "opcion",
+          enunciado: "«Estudiantes de la escuela de música de Puebla». ¿Qué tipo de problema tiene esta frase?",
+          opciones: ["Jerga", "Ambigüedad: ¿la escuela es de Puebla o los estudiantes?", "Connotación negativa", "Ninguno"],
+          correcta: 1,
+          explicacion: "El orden de las palabras permite dos lecturas. Eso es ambigüedad.",
+        },
+        {
+          tipo: "opcion",
+          enunciado: "Tu abuela te dice «ese muchacho es muy corriente». Tú piensas que quiso decir «común». Ella quería decir «vulgar». ¿Qué barrera es?",
+          opciones: ["Connotación distinta según la generación", "Una sigla", "Una barrera física", "Un tecnicismo"],
+          correcta: 0,
+          explicacion: "La palabra es la misma, pero para cada generación trae asociaciones distintas.",
+        },
+        {
+          tipo: "opcion",
+          enunciado: "¿Cuál es la mejor forma de comprobar que te entendieron?",
+          opciones: ["Preguntar «¿me entendiste?»", "Repetir lo mismo más fuerte", "Pedir que lo expliquen con sus propias palabras", "Mandarlo por escrito dos veces"],
+          correcta: 2,
+          explicacion: "A «¿me entendiste?» casi todos contestan que sí. La paráfrasis muestra si de verdad se entendió lo mismo.",
+        },
+        {
+          tipo: "abierta",
+          enunciado: "Reescribe esta instrucción para que solo se pueda entender de una forma: «Traigan material para el proyecto la próxima clase».",
+          modelo: "Para el martes 14, cada equipo trae: 1 cartulina blanca, 4 plumones de colores y 10 imágenes impresas sobre su tema.",
+        },
+        {
+          tipo: "abierta",
+          enunciado: "Escribe un mensaje donde uses un tecnicismo de alguna materia que conozcas y, en la misma oración, lo expliques para alguien que no lo sabe.",
+          modelo: "«Tengo que entregar una bibliografía en formato APA, que es una forma estándar de escribir las fuentes: autor, año, título y editorial.»",
+        },
+        {
+          tipo: "abierta",
+          enunciado: "Piensa en una palabra de tu grupo de amigos que un adulto no entendería. Escríbela y explica su significado como si se lo dijeras a tu abuelo.",
+          modelo: "«Me dejó en visto» significa que la otra persona leyó mi mensaje (la aplicación marca que lo vio), pero no me contestó.",
+        },
+      ],
       actividad: {
         titulo: "Cazadores de ambigüedad",
         pasos: [
           "Reúne cinco instrucciones reales que hayas recibido (de la escuela, de casa, del trabajo).",
-          "Marca las palabras que podrían entenderse de más de una forma.",
+          "Marca las palabras que podrían entenderse de más de una forma y di de qué tipo es cada barrera (polisemia, vaguedad, tecnicismo, sigla, jerga o ambigüedad).",
           "Reescribe cada instrucción para que solo admita una interpretación.",
+          "Pide a un compañero que te explique tu versión corregida con sus palabras. Si no coincide, vuelve a corregirla.",
         ],
-        producto: "Tabla con la instrucción original, la palabra ambigua y la versión corregida.",
+        producto: "Tabla con la instrucción original, la palabra problemática, el tipo de barrera y la versión corregida.",
       },
       reflexion: [
         "¿Qué palabra de tu grupo de amigos tendría que explicarle a un adulto para que te entienda?",
         "¿Por qué pedir que el otro repita con sus palabras es más útil que preguntar «¿me entendiste?»?",
+        "¿En qué situación una barrera semántica podría tener consecuencias graves (salud, dinero, seguridad)?",
       ],
-      fuentes: [F.ogden],
+      fuentes: [F.ogden, F.camerer],
     },
 
     // ────────────────────────────────────────────────────────────────────

@@ -22,6 +22,23 @@ export interface FuenteLyC {
   url?: string;
 }
 
+/**
+ * Ejercicio de práctica. No se califica ni se guarda: el alumno contesta y la
+ * página le dice al momento si acertó y por qué.
+ *   · "opcion": elegir una respuesta.
+ *   · "abierta": escribir; después puede comparar con una respuesta modelo.
+ */
+export type EjercicioLyC =
+  | { tipo: "opcion"; enunciado: string; opciones: string[]; correcta: number; explicacion: string }
+  | { tipo: "abierta"; enunciado: string; modelo: string };
+
+export interface EjemploLyC {
+  contexto: string;
+  mal: string;
+  bien: string;
+  porque: string;
+}
+
 export interface TemaLyC {
   slug: string;
   titulo: string;
@@ -30,10 +47,16 @@ export interface TemaLyC {
   detonadora: string;
   /** La idea del tema en una o dos frases */
   idea: string;
-  secciones: { titulo: string; parrafos: string[] }[];
+  /** Conceptos clave con su definición. Los temas ampliados los traen; los demás, no. */
+  definiciones?: { termino: string; definicion: string; ejemplo?: string }[];
+  secciones: { titulo: string; parrafos: string[]; lista?: string[] }[];
   /** Error común y cómo hacerlo mejor */
   errores: { error: string; mejor: string }[];
-  ejemplo?: { contexto: string; mal: string; bien: string; porque: string };
+  ejemplo?: EjemploLyC;
+  /** Más ejemplos resueltos, además del principal. */
+  ejemplos?: EjemploLyC[];
+  /** Práctica con retroalimentación inmediata. */
+  ejercicios?: EjercicioLyC[];
   actividad: { titulo: string; pasos: string[]; producto: string };
   reflexion: string[];
   fuentes: FuenteLyC[];

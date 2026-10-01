@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MATERIAS, calificar, totalDe } from '../lib/diagnostico-materias.js';
+import { MATERIAS, calificar, totalDe, retroalimentacion } from '../lib/diagnostico-materias.js';
 
 /* Evaluación diagnóstica por grado: una materia por pantalla.
  *
@@ -222,6 +222,80 @@ export function ResultadoAcademico({ resultado }) {
         Es un diagnóstico de entrada: mide lo que traes al empezar, no tu
         calificación. Las materias más bajas son por donde conviene empezar.
       </p>
+
+      <Retroalimentacion resultado={resultado} />
+    </div>
+  );
+}
+
+/* La retroalimentación: qué quiere decir el resultado y qué hacer con él. Sin
+ * esto el alumno solo ve porcentajes, que no le dicen qué estudiar. Las
+ * preguntas falladas van plegadas para que la pantalla no se vuelva un examen
+ * corregido de treinta renglones. */
+const TONO_NIVEL = {
+  alto: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/5',
+  medio: 'text-cyan-400 border-cyan-400/30 bg-cyan-400/5',
+  bajo: 'text-amber-400 border-amber-400/30 bg-amber-400/5',
+  prioridad: 'text-rose-400 border-rose-400/30 bg-rose-400/5',
+};
+
+function Retroalimentacion({ resultado }) {
+  const r = retroalimentacion(resultado);
+  if (!r.materias.length) return null;
+
+  return (
+    <div className="mt-8 pt-6 border-t border-white/10">
+      <span className="text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-3">
+        Tu retroalimentación
+      </span>
+
+      <p className="text-sm text-slate-300 leading-relaxed mb-5">
+        {r.fuerte ? (
+          <>
+            Tu materia más fuerte fue <strong className="text-white">{r.fuerte.nombre}</strong> ({r.fuerte.pct}%).
+            Donde más conviene poner atención al empezar es <strong className="text-white">{r.debil.nombre}</strong> ({r.debil.pct}%).
+          </>
+        ) : (
+          <>Te fue parejo en todas las materias ({r.materias[0].pct}%).</>
+        )}
+        {' '}Abajo tienes, materia por materia, qué significa tu resultado y las
+        preguntas que conviene repasar.
+      </p>
+
+      <div className="space-y-3">
+        {r.materias.map((m) => (
+          <div key={m.id} className={`rounded-xl border p-4 ${TONO_NIVEL[m.nivel.id]}`}>
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <span className="text-sm font-bold text-white truncate">{m.nombre}</span>
+              <span className="text-[11px] font-mono-tech uppercase tracking-wide shrink-0">
+                {m.nivel.nombre}
+              </span>
+            </div>
+            <p className="text-sm text-slate-300 leading-relaxed">{m.nivel.mensaje}</p>
+
+            {m.fallos.length > 0 && (
+              <details className="mt-3 group">
+                <summary className="cursor-pointer text-xs font-semibold text-slate-400 hover:text-slate-200 transition select-none">
+                  Revisar {m.fallos.length === 1 ? 'la pregunta' : `las ${m.fallos.length} preguntas`} que no salieron
+                </summary>
+                <ol className="mt-3 space-y-3">
+                  {m.fallos.map((f) => (
+                    <li key={f.id} className="rounded-lg bg-black/20 border border-white/5 p-3">
+                      <p className="text-sm text-slate-200 leading-snug mb-2">{f.texto}</p>
+                      <p className="text-xs text-rose-300 leading-snug">
+                        Tu respuesta: {f.tuya ?? 'sin contestar'}
+                      </p>
+                      <p className="text-xs text-emerald-300 leading-snug mt-1">
+                        Respuesta correcta: {f.correcta}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -653,3 +653,59 @@ export function calificar(grado, respuestas) {
     materias,
   };
 }
+
+/* ── retroalimentación ─────────────────────────────────────────
+ *
+ * Se calcula al mostrar, a partir de las respuestas guardadas, y no se guarda:
+ * así la ven también los alumnos que entregaron antes de que existiera, y si se
+ * corrige un texto aquí, se corrige para todos.
+ *
+ * Sigue a Hattie y Timperley (2007): dónde vas, cómo vas y qué sigue. Habla de
+ * la tarea y no de la persona, y cada nivel dice un siguiente paso concreto.
+ */
+
+export const NIVELES_MATERIA = [
+  { min: 80, id: 'alto', nombre: 'Base sólida',
+    mensaje: 'Traes bien los temas de esta materia. Úsala para ir más a fondo y para apoyar a compañeros.' },
+  { min: 60, id: 'medio', nombre: 'Base con huecos',
+    mensaje: 'Tienes buena base, con algunos huecos puntuales. Revisa las preguntas de abajo: son justo esos huecos.' },
+  { min: 40, id: 'bajo', nombre: 'Por reforzar',
+    mensaje: 'Conoces parte de los temas, pero hay conceptos que todavía no están firmes. Repásalos en las primeras semanas.' },
+  { min: 0, id: 'prioridad', nombre: 'Tu punto de partida',
+    mensaje: 'Aquí conviene empezar. No es una calificación: dice qué temas vas a trabajar desde el inicio del semestre.' },
+];
+
+export function nivelMateria(pct) {
+  return NIVELES_MATERIA.find((n) => pct >= n.min);
+}
+
+/**
+ * Para cada materia: su nivel, su mensaje y las preguntas que falló con la
+ * respuesta que dio y la correcta. `resultado` es lo que guarda `calificar`
+ * más las `respuestas`.
+ */
+export function retroalimentacion(resultado) {
+  const respuestas = resultado?.respuestas ?? {};
+  const materias = (MATERIAS[resultado?.grado] ?? []).map((m) => {
+    const ok = m.preguntas.filter((p) => respuestas[p.id] === p.correcta).length;
+    const pct = m.preguntas.length ? Math.round((ok / m.preguntas.length) * 100) : 0;
+    const textoDe = (p, clave) => p.opciones.find((o) => o.clave === clave)?.texto ?? null;
+    const fallos = m.preguntas
+      .filter((p) => respuestas[p.id] !== p.correcta)
+      .map((p) => ({
+        id: p.id,
+        texto: p.texto,
+        tuya: textoDe(p, respuestas[p.id]),
+        correcta: textoDe(p, p.correcta),
+      }));
+    return { id: m.id, nombre: m.nombre, ok, total: m.preguntas.length, pct, nivel: nivelMateria(pct), fallos };
+  });
+
+  const orden = [...materias].sort((a, b) => b.pct - a.pct);
+  const fuerte = orden[0];
+  const debil = orden[orden.length - 1];
+  // Si todas salieron igual no hay "más fuerte" ni "más débil" que nombrar.
+  const parejo = !fuerte || fuerte.pct === debil.pct;
+
+  return { materias, fuerte: parejo ? null : fuerte, debil: parejo ? null : debil };
+}
