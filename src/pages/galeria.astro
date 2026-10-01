@@ -1,0 +1,46 @@
+---
+import Layout from "../layouts/Layout.astro";
+import TrabajosDestacados from "../components/TrabajosDestacados.astro";
+import { galeria } from "../data/galeria";
+import { u } from "../lib/url";
+
+// Generaciones de la más reciente a la más antigua.
+const ciclos = [...new Set(galeria.map((t) => t.ciclo))].sort().reverse();
+---
+
+<Layout title="Salón de la fama" description="Los mejores trabajos de los alumnos de Cultura Digital, generación por generación.">
+  <section class="max-w-7xl mx-auto px-6 py-12">
+
+    <nav class="text-xs font-mono-tech text-slate-500 mb-8">
+      <a href={u("/")} class="hover:text-cyan-400 transition">Inicio</a>
+      <span class="mx-2">/</span>
+      <a href={u("/cultura-digital")} class="hover:text-cyan-400 transition">Cultura Digital</a>
+      <span class="mx-2">/</span>
+      <span class="text-slate-400">Salón de la fama</span>
+    </nav>
+
+    <div class="mb-12">
+      <p class="text-xs font-mono-tech text-amber-400 tracking-widest uppercase mb-2">// Trabajos destacados</p>
+      <h1 class="text-3xl md:text-5xl font-black text-white">Salón de la fama</h1>
+      <p class="text-sm text-slate-400 max-w-2xl mt-4 leading-relaxed">
+        Aquí se quedan los mejores trabajos de cada generación de Cultura Digital. Son un recuerdo
+        para quienes los hicieron y un ejemplo para quienes vienen detrás: antes de empezar tu reto,
+        date una vuelta y mira hasta dónde llegaron otros.
+      </p>
+    </div>
+
+    {ciclos.length === 0 ? (
+      <TrabajosDestacados trabajos={[]} />
+    ) : (
+      <div class="space-y-12">
+        {ciclos.map((ciclo) => (
+          <div>
+            <h2 class="text-lg font-bold text-white mb-4">Generación {ciclo}</h2>
+            <TrabajosDestacados trabajos={galeria.filter((t) => t.ciclo === ciclo)} conModulo />
+          </div>
+        ))}
+      </div>
+    )}
+
+  </section>
+</Layout>

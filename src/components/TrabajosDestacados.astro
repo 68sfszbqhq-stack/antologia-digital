@@ -1,0 +1,47 @@
+---
+// Tarjetas del salón de la fama. Si no hay trabajos, invita a ser el primero:
+// el vacío también motiva.
+import type { TrabajoDestacado } from "../data/galeria";
+import sesiones from "../data/sesiones.json";
+
+interface Props {
+  trabajos: TrabajoDestacado[];
+  /** Muestra a qué módulo pertenece cada trabajo (en la página general). */
+  conModulo?: boolean;
+}
+
+const { trabajos, conModulo = false } = Astro.props;
+const nombreModulo = (dia: number) => sesiones.find((s) => s.dia === dia)?.modulo ?? `Módulo ${dia}`;
+---
+
+{trabajos.length === 0 ? (
+  <div class="rounded-xl p-6 border border-dashed border-amber-400/30 bg-amber-400/5 text-center">
+    <p class="text-2xl mb-2">🏆</p>
+    <p class="text-sm font-bold text-white mb-1">Este espacio está esperando al primero</p>
+    <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+      Los mejores trabajos de cada generación se quedan aquí como recuerdo y como ejemplo
+      para los que vienen. Haz el tuyo pensando en que lo va a ver alguien el próximo año.
+    </p>
+  </div>
+) : (
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {trabajos.map((t) => (
+      <a
+        href={t.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="glass-card rounded-xl p-5 border border-amber-400/20 hover:border-amber-400/60 transition-all duration-300 hover:-translate-y-1 flex flex-col gap-2 group"
+      >
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <span class="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest">{t.formato}</span>
+          {conModulo && <span class="text-[10px] font-mono-tech text-slate-500">{nombreModulo(t.modulo)}</span>}
+        </div>
+        <h4 class="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">{t.titulo}</h4>
+        <p class="text-xs text-slate-400 leading-relaxed flex-1">{t.porque}</p>
+        <p class="text-[11px] font-mono-tech text-slate-500 pt-2 border-t border-white/5">
+          {t.autor} · {t.grupo} · {t.ciclo}
+        </p>
+      </a>
+    ))}
+  </div>
+)}
