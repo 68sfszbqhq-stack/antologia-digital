@@ -1243,6 +1243,7 @@ export const modulo8: ContenidoModulo = {
       "Elaborar el diagrama de flujo de uno de los tres problemas, con simbología ISO 5807.",
       "Hacer la prueba de escritorio de los tres, incluyendo un caso extremo (cero, valor vacío o negativo).",
       "Explicar en 5 líneas por qué elegiste while o do-while en el problema con ciclo.",
+      "Reto con la tortuga en turtleacademy.com/playground: usa repeat y repcount para dibujar una figura que crezca en cada vuelta (como la espiral del salón de la fama, pero tuya). Entrega una captura con tu código y el dibujo.",
     ],
     rubrica: [
       { criterio: "Corrección lógica de los tres algoritmos y de las estructuras elegidas", peso: 35 },

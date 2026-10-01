@@ -3,6 +3,7 @@
 // el vacío también motiva.
 import type { TrabajoDestacado } from "../data/galeria";
 import sesiones from "../data/sesiones.json";
+import { u } from "../lib/url";
 
 interface Props {
   trabajos: TrabajoDestacado[];
@@ -36,10 +37,16 @@ const nombreModulo = (dia: number) => sesiones.find((s) => s.dia === dia)?.modul
           <span class="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest">{t.formato}</span>
           {conModulo && <span class="text-[10px] font-mono-tech text-slate-500">{nombreModulo(t.modulo)}</span>}
         </div>
+        {t.imagen && (
+          <img src={u(`/${t.imagen}`)} alt={`Trabajo: ${t.titulo}`} loading="lazy" class="w-full h-56 object-cover object-bottom rounded-lg border border-white/10 bg-white" />
+        )}
         <h4 class="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">{t.titulo}</h4>
+        {t.codigo && (
+          <pre class="text-[11px] font-mono-tech text-emerald-300 bg-black/40 border border-white/10 rounded-lg p-3 overflow-x-auto">{t.codigo}</pre>
+        )}
         <p class="text-xs text-slate-400 leading-relaxed flex-1">{t.porque}</p>
         <p class="text-[11px] font-mono-tech text-slate-500 pt-2 border-t border-white/5">
-          {t.autor} · {t.grupo} · {t.ciclo}
+          {[t.autor, t.grupo, t.ciclo].filter(Boolean).join(" · ")}
         </p>
       </a>
     ))}
