@@ -34,7 +34,7 @@ export const EXAMEN_CD_P1: Examen = {
   id: "cd-p1",
   titulo: "Examen del Primer Parcial",
   materia: "Cultura Digital",
-  minutos: 15,
+  minutos: 25,
   preguntas: [
     // ─── A. Hardware y software ───────────────────────────────────────────
     { id: "q1", tipo: "texto", texto: "Tu tío dice que \"la computadora es la pantalla\". Explícale con tus palabras qué es el HARDWARE y dale dos ejemplos que se puedan tocar." },

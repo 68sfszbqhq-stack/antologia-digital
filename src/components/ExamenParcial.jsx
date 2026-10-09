@@ -51,6 +51,7 @@ export default function ExamenParcial({ examenId }) {
   const [prueba, setPrueba] = useState(false);
   const [msg, setMsg] = useState('');
   const [cierre, setCierre] = useState(null); // { motivo, salida, regreso }
+  const [reanudar, setReanudar] = useState(null); // { respuestas, fin }
   const escribiendo = useRef(null);
 
   // ─── Quién es y en qué punto va ─────────────────────────────────────────
@@ -93,6 +94,17 @@ export default function ExamenParcial({ examenId }) {
       return;
     }
     if (reg.estado === 'entregado') { setFase('entregado'); return; }
+    if (reg.estado === 'en curso' && reg.reanudar) {
+      // El profesor lo reabrió (por ejemplo, al dar más tiempo): sigue donde
+      // iba, con sus respuestas y el reloj contado desde que empezó.
+      const local = leerLocal(examenId, us.uid);
+      setReanudar({
+        respuestas: { ...(local?.respuestas ?? {}), ...(reg.respuestas ?? {}) },
+        fin: (reg.inicio?.toMillis?.() ?? Date.now()) + examen.minutos * 60_000,
+      });
+      setFase('examen');
+      return;
+    }
     if (reg.estado === 'en curso') {
       // Ya había empezado y la página se recargó o se cerró: eso es salir.
       const local = leerLocal(examenId, us.uid);
@@ -171,6 +183,8 @@ export default function ExamenParcial({ examenId }) {
   if (fase === 'examen') {
     return (
       <Aplicacion
+        inicial={reanudar?.respuestas}
+        finInicial={reanudar?.fin}
         examen={examen}
         prueba={prueba}
         alCambiar={(r) => !prueba && guardarLocal(examenId, usuario.uid, { respuestas: r, salida: null })}
@@ -236,15 +250,15 @@ export default function ExamenParcial({ examenId }) {
 
 // ─── El examen en curso ─────────────────────────────────────────────────────
 
-function Aplicacion({ examen, prueba, alCambiar, alTerminar }) {
+function Aplicacion({ examen, prueba, alCambiar, alTerminar, inicial, finInicial }) {
   // Orden distinto para cada alumno. Se fija una vez y no cambia mientras contesta.
   const orden = useMemo(() => revolver(examen.preguntas).map((p) =>
     p.tipo === 'opcion' ? { ...p, mezcla: revolver(p.opciones.map((_, i) => i)) } : p), [examen]);
   const [i, setI] = useState(0);
-  const [resp, setResp] = useState({});
+  const [resp, setResp] = useState(inicial ?? {});
   const [revisando, setRevisando] = useState(false);
-  const fin = useRef(Date.now() + examen.minutos * 60_000);
-  const [quedan, setQuedan] = useState(examen.minutos * 60);
+  const fin = useRef(finInicial ?? Date.now() + examen.minutos * 60_000);
+  const [quedan, setQuedan] = useState(Math.max(0, Math.round((fin.current - Date.now()) / 1000)));
   const ultima = useRef(resp);
   const cerrado = useRef(false);
   ultima.current = resp;

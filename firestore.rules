@@ -769,7 +769,7 @@ service cloud.firestore {
     //              un segundo create choca con el primero.
     //   update  →  UNA sola vez, de "en curso" a "entregado" o "cancelado",
     //              con sus respuestas. Entregar solo se puede dentro del tiempo
-    //              (15 min + 2 de gracia por la red); cancelar, siempre.
+    //              (25 min + 2 de gracia por la red); cancelar, siempre.
     //   update  →  si fue cancelado, el alumno puede anotar UNA vez la hora en
     //              que regresó, para que el profesor vea cuánto estuvo fuera.
     //
@@ -816,7 +816,7 @@ service cloud.firestore {
         && request.resource.data.respuestas.size() <= 40
         && (request.resource.data.estado == 'cancelado'
             || (request.resource.data.estado == 'entregado'
-                && request.time <= resource.data.inicio + duration.value(17, 'm')));
+                && request.time <= resource.data.inicio + duration.value(27, 'm')));
 
       // Anotar el regreso: una vez, solo en uno cancelado.
       allow update: if request.auth != null
