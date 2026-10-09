@@ -1,0 +1,22 @@
+---
+// El examen de parcial en el celular del alumno: /examen/<id>.
+// La dirección es corta a propósito: se proyecta como QR o se dicta.
+// Cómo funciona por dentro: ver src/components/ExamenParcial.jsx y la sección
+// "Exámenes de parcial" de firestore.rules.
+import Layout from "../../layouts/Layout.astro";
+import ExamenParcial from "../../components/ExamenParcial.jsx";
+import { EXAMENES } from "../../data/examenes/cultura-digital-p1";
+
+export function getStaticPaths() {
+  return Object.keys(EXAMENES).map((id) => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const examen = EXAMENES[id];
+---
+
+<Layout title={`${examen.titulo} · ${examen.materia}`} description={`${examen.titulo} de ${examen.materia}.`}>
+  <div class="px-4 py-8">
+    <ExamenParcial client:only="react" examenId={id} />
+  </div>
+</Layout>

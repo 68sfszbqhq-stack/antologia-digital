@@ -234,6 +234,72 @@ caso("Taller: el profesor sí lista el ranking", "ALLOW", "list", `/taller3d/${U
 caso("Taller: el alumno no borra", "DENY", "delete", `/taller3d/${UID}_escritorio`, googleDe(),
      { actual: TALLER, mocks: conFicha });
 
+// Cuaderno de notas: solo el profesor, en todo.
+caso("Cuaderno: el alumno no lo lee", "DENY", "get", "/cuadernos/c1", googleDe());
+caso("Cuaderno: el alumno no lista", "DENY", "list", "/cuadernos/c1", googleDe());
+caso("Cuaderno: el alumno no se pone nota", "DENY", "update", "/cuadernos/c1", googleDe(),
+     { data: { notas: {} }, actual: { notas: {} } });
+caso("Cuaderno: sin sesión, nada", "DENY", "get", "/cuadernos/c1", null);
+caso("Cuaderno: el profesor lee", "ALLOW", "get", "/cuadernos/c1", profesor());
+caso("Cuaderno: el profesor califica", "ALLOW", "update", "/cuadernos/c1", profesor(),
+     { data: { notas: {} }, actual: { notas: {} } });
+
+// ─── Exámenes de parcial ─────────────────────────────────────────────────────
+const EXA = `/examenes/${UID}_cd-p1`;
+const conExamen = (abiertos) => [...conFicha, existe(`${DB}/config/examenes`, true),
+                                 get(`${DB}/config/examenes`, { abiertos })];
+const INICIO = { uid: UID, nombre: FICHA.nombre, grupo: FICHA.grupo, examen: "cd-p1",
+                 estado: "en curso", inicio: AHORA };
+const HACE_10 = "2026-09-10T19:50:00Z";
+const HACE_30 = "2026-09-10T19:30:00Z";
+const CIERRE = { estado: "entregado", motivo: "enviado", respuestas: { q1: "hola" }, fin: AHORA };
+
+caso("Examen: empieza con el examen abierto", "ALLOW", "create", EXA, googleDe(),
+     { data: INICIO, mocks: conExamen(["cd-p1"]) });
+caso("Examen: cerrado, no empieza", "DENY", "create", EXA, googleDe(),
+     { data: INICIO, mocks: conExamen([]) });
+caso("Examen: no empieza a nombre de otro", "DENY", "create", `/examenes/${OTRO}_cd-p1`, googleDe(),
+     { data: { ...INICIO, uid: OTRO }, mocks: conExamen(["cd-p1"]) });
+caso("Examen: no se cambia el nombre", "DENY", "create", EXA, googleDe(),
+     { data: { ...INICIO, nombre: "Otro Nombre" }, mocks: conExamen(["cd-p1"]) });
+caso("Examen: no empieza ya entregado", "DENY", "create", EXA, googleDe(),
+     { data: { ...INICIO, estado: "entregado" }, mocks: conExamen(["cd-p1"]) });
+caso("Examen: no se trae respuestas al empezar", "DENY", "create", EXA, googleDe(),
+     { data: { ...INICIO, respuestas: { q1: "x" } }, mocks: conExamen(["cd-p1"]) });
+caso("Examen: entrega a tiempo", "ALLOW", "update", EXA, googleDe(),
+     { actual: { ...INICIO, inicio: HACE_10 }, data: { ...INICIO, inicio: HACE_10, ...CIERRE } });
+caso("Examen: fuera de tiempo, no entrega", "DENY", "update", EXA, googleDe(),
+     { actual: { ...INICIO, inicio: HACE_30 }, data: { ...INICIO, inicio: HACE_30, ...CIERRE } });
+caso("Examen: fuera de tiempo sí se cancela", "ALLOW", "update", EXA, googleDe(),
+     { actual: { ...INICIO, inicio: HACE_30 },
+       data: { ...INICIO, inicio: HACE_30, ...CIERRE, estado: "cancelado", motivo: "salió de la página" } });
+caso("Examen: no se entrega dos veces", "DENY", "update", EXA, googleDe(),
+     { actual: { ...INICIO, ...CIERRE }, data: { ...INICIO, ...CIERRE, respuestas: { q1: "otra" } } });
+caso("Examen: cancelado no pasa a entregado", "DENY", "update", EXA, googleDe(),
+     { actual: { ...INICIO, ...CIERRE, estado: "cancelado" }, data: { ...INICIO, ...CIERRE } });
+caso("Examen: no se pone puntos", "DENY", "update", EXA, googleDe(),
+     { actual: { ...INICIO, inicio: HACE_10 },
+       data: { ...INICIO, inicio: HACE_10, ...CIERRE, puntos: { q1: 2 } } });
+caso("Examen: no cierra el de otro", "DENY", "update", `/examenes/${OTRO}_cd-p1`, googleDe(),
+     { actual: { ...INICIO, uid: OTRO, inicio: HACE_10 },
+       data: { ...INICIO, uid: OTRO, inicio: HACE_10, ...CIERRE } });
+caso("Examen: anota su regreso", "ALLOW", "update", EXA, googleDe(),
+     { actual: { ...INICIO, ...CIERRE, estado: "cancelado" },
+       data: { ...INICIO, ...CIERRE, estado: "cancelado", regreso: AHORA } });
+caso("Examen: el regreso no se reescribe", "DENY", "update", EXA, googleDe(),
+     { actual: { ...INICIO, ...CIERRE, estado: "cancelado", regreso: HACE_10 },
+       data: { ...INICIO, ...CIERRE, estado: "cancelado", regreso: AHORA } });
+caso("Examen: no borra su intento", "DENY", "delete", EXA, googleDe(), { actual: INICIO });
+caso("Examen: no lee el de otro", "DENY", "get", `/examenes/${OTRO}_cd-p1`, googleDe(),
+     { actual: { ...INICIO, uid: OTRO } });
+caso("Examen: el alumno no lista", "DENY", "list", EXA, googleDe());
+caso("Examen: el profesor lista", "ALLOW", "list", EXA, profesor());
+caso("Examen: el profesor pone puntos", "ALLOW", "update", EXA, profesor(),
+     { actual: { ...INICIO, ...CIERRE }, data: { ...INICIO, ...CIERRE, puntos: { q1: 2 } } });
+caso("Examen: el profesor borra el intento", "ALLOW", "delete", EXA, profesor(), { actual: INICIO });
+caso("Examen: el alumno no abre el examen", "DENY", "update", "/config/examenes", googleDe(),
+     { data: { abiertos: ["cd-p1"] } });
+
 // ─── A correr ────────────────────────────────────────────────────────────────
 let token;
 try {

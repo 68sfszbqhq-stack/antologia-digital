@@ -761,6 +761,83 @@ service cloud.firestore {
       allow delete: if esProfesor();
     }
 
+    // ─── Exámenes de parcial (/examen/<id>) ─────────────────────────────────
+    //
+    // Un documento por alumno y examen, "<uid>_<examen>", que vive así:
+    //
+    //   create  →  "en curso", con la hora del servidor. Ya gastó su intento:
+    //              un segundo create choca con el primero.
+    //   update  →  UNA sola vez, de "en curso" a "entregado" o "cancelado",
+    //              con sus respuestas. Entregar solo se puede dentro del tiempo
+    //              (15 min + 2 de gracia por la red); cancelar, siempre.
+    //   update  →  si fue cancelado, el alumno puede anotar UNA vez la hora en
+    //              que regresó, para que el profesor vea cuánto estuvo fuera.
+    //
+    // Que salió de la página lo detecta el navegador, no estas reglas: un
+    // alumno hábil podría no reportarlo. Lo que sí garantizan las reglas es el
+    // intento único, el reloj y que nadie escriba en el examen de otro.
+    //
+    // Nombre y grupo se copian de la ficha y se comprueban contra ella. Las
+    // calificaciones de texto (`puntos`) solo las escribe el profesor, que
+    // también puede borrar un intento para que el alumno repita.
+
+    function examenAbierto(examen) {
+      return exists(/databases/$(database)/documents/config/examenes)
+        && examen in get(/databases/$(database)/documents/config/examenes).data.get('abiertos', []);
+    }
+
+    match /examenes/{registroId} {
+      allow get: if esProfesor()
+        || (request.auth != null
+            && (resource == null || resource.data.uid == request.auth.uid));
+      allow list: if esProfesor();
+
+      allow create: if alumnoActivo()
+        && registroId == request.auth.uid + '_' + request.resource.data.examen
+        && request.resource.data.keys().hasOnly(['uid', 'nombre', 'grupo', 'examen', 'estado', 'inicio'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.nombre == fichaAlumno().nombre
+        && request.resource.data.grupo == fichaAlumno().grupo
+        && request.resource.data.examen is string
+        && examenAbierto(request.resource.data.examen)
+        && request.resource.data.estado == 'en curso'
+        && request.resource.data.inicio == request.time;
+
+      // Cerrar: una vez, desde "en curso".
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && resource.data.estado == 'en curso'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['estado', 'motivo', 'respuestas', 'fin'])
+        && request.resource.data.fin == request.time
+        && request.resource.data.motivo is string
+        && request.resource.data.motivo.size() <= 40
+        && request.resource.data.respuestas is map
+        && request.resource.data.respuestas.size() <= 40
+        && (request.resource.data.estado == 'cancelado'
+            || (request.resource.data.estado == 'entregado'
+                && request.time <= resource.data.inicio + duration.value(17, 'm')));
+
+      // Anotar el regreso: una vez, solo en uno cancelado.
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && resource.data.estado == 'cancelado'
+        && !('regreso' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['regreso'])
+        && request.resource.data.regreso == request.time;
+
+      allow update, delete: if esProfesor();
+    }
+
+    // ─── Cuaderno de notas de los parciales ─────────────────────────────────
+
+    // Las calificaciones que el profesor pone a mano en /calificaciones, con
+    // los nombres de la lista oficial. Nadie más las lee ni las escribe: ni
+    // siquiera el propio alumno ve su renglón desde aquí.
+    match /cuadernos/{cuadernoId} {
+      allow read, write: if esProfesor();
+    }
+
     // ─── Qué módulos están abiertos ────────────────────────────────────────
 
     match /config/{doc} {

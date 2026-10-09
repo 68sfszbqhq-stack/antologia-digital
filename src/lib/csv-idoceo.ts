@@ -16,7 +16,7 @@ export interface FilaAlumno {
   puntajes: Record<number, number>;
 }
 
-function campo(v: string | number): string {
+export function campoCSV(v: string | number): string {
   const s = String(v ?? "");
   return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
@@ -42,7 +42,7 @@ export function csvParaIdoceo(
     ...modulos.map((d) => (a.puntajes[d] === undefined ? "" : a.puntajes[d])),
   ]);
 
-  return [encabezado, ...filas].map((f) => f.map(campo).join(",")).join("\r\n") + "\r\n";
+  return [encabezado, ...filas].map((f) => f.map(campoCSV).join(",")).join("\r\n") + "\r\n";
 }
 
 /** Dispara la descarga del archivo en el navegador. */
