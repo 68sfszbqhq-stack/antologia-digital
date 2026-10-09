@@ -37,6 +37,9 @@ export interface RegistroExamen {
   respuestas?: Record<string, string>;
   /** Lo que pone el profesor: puntos de cada pregunta de texto (0, 1 o 2). */
   puntos?: Record<string, number>;
+  /** La calificación final que el profesor dejó guardada (sobre 10). */
+  calificacion?: number;
+  calificado?: Timestamp | null;
 }
 
 const CONFIG = () => doc(db(), "config", "examenes");
@@ -107,6 +110,11 @@ export async function ponerPuntos(id: string, pregunta: string, puntos: number |
   await updateDoc(doc(db(), "examenes", id), {
     [`puntos.${pregunta}`]: puntos === null ? deleteField() : puntos,
   });
+}
+
+/** Deja fija la calificación final del alumno, con la hora en que se guardó. */
+export async function guardarCalificacion(id: string, calificacion: number): Promise<void> {
+  await updateDoc(doc(db(), "examenes", id), { calificacion, calificado: serverTimestamp() });
 }
 
 /** Borra el intento para que el alumno pueda volver a hacer el examen. */

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { firebaseConfigurado } from '../lib/firebase-config';
-import { observarAbiertos, abrir, observarRegistros, ponerPuntos, borrarIntento } from '../lib/examen';
+import { observarAbiertos, abrir, observarRegistros, ponerPuntos, guardarCalificacion, borrarIntento } from '../lib/examen';
 import { campoCSV, descargarCSV } from '../lib/csv-idoceo';
 import { EXAMEN_CD_P1 } from '../data/examenes/cultura-digital-p1';
 import { CLAVE_ORDEN, CLAVE_LOGOS, CLAVE_OPCION, ESPERADO, calificar } from '../data/examenes/cultura-digital-p1-clave';
@@ -111,7 +111,8 @@ function Tabla({ filas, alVer }) {
 
   const csv = () => {
     const enc = ['!Alumno', '!Grupo', '!Estado', `${EXAMEN.titulo} (examen)`];
-    const lineas = filas.map((f) => [f.nombre, f.grupo, f.estado, f.estado === 'entregado' ? f.calif.final : '']);
+    const lineas = filas.map((f) => [f.nombre, f.grupo, f.estado,
+      typeof f.calificacion === 'number' ? f.calificacion : f.estado === 'entregado' ? f.calif.final : '']);
     descargarCSV(`examen-${EXAMEN.id}.csv`,
       [enc, ...lineas].map((l) => l.map(campoCSV).join(',')).join('\r\n') + '\r\n');
   };
@@ -134,7 +135,7 @@ function Tabla({ filas, alVer }) {
           <thead>
             <tr className="text-left text-[11px] font-mono-tech text-slate-500 uppercase">
               <th className="py-2 pr-3">Alumno</th><th className="pr-3">Grupo</th><th className="pr-3">Estado</th>
-              <th className="pr-3">Duró</th><th className="pr-3">Fuera</th><th className="pr-3 text-right">Calif.</th><th />
+              <th className="pr-3">Duró</th><th className="pr-3">Fuera</th><th className="pr-3 text-right">Calif.</th><th className="pr-3">Guardada</th><th />
             </tr>
           </thead>
           <tbody>
@@ -153,6 +154,11 @@ function Tabla({ filas, alVer }) {
                       {f.calif.final}{f.calif.texto.pendientes ? '*' : ''}
                     </span>
                   )}
+                </td>
+                <td className="pr-3 text-xs">
+                  {typeof f.calificacion === 'number' && (f.calificacion === f.calif.final
+                    ? <span className="text-emerald-400">✓ {f.calificacion}</span>
+                    : <span className="text-amber-300">cambió, volver a guardar</span>)}
                 </td>
                 <td className="text-right"><button onClick={() => alVer(f.id)} className="text-cyan-400 hover:underline">Ver</button></td>
               </tr>
@@ -200,6 +206,8 @@ function Detalle({ r, alVolver }) {
         </div>
       </div>
       {msg && <p className="mb-4 text-sm text-rose-300">{msg}</p>}
+
+      <BotonGuardar r={r} final={c.final} pendientes={c.texto.pendientes} alFallar={setMsg} />
 
       <div className="space-y-3">
         {EXAMEN.preguntas.map((p, n) => (
@@ -268,6 +276,8 @@ function Detalle({ r, alVolver }) {
         ))}
       </div>
 
+      <BotonGuardar r={r} final={c.final} pendientes={c.texto.pendientes} alFallar={setMsg} />
+
       <div className="mt-8 text-center">
         <button
           onClick={async () => {
@@ -279,6 +289,34 @@ function Detalle({ r, alVolver }) {
           Borrar este intento para que lo repita
         </button>
       </div>
+    </div>
+  );
+}
+
+function BotonGuardar({ r, final, pendientes, alFallar }) {
+  const [ocupado, setOcupado] = useState(false);
+  const guardada = typeof r.calificacion === 'number' && r.calificacion === final;
+  return (
+    <div className={`${caja} p-4 my-4 flex flex-wrap items-center justify-between gap-3`}>
+      <p className="text-sm">
+        {guardada
+          ? <span className="text-emerald-400">✓ Calificación guardada: {r.calificacion}</span>
+          : pendientes > 0
+            ? <span className="text-amber-300">Faltan {pendientes} textos por calificar. Si guardas ahora, cuentan como 0.</span>
+            : <span className="text-slate-400">Calificación lista para guardar: {final}</span>}
+      </p>
+      <button
+        disabled={ocupado || guardada}
+        onClick={async () => {
+          if (pendientes > 0 && !confirm(`Faltan ${pendientes} textos por calificar y contarán como 0. ¿Guardar ${final} de todos modos?`)) return;
+          setOcupado(true);
+          try { await guardarCalificacion(r.id, final); }
+          catch (e) { alFallar(`No se guardó (${e?.code ?? e}).`); }
+          setOcupado(false);
+        }}
+        className="btn-primary px-5 py-2.5 disabled:opacity-40">
+        {ocupado ? 'Guardando…' : guardada ? 'Guardada' : `Guardar calificación (${final})`}
+      </button>
     </div>
   );
 }
