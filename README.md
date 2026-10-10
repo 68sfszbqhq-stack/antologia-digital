@@ -150,6 +150,17 @@ No es obligatorio: quien no aparezca ahí se da de alta solo al entrar. Esto sol
 adelanta el trabajo y hace que la tabla salga con los nombres bien escritos desde
 el primer día.
 
+### Cuaderno de notas de los parciales (`/calificaciones`)
+
+Para calificar un parcial a mano, criterio por criterio, como en iDoceo. Cada
+parcial de cada grupo es un documento de `cuadernos` con la lista de alumnos,
+los criterios (nombre y valor máximo) y las notas. Solo el profesor lo lee y lo
+escribe; la lista de nombres vive ahí y no en el código, que es público.
+
+El total es la suma de puntos sobre la suma de máximos, llevada a 10. Una
+casilla vacía no cuenta hasta marcar "Vacías cuentan como 0". Se descarga en CSV
+para importarlo en iDoceo.
+
 ### Probar las reglas antes de publicarlas
 
 ```sh

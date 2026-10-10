@@ -68,3 +68,4 @@ clave-*.csv
 # Carga masiva a la SEMS (Fortalece tu aprendizaje): CURP, nombre y respuestas
 # de menores. Los genera scripts/exportar-sems.mjs
 sems-*.csv
+respaldos/

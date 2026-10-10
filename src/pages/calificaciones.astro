@@ -1,0 +1,23 @@
+---
+// Cuaderno de notas de los parciales: el profesor califica a mano, criterio
+// por criterio, como en iDoceo. La seguridad no está en esta página sino en
+// firestore.rules: quien no sea el profesor no recibe ni un dato.
+import Layout from "../layouts/Layout.astro";
+import CuadernoNotas from "../components/CuadernoNotas.jsx";
+import { u } from "../lib/url";
+---
+
+<Layout
+  title="Cuaderno de notas"
+  description="Calificaciones de los parciales, criterio por criterio."
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
+    <nav class="text-xs font-mono-tech text-slate-500 mb-8">
+      <a href={u("/")} class="hover:text-cyan-400 transition">Inicio</a>
+      <span class="mx-2">/</span>
+      <span class="text-slate-400">Calificaciones</span>
+    </nav>
+
+    <CuadernoNotas client:only="react" />
+  </div>
+</Layout>
