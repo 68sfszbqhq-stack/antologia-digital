@@ -5,7 +5,7 @@
 // "Exámenes de parcial" de firestore.rules.
 import Layout from "../../layouts/Layout.astro";
 import ExamenParcial from "../../components/ExamenParcial.jsx";
-import { EXAMENES } from "../../data/examenes/cultura-digital-p1";
+import { EXAMENES } from "../../data/examenes/index";
 
 export function getStaticPaths() {
   return Object.keys(EXAMENES).map((id) => ({ params: { id } }));

@@ -4,8 +4,8 @@ import { auth } from '../lib/firebase';
 import { firebaseConfigurado } from '../lib/firebase-config';
 import { observarAbiertos, abrir, observarRegistros, ponerPuntos, guardarCalificacion, borrarIntento } from '../lib/examen';
 import { campoCSV, descargarCSV } from '../lib/csv-idoceo';
-import { EXAMEN_CD_P1 } from '../data/examenes/cultura-digital-p1';
-import { CLAVE_ORDEN, CLAVE_LOGOS, CLAVE_OPCION, ESPERADO, calificar } from '../data/examenes/cultura-digital-p1-clave';
+import { EXAMENES } from '../data/examenes/index';
+import { CLAVES } from '../data/examenes/claves';
 import { u } from '../lib/url';
 import EntradaProfesor from './EntradaProfesor.jsx';
 
@@ -21,7 +21,12 @@ import EntradaProfesor from './EntradaProfesor.jsx';
  * devuelven nada. */
 
 const caja = 'glass-card rounded-2xl border border-white/10';
-const EXAMEN = EXAMEN_CD_P1;
+
+// Qué examen se revisa: ?examen=<id> en la dirección, o el primero de la lista.
+function examenDeLaLiga() {
+  const id = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('examen') : null;
+  return id && EXAMENES[id] ? id : Object.keys(EXAMENES)[0];
+}
 
 const segundos = (a, b) => (a?.seconds != null && b?.seconds != null ? b.seconds - a.seconds : null);
 const reloj = (s) => (s == null ? '—' : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`);
@@ -33,6 +38,14 @@ export default function RevisarExamen() {
   const [registros, setRegistros] = useState(null);
   const [error, setError] = useState('');
   const [viendo, setViendo] = useState(null);
+  const [examenId, setExamenId] = useState(examenDeLaLiga);
+  const EXAMEN = EXAMENES[examenId];
+  const clave = CLAVES[examenId];
+
+  const cambiarExamen = (id) => {
+    setExamenId(id); setViendo(null); setRegistros(null);
+    history.replaceState(null, '', `?examen=${id}`);
+  };
 
   useEffect(() => {
     if (!hayFirebase) return;
@@ -49,11 +62,11 @@ export default function RevisarExamen() {
       setRegistros([]);
     });
     return () => { q1(); q2(); };
-  }, [usuario]);
+  }, [usuario, EXAMEN.id]);
 
   const filas = useMemo(() => (registros ?? [])
-    .map((r) => ({ ...r, calif: calificar(r.respuestas ?? {}, r.puntos ?? {}) }))
-    .sort((a, b) => a.grupo.localeCompare(b.grupo) || a.nombre.localeCompare(b.nombre)), [registros]);
+    .map((r) => ({ ...r, calif: clave.calificar(r.respuestas ?? {}, r.puntos ?? {}) }))
+    .sort((a, b) => a.grupo.localeCompare(b.grupo) || a.nombre.localeCompare(b.nombre)), [registros, clave]);
 
   if (!hayFirebase) return <div className={`${caja} p-6 text-amber-300`}>Firebase no está configurado.</div>;
   if (usuario === undefined) return <p className="text-slate-400">Un momento…</p>;
@@ -78,6 +91,18 @@ export default function RevisarExamen() {
         </div>
       </div>
 
+      {/* Qué examen */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {Object.values(EXAMENES).map((ex) => (
+          <button key={ex.id} onClick={() => cambiarExamen(ex.id)}
+                  className={`rounded-xl px-4 py-2 text-sm border ${ex.id === examenId
+                    ? 'border-cyan-400 bg-cyan-400/15 text-white' : 'border-white/10 text-slate-400 hover:text-white'}`}>
+            {ex.materia}
+            {abiertos.includes(ex.id) && <span className="text-emerald-300"> ●</span>}
+          </button>
+        ))}
+      </div>
+
       {error && <p className="mb-6 text-sm text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3">{error}</p>}
 
       {/* Interruptor */}
@@ -98,13 +123,13 @@ export default function RevisarExamen() {
       </div>
 
       {registros === null ? <p className="text-slate-400">Trayendo los exámenes…</p>
-        : actual ? <Detalle r={actual} alVolver={() => setViendo(null)} />
-        : <Tabla filas={filas} alVer={setViendo} />}
+        : actual ? <Detalle examen={EXAMEN} clave={clave} r={actual} alVolver={() => setViendo(null)} />
+        : <Tabla examen={EXAMEN} filas={filas} alVer={setViendo} />}
     </div>
   );
 }
 
-function Tabla({ filas, alVer }) {
+function Tabla({ examen: EXAMEN, filas, alVer }) {
   const entregados = filas.filter((f) => f.estado === 'entregado').length;
   const cancelados = filas.filter((f) => f.estado === 'cancelado').length;
   const enCurso = filas.length - entregados - cancelados;
@@ -183,7 +208,8 @@ function Estado({ f }) {
   );
 }
 
-function Detalle({ r, alVolver }) {
+function Detalle({ examen: EXAMEN, clave, r, alVolver }) {
+  const { CLAVE_ORDEN, CLAVE_LOGOS, CLAVE_OPCION, ESPERADO } = clave;
   const resp = r.respuestas ?? {};
   const puntos = r.puntos ?? {};
   const c = r.calif;

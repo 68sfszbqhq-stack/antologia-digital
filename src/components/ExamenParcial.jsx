@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { firebaseConfigurado } from '../lib/firebase-config';
-import { EXAMENES } from '../data/examenes/cultura-digital-p1';
+import { EXAMENES } from '../data/examenes/index';
 import { u } from '../lib/url';
 
 /* El examen de parcial, en el celular del alumno.
@@ -211,7 +211,7 @@ export default function ExamenParcial({ examenId }) {
                   className="btn-primary w-full justify-center py-3 mt-5">
             Probar como alumno
           </button>
-          <a href={u('/examen/revisar')} className="block text-center text-sm text-cyan-400 hover:underline mt-4">
+          <a href={u(`/examen/revisar/?examen=${examenId}`)} className="block text-center text-sm text-cyan-400 hover:underline mt-4">
             Ir a abrir el examen y calificar →
           </a>
         </Caja>

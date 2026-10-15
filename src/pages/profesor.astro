@@ -14,6 +14,7 @@ const herramientas = [
 
 const linksAlumnos = [
   { titulo: "Examen 1er parcial · Cultura Digital", ruta: "/examen/cd-p1/" },
+  { titulo: "Examen 1er parcial · Lengua y Comunicación", ruta: "/examen/com-p1/" },
   { titulo: "Cultura Digital · módulos", ruta: "/cultura-digital/" },
   { titulo: "En vivo · Lengua y Comunicación", ruta: "/en-vivo/" },
   { titulo: "Evaluación diagnóstica", ruta: "/diagnostico/" },
@@ -124,6 +125,13 @@ const linksAlumnos = [
               <span class="text-xs text-slate-400 leading-relaxed mt-1">{h.detalle}</span>
             </a>
           ))}
+        </div>
+
+        <!-- Exámenes de parcial: abrir y cerrar. Lo llena pintarExamenes(). -->
+        <div class="glass-card rounded-2xl p-5 border border-white/10 mt-3">
+          <p class="font-bold text-white mb-1">Exámenes de parcial</p>
+          <p class="text-xs text-slate-400 mb-4">Mientras está cerrado, ningún alumno puede empezarlo.</p>
+          <ul id="pr-examenes" class="divide-y divide-white/5"></ul>
         </div>
 
         <div class="glass-card rounded-2xl p-5 border border-white/10 mt-3">
@@ -281,6 +289,8 @@ const linksAlumnos = [
   import { entrarConGoogle, sesionPorRedireccion } from "../lib/diagnostico";
   import { csvParaIdoceo, descargarCSV, type FilaAlumno } from "../lib/csv-idoceo";
   import sesiones from "../data/sesiones.json";
+  import { EXAMENES } from "../data/examenes/index";
+  import { observarAbiertos, abrir as abrirExamen } from "../lib/examen";
 
   const DIAS: number[] = sesiones.map((s: any) => s.dia);
 
@@ -338,6 +348,40 @@ const linksAlumnos = [
       if (!u) { soloUno("pr-login"); return; }
       soloUno("pr-cargando");
       await cargarTodo(u);
+    });
+  }
+
+  // Un renglón por examen, con su estado en vivo y el botón para cambiarlo.
+  let dejarDeObservar: (() => void) | null = null;
+  function pintarExamenes() {
+    const lista = document.getElementById("pr-examenes");
+    if (!lista) return;
+    dejarDeObservar?.();
+    dejarDeObservar = observarAbiertos((abiertosEx) => {
+      lista.replaceChildren(...Object.values(EXAMENES).map((ex) => {
+        const abierto = abiertosEx.includes(ex.id);
+        const li = document.createElement("li");
+        li.className = "flex flex-wrap items-center gap-3 py-2.5";
+        const nombre = document.createElement("span");
+        nombre.className = "flex-1 min-w-[12rem] text-sm text-white";
+        nombre.textContent = `${ex.titulo} · ${ex.materia}`;
+        const estado = document.createElement("span");
+        estado.className = `text-xs font-mono-tech ${abierto ? "text-emerald-300" : "text-slate-500"}`;
+        estado.textContent = abierto ? "● Abierto" : "○ Cerrado";
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.className = abierto
+          ? "text-xs font-mono-tech rounded-lg border border-rose-400/40 px-3 py-1.5 text-rose-300 hover:bg-rose-400/10 transition"
+          : "text-xs font-mono-tech rounded-lg border border-emerald-400/40 px-3 py-1.5 text-emerald-300 hover:bg-emerald-400/10 transition";
+        boton.textContent = abierto ? "Cerrar" : "Abrir";
+        boton.addEventListener("click", async () => {
+          boton.disabled = true;
+          try { await abrirExamen(ex.id, !abierto); }
+          catch { alert("No se pudo cambiar. Revisa tu conexión e intenta de nuevo."); boton.disabled = false; }
+        });
+        li.append(nombre, estado, boton);
+        return li;
+      }));
     });
   }
 
@@ -470,6 +514,7 @@ const linksAlumnos = [
       abiertos = snapConfig.exists() ? (snapConfig.data().abiertos ?? []).map(Number) : [];
 
       soloUno("pr-panel");
+      pintarExamenes();
       pintarModulos();
       llenarGrupos();
       pintarTabla();

@@ -92,4 +92,3 @@ export const EXAMEN_CD_P1: Examen = {
   ],
 };
 
-export const EXAMENES: Record<string, Examen> = { [EXAMEN_CD_P1.id]: EXAMEN_CD_P1 };
