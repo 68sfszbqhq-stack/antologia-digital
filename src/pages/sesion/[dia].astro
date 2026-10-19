@@ -875,6 +875,64 @@ const tituloTarea = cont.tarea.titulo;
         </div>
       </div>
 
+      <!-- ── REFLEXIÓN: videos para hacer conciencia y preguntas abiertas ── -->
+      {cont.reflexion && (
+        <div id="reflexion" class="glass-card rounded-2xl p-6 sm:p-8 border border-amber-500/30 bg-amber-500/5 mt-8" data-dia={modulo.dia} data-min={cont.reflexion.minPalabras}>
+          <span class="tag-badge bg-amber-500/20 text-amber-400 border border-amber-500/40 mb-4 inline-block">Reflexión final</span>
+          <h3 class="text-2xl font-black text-white mb-3">{cont.reflexion.titulo}</h3>
+          <p class="text-sm text-slate-300 leading-relaxed max-w-3xl mb-8">{cont.reflexion.intro}</p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {cont.reflexion.videos.map((v, i) => (
+              <div class="glass-card rounded-2xl overflow-hidden border border-white/10">
+                <div class="p-4 bg-red-950/20 border-b border-white/5 flex items-center justify-between gap-3">
+                  <span class="text-red-400 font-mono-tech text-xs font-bold">VIDEO {i + 1} · {v.canal.toUpperCase()}</span>
+                  <span class="text-[10px] font-mono-tech text-slate-400">{v.year} · {v.duracion}</span>
+                </div>
+                <div class="relative w-full aspect-video bg-black">
+                  <iframe src={`${v.url}?rel=0`} title={v.titulo} class="absolute inset-0 w-full h-full" allowfullscreen loading="lazy"></iframe>
+                </div>
+                <div class="p-4">
+                  <h4 class="font-bold text-white text-sm">{v.titulo}</h4>
+                  <p class="text-xs text-slate-400 mt-1">{v.descripcion}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <h4 class="text-lg font-bold text-white mb-1">✍️ Responde con tus palabras</h4>
+          <p class="text-xs text-slate-400 mb-6">
+            Escribe al menos {cont.reflexion.minPalabras} palabras en cada respuesta. Lo que escribes se queda solo en este navegador:
+            cuando termines, usa «Copiar mis respuestas» y pégalas en tu entrega.
+          </p>
+
+          <ol class="space-y-6">
+            {cont.reflexion.preguntas.map((p, i) => (
+              <li>
+                <label for={`reflexion-${i}`} class="block text-sm text-slate-200 leading-relaxed mb-2">
+                  <span class="font-mono-tech text-amber-400 font-bold mr-1">{i + 1}.</span> {p}
+                </label>
+                <textarea
+                  id={`reflexion-${i}`}
+                  class="reflexion-respuesta w-full min-h-32 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-400 focus:outline-none"
+                  data-i={i}
+                  data-pregunta={p}
+                  placeholder="Escribe aquí tu respuesta…"
+                ></textarea>
+                <p class="reflexion-contador text-[11px] font-mono-tech text-slate-500 mt-1" data-i={i}>0 palabras</p>
+              </li>
+            ))}
+          </ol>
+
+          <div class="text-center pt-8">
+            <button class="btn-primary px-8 py-3.5 text-sm font-semibold" data-action="copiar-reflexion">
+              📋 Copiar mis respuestas
+            </button>
+            <p id="reflexion-status" class="hidden text-xs font-mono-tech mt-4"></p>
+          </div>
+        </div>
+      )}
+
       <!-- ── SALÓN DE LA FAMA: trabajos destacados de generaciones anteriores ── -->
       <div class="glass-card rounded-2xl p-6 sm:p-8 border border-amber-400/20 mt-8">
         <div class="flex items-end justify-between gap-4 flex-wrap mb-5">
@@ -1341,6 +1399,118 @@ const tituloTarea = cont.tarea.titulo;
       status.innerText = "\u2705 Borrador registrado en esta sesi\u00F3n. Recuerda subir tu entrega final al portal del alumno.";
     }
 
+    // ── Reflexión final: contador de palabras, borrador local y copiar ──
+    // El borrador vive solo en este navegador (localStorage), por comodidad del
+    // alumno; nada de esto se manda a Firebase. Si el navegador bloquea el
+    // almacenamiento, la sección funciona igual, solo que no recuerda.
+    function claveReflexion() {
+      const caja = document.getElementById("reflexion");
+      return caja ? "antologia-reflexion-" + caja.getAttribute("data-dia") : null;
+    }
+
+    function contarPalabras(texto) {
+      const t = texto.trim();
+      return t ? t.split(/\s+/).length : 0;
+    }
+
+    function pintarContador(area) {
+      const caja = document.getElementById("reflexion");
+      if (!caja) return;
+      const min = parseInt(caja.getAttribute("data-min"), 10) || 0;
+      const n = contarPalabras(area.value);
+      const cont = caja.querySelector('.reflexion-contador[data-i="' + area.getAttribute("data-i") + '"]');
+      if (!cont) return;
+      cont.textContent = n + (n === 1 ? " palabra" : " palabras") + (n < min ? " · faltan " + (min - n) : " · ✓");
+      cont.className = "reflexion-contador text-[11px] font-mono-tech mt-1 " + (n >= min ? "text-emerald-400" : "text-slate-500");
+    }
+
+    function guardarReflexion() {
+      const clave = claveReflexion();
+      if (!clave) return;
+      const datos = {};
+      document.querySelectorAll(".reflexion-respuesta").forEach(function (a) {
+        datos[a.getAttribute("data-i")] = a.value;
+      });
+      try { localStorage.setItem(clave, JSON.stringify(datos)); } catch (e) { /* sin almacenamiento */ }
+    }
+
+    function cargarReflexion() {
+      const clave = claveReflexion();
+      if (!clave) return;
+      let datos = {};
+      try { datos = JSON.parse(localStorage.getItem(clave) || "{}") || {}; } catch (e) { datos = {}; }
+      document.querySelectorAll(".reflexion-respuesta").forEach(function (a) {
+        const v = datos[a.getAttribute("data-i")];
+        if (typeof v === "string") a.value = v;
+        pintarContador(a);
+      });
+    }
+
+    function avisoReflexion(texto, ok) {
+      const s = document.getElementById("reflexion-status");
+      if (!s) return;
+      s.classList.remove("hidden");
+      s.className = "text-xs font-mono-tech mt-4 " + (ok ? "text-emerald-400" : "text-amber-400");
+      s.textContent = texto;
+    }
+
+    function copiarReflexion() {
+      const caja = document.getElementById("reflexion");
+      if (!caja) return;
+      const min = parseInt(caja.getAttribute("data-min"), 10) || 0;
+      const areas = Array.from(document.querySelectorAll(".reflexion-respuesta"));
+      const cortas = areas
+        .filter(function (a) { return contarPalabras(a.value) < min; })
+        .map(function (a) { return parseInt(a.getAttribute("data-i"), 10) + 1; });
+      if (cortas.length) {
+        avisoReflexion("Todavía te faltan palabras en la pregunta " + cortas.join(", ") + ". Cada respuesta necesita al menos " + min + ".", false);
+        return;
+      }
+      const texto = areas.map(function (a, i) {
+        return (i + 1) + ". " + a.getAttribute("data-pregunta") + "\n" + a.value.trim();
+      }).join("\n\n");
+      const listo = function () { avisoReflexion("✅ Copiado. Pégalo en tu entrega con Ctrl+V (o mantén presionado en el celular).", true); };
+      const respaldo = function () {
+        const t = document.createElement("textarea");
+        t.value = texto;
+        t.setAttribute("readonly", "");
+        t.style.position = "fixed";
+        t.style.opacity = "0";
+        document.body.appendChild(t);
+        t.select();
+        let ok = false;
+        try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+        document.body.removeChild(t);
+        if (ok) { listo(); return; }
+        // Último recurso: mostrar todo el texto ya seleccionado para copiarlo a mano.
+        const s = document.getElementById("reflexion-status");
+        avisoReflexion("Tu navegador no dejó copiar solo. Copia el texto de abajo (ya está seleccionado):", false);
+        let caja = document.getElementById("reflexion-manual");
+        if (!caja) {
+          caja = document.createElement("textarea");
+          caja.id = "reflexion-manual";
+          caja.setAttribute("readonly", "");
+          caja.className = "w-full min-h-48 mt-3 bg-black/40 border border-amber-400/40 rounded-xl px-4 py-3 text-xs text-white";
+          if (s) s.insertAdjacentElement("afterend", caja);
+        }
+        caja.value = texto;
+        caja.focus();
+        caja.select();
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(listo, respaldo);
+      } else {
+        respaldo();
+      }
+    }
+
+    document.addEventListener("input", function (ev) {
+      const area = ev.target.closest && ev.target.closest(".reflexion-respuesta");
+      if (!area) return;
+      pintarContador(area);
+      guardarReflexion();
+    });
+
     document.addEventListener("click", function (ev) {
       const btn = ev.target.closest("[data-action]");
       if (!btn) return;
@@ -1358,6 +1528,8 @@ const tituloTarea = cont.tarea.titulo;
         addSimEntry();
       } else if (accion === "guardar") {
         guardarBorrador();
+      } else if (accion === "copiar-reflexion") {
+        copiarReflexion();
       } else if (accion === "ir-conceptos") {
         const destino = document.getElementById("conceptos-clave");
         if (destino) destino.scrollIntoView({ behavior: "smooth" });
@@ -1379,6 +1551,10 @@ const tituloTarea = cont.tarea.titulo;
     });
 
     leerConfig();
-    document.addEventListener("astro:page-load", leerConfig);
+    cargarReflexion();
+    document.addEventListener("astro:page-load", function () {
+      leerConfig();
+      cargarReflexion();
+    });
   })();
 </script>

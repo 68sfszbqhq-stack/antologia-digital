@@ -69,6 +69,30 @@ export interface Tarea {
   ejemplos: { clave: string; texto: string }[];
 }
 
+/** Un video externo verificado: existe, es del canal indicado y se puede insertar. */
+export interface VideoReflexion {
+  titulo: string;
+  canal: string;
+  /** URL de inserción: https://www.youtube.com/embed/<id> */
+  url: string;
+  year: string;
+  duracion: string;
+  descripcion: string;
+}
+
+/**
+ * Cierre del módulo: videos para hacer conciencia y preguntas abiertas.
+ * Las respuestas no se guardan en Firebase: el alumno las copia a su entrega.
+ */
+export interface Reflexion {
+  titulo: string;
+  intro: string;
+  videos: VideoReflexion[];
+  preguntas: string[];
+  /** Palabras que se le sugieren como mínimo en cada respuesta. */
+  minPalabras: number;
+}
+
 export interface ContenidoModulo {
   dia: number;
   /** Etiquetas de los cinco pasos de la secuencia didáctica */
@@ -90,4 +114,5 @@ export interface ContenidoModulo {
   ejes: { nombre: string; acento: Acento; repasar: string[] }[];
   preguntas: Pregunta[];
   tarea: Tarea;
+  reflexion?: Reflexion;
 }

@@ -965,6 +965,64 @@ export const modulo3: ContenidoModulo = {
       { clave: "Mensajería", texto: "7 h/semana — mayormente grupos escolares" },
     ],
   },
+
+  // Videos del canal oficial de Platzi, verificados el 2026-10-19 con oEmbed:
+  // existen, son de Platzi, se pueden insertar y no tienen restricción de edad.
+  reflexion: {
+    titulo: "Para hacer conciencia: cinco videos y cinco preguntas",
+    intro:
+      "Mira los videos en orden y después contesta con tus palabras. No hay respuestas correctas: lo que cuenta es que argumentes con lo que viste y con tu propia experiencia. Los videos de 2019 y 2020 hablan con datos de esa fecha; tómalo en cuenta.",
+    minPalabras: 40,
+    videos: [
+      {
+        titulo: "Cómo los gigantes de la tecnología hacen sus miles de millones",
+        canal: "Platzi",
+        url: "https://www.youtube.com/embed/c5G9g7qXUns",
+        year: "2019",
+        duracion: "13 min",
+        descripcion: "Freddy Vega explica de dónde sale el dinero de las empresas tecnológicas más grandes y cuánto de él es publicidad.",
+      },
+      {
+        titulo: "Los gigantes en tech, ¿son un monopolio?",
+        canal: "Platzi",
+        url: "https://www.youtube.com/embed/ZZqaoyV-OgI",
+        year: "2020",
+        duracion: "22 min",
+        descripcion: "Facebook, Apple, Google y Amazon frente a la ley de Estados Unidos: qué pasa cuando unas pocas empresas concentran tanto poder.",
+      },
+      {
+        titulo: "Qué es verdad y qué no en The Social Dilemma",
+        canal: "Platzi",
+        url: "https://www.youtube.com/embed/Frdna_cBwwU",
+        year: "2020",
+        duracion: "21 min",
+        descripcion: "Un análisis del documental sobre redes sociales: qué afirmaciones se sostienen y cuáles están exageradas.",
+      },
+      {
+        titulo: "Cómo AI aumenta la desigualdad",
+        canal: "Platzi",
+        url: "https://www.youtube.com/embed/fR1yfyGYERY",
+        year: "2026",
+        duracion: "17 min",
+        descripcion: "Quien puede pagar las herramientas de inteligencia artificial avanza más rápido. Una nueva forma de brecha digital.",
+      },
+      {
+        titulo: "Cómo evitar que Internet arruine tu vida",
+        canal: "Platzi",
+        url: "https://www.youtube.com/embed/RaoSYGifhzc",
+        year: "2023",
+        duracion: "35 min",
+        descripcion: "Charla de Freddy Vega en la Platzi Conf Bogotá 2023: por qué somos la región más adicta a internet y qué hacer al respecto.",
+      },
+    ],
+    preguntas: [
+      "Las aplicaciones que más usas son gratis. Según el primer video, ¿de dónde sale el dinero de esas empresas? Explica con tus palabras qué venden en realidad y qué papel juegas tú en ese negocio.",
+      "¿Por qué puede ser un problema que unas pocas empresas controlen cómo buscas, compras y te comunicas? Da un ejemplo de cómo eso te afecta a ti, a tu escuela o a tu comunidad.",
+      "Del video sobre The Social Dilemma, elige una afirmación que te parezca verdadera y una que te parezca exagerada. Explica por qué, con un ejemplo de cómo usas tu celular.",
+      "Si pagar por inteligencia artificial da ventaja, ¿crees que eso hace más grande la brecha digital en México? Relaciónalo con un dato de la ENDUTIH 2024 que vimos en clase.",
+      "Escribe un compromiso concreto para cambiar tu relación con el celular durante la próxima semana: qué vas a hacer, cuándo y cómo vas a saber si lo cumpliste.",
+    ],
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
