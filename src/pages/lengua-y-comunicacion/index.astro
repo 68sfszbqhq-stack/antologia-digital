@@ -1,85 +1,39 @@
 ---
-// Índice de la antología de Lengua y Comunicación: cinco unidades, 26 temas.
-//
-// Los temas salieron de las exposiciones del grupo y se ampliaron con autores
-// y artículos. El contenido vive en src/data/lengua/; esta página solo lo lista.
-import Layout from "../../layouts/Layout.astro";
-import { unidades } from "../../data/lengua";
-import { coloresLyC } from "../../data/lengua/colores";
-import { u } from "../../lib/url";
-
-const totalTemas = unidades.reduce((n, un) => n + un.temas.length, 0);
+import Layout from '../../layouts/Layout.astro';
+import { semanas } from '../../data/lengua/taller';
+import { u } from '../../lib/url';
+import '../../styles/taller-lengua.css';
 ---
-
-<Layout title="Lengua y Comunicación" description="Antología de Lengua y Comunicación: barreras de la comunicación, escucha, asertividad, escritura digital, presentaciones, ética y seguridad, con fuentes citadas.">
-
-  <section class="max-w-5xl mx-auto px-6 py-12">
-
-    <nav class="text-xs font-mono-tech text-slate-500 mb-8">
-      <a href={u("/")} class="hover:text-cyan-400 transition">Inicio</a>
-      <span class="mx-2">/</span>
-      <span class="text-slate-400">Lengua y Comunicación</span>
-    </nav>
-
-    <p class="text-xs font-mono-tech text-amber-400 tracking-widest uppercase mb-2">// Materia</p>
-    <h1 class="text-3xl md:text-5xl font-black text-white">Lengua y Comunicación</h1>
-    <p class="text-amber-400 font-bold mt-2">Antología · {unidades.length} unidades · {totalTemas} temas</p>
-
-    <p class="text-slate-400 leading-relaxed mt-6 max-w-3xl">
-      Estos temas los eligió y expuso el grupo. Aquí cada uno se amplía con lo
-      que dicen investigadores de la comunicación, la psicología y la educación.
-      Cada nombre y año entre paréntesis te lleva a una fuente real que aparece
-      al final del tema, para que puedas consultarla y citarla.
-    </p>
-
-    <a
-      href={u("/lengua-y-comunicacion/introduccion")}
-      class="glass-card rounded-2xl p-6 border border-amber-500/40 bg-amber-500/5 hover:-translate-y-0.5 transition-all duration-300 group block mt-10"
-    >
-      <span class="text-[11px] font-mono-tech text-amber-400 tracking-widest uppercase">Empieza aquí · Introducción en dos sesiones</span>
-      <h2 class="text-xl md:text-2xl font-bold text-white mt-1 group-hover:text-amber-400 transition">
-        Máster en Comunicación Consciente
-      </h2>
-      <p class="text-sm text-slate-400 leading-relaxed mt-1.5 max-w-3xl">
-        Los cuatro acuerdos de Miguel Ruiz e Influencia de Robert Cialdini, puestos a
-        prueba con experimentos reales. Con votación en vivo desde tu celular y quizzes.
-      </p>
-    </a>
-
-    <div class="space-y-12 mt-12">
-      {unidades.map((unidad) => {
-        const c = coloresLyC[unidad.acento];
-        return (
-          <section id={`unidad-${unidad.numero}`}>
-            <div class="flex items-baseline gap-3 mb-2">
-              <span class={`font-black font-mono-tech text-xs px-3 py-1.5 rounded-lg border ${c.chip}`}>
-                Unidad {unidad.numero}
-              </span>
-              <h2 class="text-xl md:text-2xl font-bold text-white">{unidad.titulo}</h2>
-            </div>
-            <p class="text-sm text-slate-400 leading-relaxed mb-5 max-w-3xl">{unidad.proposito}</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {unidad.temas.map((tema, i) => (
-                <a
-                  href={u(`/lengua-y-comunicacion/${tema.slug}`)}
-                  class={`glass-card rounded-2xl p-5 border ${c.borde} hover:-translate-y-0.5 transition-all duration-300 group block`}
-                >
-                  <span class={`text-[11px] font-mono-tech ${c.texto}`}>{unidad.numero}.{i + 1}</span>
-                  <h3 class="text-base font-bold text-white leading-snug mt-1 group-hover:text-amber-400 transition">
-                    {tema.titulo}
-                  </h3>
-                  <p class="text-xs text-slate-400 leading-relaxed mt-1.5">{tema.subtitulo}</p>
-                  <p class="text-[11px] font-mono-tech text-slate-600 mt-3">
-                    {tema.fuentes.length} {tema.fuentes.length === 1 ? "fuente" : "fuentes"}
-                  </p>
-                </a>
-              ))}
-            </div>
-          </section>
-        );
-      })}
-    </div>
-  </section>
-
+<Layout title="Lengua y Comunicación · Tu voz cuenta" description="Quinto semestre: seis retos con juegos, ejercicios, tareas y evaluación para aprender a comunicar una propuesta con claridad y fundamento.">
+  <div class="taller-shell">
+    <nav class="taller-breadcrumb" aria-label="Ubicación"><a href={u('/')}>Inicio</a><span aria-hidden="true"> / </span><span>Lengua y Comunicación</span></nav>
+    <header class="taller-hero">
+      <div>
+        <p class="taller-eyebrow">LENGUA Y COMUNICACIÓN · QUINTO SEMESTRE</p>
+        <h1>Tu voz <em>cuenta.</em></h1>
+        <p class="taller-lead">Seis retos para comunicar una idea que importe.</p>
+        <p class="taller-intro">Explica lo que piensas, escucha otras posturas y defiende una propuesta con evidencias. Aquí vas a probar, recibir comentarios y volver a intentarlo.</p>
+        <div class="taller-actions"><a class="taller-button" href={u('/lengua-y-comunicacion/semana-1')}>Comenzar el primer reto →</a><a class="taller-link" href="#ruta">Explorar el temario ↓</a></div>
+        <div class="taller-stats"><span><strong>6</strong> semanas</span><span><strong>120</strong> min por semana</span><span><strong>1</strong> proyecto compartido</span></div>
+      </div>
+      <aside class="taller-project-card">
+        <p class="taller-eyebrow">TU MISIÓN</p><h2>Una mejora posible<br />para tu escuela.</h2>
+        <p>Elige un problema cercano. Investiga, escribe una propuesta y preséntala con tu equipo.</p>
+        <ol><li>Detecta una necesidad.</li><li>Construye una respuesta con sustento.</li><li>Haz que otros puedan entenderla y valorarla.</li></ol>
+        <a href="#proyecto">Conoce la entrega final ↗</a>
+      </aside>
+    </header>
+    <section class="taller-route" id="ruta" aria-labelledby="ruta-title">
+      <div class="taller-section-title"><div><p class="taller-eyebrow">UNA HABILIDAD A LA VEZ</p><h2 id="ruta-title">Tu ruta de seis semanas</h2></div><p>Aprende → practica → recibe comentarios → mejora.</p></div>
+      <div class="taller-grid">{semanas.map(s => <a class="taller-card" href={u(`/lengua-y-comunicacion/semana-${s.numero}`)}>
+        <div class="taller-card-top"><span class="taller-number">{String(s.numero).padStart(2,'0')}</span><span>SEMANA {s.numero} · 120 MIN</span></div>
+        <h3>{s.titulo}</h3><p>{s.pregunta}</p><ul>{s.temas.map(t => <li>{t}</li>)}</ul>
+        <div class="taller-card-bottom"><p><strong>En acción:</strong> {s.juego}</p><p><strong>Tu entrega:</strong> {s.entrega}</p><span>Entrar al reto →</span></div>
+      </a>)}</div>
+    </section>
+    <section class="taller-project" id="proyecto"><div><p class="taller-eyebrow">LO CONSTRUYES DURANTE EL TALLER</p><h2>De una idea a una propuesta que puedas defender.</h2><p>Trabajen en equipos de 4–5 integrantes. Pueden proponer mejoras al préstamo de libros, los avisos escolares, el trabajo en equipo o el uso de espacios. Acoten un problema que puedan explicar con evidencia.</p><p>Cada integrante tendrá una intervención y conservará sus propias revisiones. No es necesario ejecutar la propuesta ni publicarla en redes.</p></div><div class="taller-checklist"><h3>Al final tendrás</h3><ul><li>Propuesta de 250–350 palabras.</li><li>Dos evidencias con procedencia y límites.</li><li>Correo de 80–120 palabras.</li><li>Cartel o hasta tres diapositivas.</li><li>Presentación de 4 minutos + 1 de preguntas.</li><li>Portafolio y reflexión individual.</li></ul></div></section>
+    <section class="taller-assessment"><div><p class="taller-eyebrow">SABER QUÉ MEJORAR</p><h2>Así se evalúa tu aprendizaje</h2><p>Cuenta lo que puedes explicar, fundamentar y revisar. Los puntos de los juegos no cambian tu calificación.</p><a class="taller-link" href={u('/lengua-y-comunicacion/evaluacion')}>Ver entregas y rúbricas completas →</a></div><dl>{[['30%','Portafolio individual'],['10%','Comprobaciones breves'],['40%','Proyecto: equipo e individual'],['15%','Caso individual final'],['5%','Colaboración documentada']].map(([n,t])=><div><dt>{t}</dt><dd>{n}</dd></div>)}</dl></section>
+    <section class="taller-resources" aria-label="Recursos"><a href={u('/lengua-y-comunicacion/cuaderno-del-estudiante.md')} download><span>PARA LLEVAR CONTIGO</span><h3>Descarga tu cuaderno ↗</h3><p>Consignas, tareas y plantillas en un archivo de texto Markdown.</p></a><a href={u('/lengua-y-comunicacion/biblioteca')}><span>PARA PROFUNDIZAR</span><h3>Biblioteca de consulta →</h3><p>Los 26 temas de la antología, con sus lecturas y fuentes.</p></a></section>
+    <p class="taller-footnote">Puedes trabajar con celular o en papel. Tareas de hasta 20 minutos por semana. Entrega tus evidencias en clase según las indicaciones de tu docente.</p>
+  </div>
 </Layout>

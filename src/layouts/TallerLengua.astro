@@ -1,0 +1,44 @@
+---
+import Layout from './Layout.astro';
+import { semanas } from '../data/lengua/taller';
+import { temas } from '../data/lengua';
+import { u } from '../lib/url';
+import '../styles/taller-lengua.css';
+const { frontmatter } = Astro.props;
+const { title, description, semana } = frontmatter;
+const actual = semanas.find(s => s.numero === semana);
+const lecturas = actual ? temas.filter(t => actual.lecturas.includes(t.tema.slug)) : [];
+---
+<Layout title={`${title} · Lengua y Comunicación`} description={description}>
+  <main class="taller-shell">
+    <nav class="taller-breadcrumb" aria-label="Ubicación"><a href={u('/lengua-y-comunicacion')}>Lengua y Comunicación</a><span aria-hidden="true"> / </span><span>{semana ? `Semana ${semana}` : 'Evaluación'}</span></nav>
+    <header class="taller-heading">
+      <p class="taller-eyebrow">{semana ? `RETO ${semana} DE 6 · 120 MINUTOS` : 'CRITERIOS COMPARTIDOS'}</p>
+      <h1>{title}</h1>
+      <p class="taller-lead">{description}</p>
+      {actual && <p class="taller-delivery"><strong>Esta semana entregarás:</strong> {actual.entrega}.</p>}
+    </header>
+    <div class="taller-columns">
+      <aside class="taller-sidebar" aria-label="Ruta del taller">
+        <p class="taller-eyebrow">TU RUTA</p>
+        {semanas.map(s => <a href={u(`/lengua-y-comunicacion/semana-${s.numero}`)} aria-current={s.numero === semana ? 'page' : undefined}><span>{String(s.numero).padStart(2,'0')}</span>{s.titulo}</a>)}
+        <a href={u('/lengua-y-comunicacion/evaluacion')} aria-current={!semana ? 'page' : undefined}>Cómo se evalúa</a>
+        <a href={u('/lengua-y-comunicacion/biblioteca')}>Biblioteca de consulta</a>
+        <button class="taller-print" type="button" data-taller-print>Imprimir / guardar PDF</button>
+      </aside>
+      <div>
+        <article class="taller-prose"><slot /></article>
+        {lecturas.length > 0 && <section class="taller-reading"><p class="taller-eyebrow">PARA PROFUNDIZAR</p><h2>Consulta la antología</h2><p>Amplía estas ideas con las lecturas y fuentes de la biblioteca.</p><ul>{lecturas.map(t => <li><a href={u(`/lengua-y-comunicacion/${t.tema.slug}`)}>{t.tema.titulo} →</a></li>)}</ul></section>}
+        <nav class="taller-next" aria-label="Continuar el taller">
+          <a href={u(semana > 1 ? `/lengua-y-comunicacion/semana-${semana-1}` : '/lengua-y-comunicacion')}>← {semana > 1 ? 'Semana anterior' : 'Vista general'}</a>
+          {semana && <a href={u(semana < 6 ? `/lengua-y-comunicacion/semana-${semana+1}` : '/lengua-y-comunicacion/evaluacion')}>{semana < 6 ? 'Siguiente semana' : 'Revisar criterios'} →</a>}
+        </nav>
+      </div>
+    </div>
+  </main>
+</Layout>
+<script>
+  document.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement)?.closest('[data-taller-print]')) window.print();
+  });
+</script>

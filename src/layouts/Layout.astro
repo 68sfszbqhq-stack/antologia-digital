@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import ClientRouter from "astro/components/ClientRouter.astro";
 import sesiones from "../data/sesiones.json";
-import { unidades as unidadesLyC } from "../data/lengua";
+import { semanas as unidadesLyC } from "../data/lengua/taller";
 import { u } from "../lib/url";
 
 export interface Props {
@@ -279,7 +279,7 @@ const {
                   Lengua y Comunicación
                 </span>
                 <span class="block text-xs text-slate-500 mt-0.5">
-                  Antología en cinco unidades, con fuentes citadas.
+                  Quinto semestre · Seis retos para comunicar mejor.
                 </span>
               </span>
             </a>
@@ -287,10 +287,10 @@ const {
             <div class="flex flex-wrap gap-1.5 pl-11 mt-4">
               {unidadesLyC.map((un) => (
                 <a
-                  href={u(`/lengua-y-comunicacion#unidad-${un.numero}`)}
+                  href={u(`/lengua-y-comunicacion/semana-${un.numero}`)}
                   class="text-[11px] font-mono-tech px-2.5 py-1.5 rounded-lg bg-white/5 text-slate-300 border border-white/5 hover:border-amber-400/40 hover:text-amber-400 hover:bg-amber-400/5 transition"
                 >
-                  U{un.numero} · {un.titulo}
+                  S{un.numero} · {un.titulo}
                 </a>
               ))}
             </div>
