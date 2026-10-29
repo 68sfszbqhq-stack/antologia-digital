@@ -1,0 +1,55 @@
+---
+import TallerLengua from '../../layouts/TallerLengua.astro';
+import ExposicionesLengua from '../../components/ExposicionesLengua.astro';
+import { u } from '../../lib/url';
+---
+<TallerLengua frontmatter={{title:'Tu tema, tu turno y tu exposición',description:'5.º A · 32 estudiantes · Un tema distinto para cada persona.',seccion:'exposiciones'}}>
+  <div class="expo-search">
+    <label for="buscar-exposicion">Busca tu nombre o un tema</label>
+    <input id="buscar-exposicion" type="search" placeholder="Por ejemplo: nombre, audiencia, fuentes…" autocomplete="off" aria-controls="reparto-exposiciones" />
+    <p data-expo-count role="status" aria-live="polite">32 exposiciones asignadas</p>
+  </div>
+  <details class="expo-instructions"><summary>Instrucciones y evaluación: cómo preparar tu exposición</summary>
+  <section class="expo-brief">
+    <h2>Explica, demuestra y responde</h2>
+    <p>Busca tu nombre para conocer tu tema, la semana y la demostración que prepararás. El orden sigue la lista del grupo y la secuencia del taller. Las fechas concretas las confirma tu docente.</p>
+    <p><strong>Tu turno dura seis minutos:</strong> cuatro para explicar y demostrar, uno para responder una pregunta y uno para recibir una devolución breve y dar paso al siguiente participante.</p>
+    <ol>
+      <li><strong>Abre con una situación:</strong> plantea un problema o una pregunta de tu tema.</li>
+      <li><strong>Explica con tus palabras:</strong> desarrolla uno o dos conceptos centrales.</li>
+      <li><strong>Demuestra cómo se aplica:</strong> muestra un ejemplo y una mejora, justificando el cambio.</li>
+      <li><strong>Cierra y responde:</strong> conecta tu tema con la sesión y aplica lo aprendido a la pregunta del docente.</li>
+    </ol>
+    <p>Prepara máximo <strong>tres diapositivas de contenido y una ficha de fuentes</strong>. También puedes usar un cartel o papel. Incluye dos fuentes pertinentes y localizables. Si usas IA, verifica sus afirmaciones y explica cómo te ayudó.</p>
+    <p>La exposición individual vale <strong>20% del bloque</strong>. El proyecto final conserva otro 20%: 10% por el producto de equipo y 10% por la aplicación individual. <a href={u('/lengua-y-comunicacion/evaluacion')}>Consulta la rúbrica completa.</a></p>
+    <p>Las exposiciones ocupan 36, 42, 42, 36 y 36 minutos en las primeras cinco semanas. La sexta queda para el proyecto final. Los juegos y talleres se integran en los 120 minutos de cada sesión.</p>
+    <p>Recibirás la consigna con al menos una semana de preparación. Si el calendario no ofrece ese margen, tu docente ajustará los primeros turnos antes de evaluar.</p>
+  </section></details>
+  <div id="reparto-exposiciones">{[1,2,3,4,5].map(semana => <ExposicionesLengua semana={semana} completa />)}</div>
+  <section><h2>Cuando escuchas a tus compañeros</h2><p>Elige una exposición del día y anota su idea central, el ejemplo que la demuestra y una pregunta o aplicación. Incorpora esa nota a tu portafolio semanal. La entrega se hace en clase; esta página no recibe archivos ni registra calificaciones.</p></section>
+</TallerLengua>
+<script>
+  function filtrarExposiciones() {
+    const input = document.querySelector<HTMLInputElement>('#buscar-exposicion');
+    if (!input) return;
+    const normalizar = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const consulta = normalizar(input.value.trim());
+    const palabras = consulta.split(/\s+/).filter(Boolean);
+    let visibles = 0;
+    document.querySelectorAll<HTMLElement>('#reparto-exposiciones [data-expo-item]').forEach(item => {
+      const texto = normalizar(item.dataset.search || '');
+      item.hidden = !palabras.every(p => texto.includes(p));
+      if (!item.hidden) visibles++;
+    });
+    document.querySelectorAll<HTMLElement>('#reparto-exposiciones [data-expo-group]').forEach(grupo => {
+      grupo.hidden = !Array.from(grupo.querySelectorAll<HTMLElement>('[data-expo-item]')).some(item => !item.hidden);
+    });
+    const resultado = document.querySelector('[data-expo-count]');
+    if (resultado) resultado.textContent = visibles ? `${visibles} de 32 exposiciones${consulta ? (visibles === 1 ? ' coincide con tu búsqueda' : ' coinciden con tu búsqueda') : ' asignadas'}` : 'Sin coincidencias. Prueba con otra parte de tu nombre o del tema.';
+  }
+  document.addEventListener('input', event => {
+    if ((event.target as HTMLElement)?.id === 'buscar-exposicion') filtrarExposiciones();
+  });
+  document.addEventListener('astro:page-load', filtrarExposiciones);
+  filtrarExposiciones();
+</script>

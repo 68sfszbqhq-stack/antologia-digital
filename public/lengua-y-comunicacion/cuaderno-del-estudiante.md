@@ -8,7 +8,17 @@ Vas a elegir con tu equipo una mejora posible para la escuela, investigar lo nec
 
 **Al final entregarás con tu equipo:** propuesta de 250–350 palabras, dos evidencias con procedencia, correo de 80–120 palabras, cartel o hasta tres diapositivas y presentación de cuatro minutos. Todos tendrán una intervención. Además, entregarás tu portafolio y resolverás un caso individual.
 
-**Calificación del bloque:** portafolio 30%, comprobaciones 10%, proyecto 40%, caso individual 15% y colaboración documentada 5%. Los puntos de los juegos no cambian tu calificación.
+**Calificación del bloque:** portafolio 30%, comprobaciones 10%, exposición individual 20%, proyecto 20% (10% de equipo y 10% individual), caso individual 15% y colaboración documentada 5%. Los puntos de los juegos no cambian tu calificación.
+
+## Tu exposición individual
+
+Cada alumno de 5.º A tiene un tema distinto. Consulta tu nombre, turno, demostración y semana en el [reparto de exposiciones](https://68sfszbqhq-stack.github.io/antologia-digital/lengua-y-comunicacion/exposiciones/).
+
+Son 32 turnos de seis minutos: cuatro de explicación y demostración, uno para una pregunta y uno para devolución y cambio. Se distribuyen en las primeras cinco semanas: 6, 7, 7, 6 y 6 alumnos. La sexta conserva el proyecto final. Las fechas concretas las confirma el docente.
+
+Prepara máximo tres diapositivas de contenido y una ficha con dos fuentes localizables. Puedes usar cartel o papel. Explica con tus palabras y demuestra cómo se aplica la idea. Entrega el material en clase. El calendario de cada semana en la plataforma integra las exposiciones dentro de los 120 minutos.
+
+La rúbrica vale 20 puntos: dominio 6, demostración 4, respuesta 4, organización oral 4 y fuentes 2. Los criterios completos están en la sección de evaluación.
 
 ## Reto 1 · Haz que te entiendan
 

@@ -10,17 +10,37 @@ description: "Entregas, criterios y ponderaciones del taller de seis semanas."
 |---|---:|
 | Portafolio individual E1–E6 | 30% |
 | Cinco comprobaciones individuales | 10% |
-| Proyecto: producto de equipo | 20% |
-| Proyecto: desempeño individual | 20% |
+| Exposición individual del tema | 20% |
+| Proyecto: producto de equipo | 10% |
+| Proyecto: desempeño individual | 10% |
 | Caso individual final | 15% |
 | Colaboración documentada | 5% |
 
 Estas ponderaciones corresponden al bloque de seis semanas. El diagnóstico y los puntos de juego no suman ni restan. Tu docente indica cómo se integra el bloque a la calificación semestral.
 
+## Exposición individual — 20 puntos del bloque
+
+Cada estudiante expone un tema asignado durante cuatro minutos, responde una pregunta durante un minuto y recibe una devolución breve. Consulta el [reparto y las instrucciones](/antologia-digital/lengua-y-comunicacion/exposiciones).
+
+| Criterio | Máximo | Qué se observa |
+|---|---:|---|
+| Dominio conceptual | 6 | Explica con precisión, distingue conceptos y reconoce límites |
+| Aplicación y demostración | 4 | Resuelve un caso y justifica la mejora |
+| Respuesta a una pregunta | 4 | Aplica lo aprendido a un caso diferente |
+| Organización y manejo oral | 4 | La secuencia, el ritmo y los apoyos permiten comprender |
+| Fuentes y atribución | 2 | Dos fuentes pertinentes y localizables |
+| Total | 20 | Dominio, aplicación y respuesta reúnen 14 puntos |
+
+Cada criterio recibe un nivel de 0 a 4: **4**, preciso y autónomo; **3**, correcto con una omisión menor; **2**, parcial y requiere apoyo; **1**, evidencia mínima o un error importante; **0**, sin evidencia evaluable. El puntaje se calcula como **máximo del criterio × nivel / 4**. Para fuentes, el nivel 4 requiere dos fuentes pertinentes y localizables; el nivel 2 puede corresponder a una fuente pertinente.
+
+Se admiten apoyos y medios de comunicación acordados. No se califica la extroversión, el acento, la apariencia ni el contacto visual constante. La pregunta evalúa el aprendizaje anunciado, con dificultad semejante entre participantes.
+
 ## Entrega final
 
 Una propuesta de 250–350 palabras, dos evidencias con procedencia y límites, un correo de 80–120 palabras, cartel o máximo tres diapositivas y exposición de cuatro minutos por equipo más un minuto de preguntas. Todos explican una parte sustantiva. La entrega es en clase; estas páginas no reciben archivos ni guardan calificaciones.
 
+
+## Portafolio individual — 30 puntos
 
 Aplicar a cada E1–E6 la misma escala de cinco puntos:
 
@@ -32,9 +52,11 @@ Aplicar a cada E1–E6 la misma escala de cinco puntos:
 
 No restar por no tener impresión a color, video o aplicación. La ausencia de una evidencia se atiende con recuperación equivalente según los acuerdos escolares.
 
-## E. Proyecto final — 40 puntos
+## Proyecto final — 20 puntos del bloque
 
-### E1. Producto de equipo — 20 puntos
+Se conserva una rúbrica sobre 20 para cada parte. **Multiplica cada resultado por 0.5**: producto de equipo hasta 10 puntos y desempeño individual hasta 10 puntos. No se suman 40 puntos al bloque.
+
+### Producto de equipo — rúbrica sobre 20; aporta hasta 10 puntos
 
 Cinco criterios, cada uno de 0 a 4. Cada integrante recibe el mismo puntaje del producto. La contribución y el desempeño se valoran por separado.
 
@@ -48,7 +70,7 @@ Cinco criterios, cada uno de 0 a 4. Cada integrante recibe el mismo puntaje del 
 
 **0 en cualquier criterio:** no hay evidencia evaluable. Diferencias pequeñas de extensión o segundos se comentan sin sanción automática; importa si dificultan el propósito. Datos o citas inventados deben corregirse y no reciben crédito como evidencia.
 
-### E2. Desempeño individual — 20 puntos
+### Desempeño individual — rúbrica sobre 20; aporta hasta 10 puntos
 
 Cinco criterios, 0–4 cada uno. El docente lleva una fila por alumno. Para comprensión y respuesta puede combinar exposición y defensa escrita individual; la claridad oral debe observarse en su intervención.
 

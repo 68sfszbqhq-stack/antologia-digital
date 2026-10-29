@@ -1,19 +1,21 @@
 ---
 import Layout from './Layout.astro';
+import ExposicionesLengua from '../components/ExposicionesLengua.astro';
 import { semanas } from '../data/lengua/taller';
 import { temas } from '../data/lengua';
 import { u } from '../lib/url';
 import '../styles/taller-lengua.css';
 const { frontmatter } = Astro.props;
-const { title, description, semana } = frontmatter;
+const { title, description, semana, seccion } = frontmatter;
+const esExposiciones = seccion === 'exposiciones';
 const actual = semanas.find(s => s.numero === semana);
 const lecturas = actual ? temas.filter(t => actual.lecturas.includes(t.tema.slug)) : [];
 ---
 <Layout title={`${title} · Lengua y Comunicación`} description={description}>
-  <main class="taller-shell">
-    <nav class="taller-breadcrumb" aria-label="Ubicación"><a href={u('/lengua-y-comunicacion')}>Lengua y Comunicación</a><span aria-hidden="true"> / </span><span>{semana ? `Semana ${semana}` : 'Evaluación'}</span></nav>
+  <div class="taller-shell">
+    <nav class="taller-breadcrumb" aria-label="Ubicación"><a href={u('/lengua-y-comunicacion')}>Lengua y Comunicación</a><span aria-hidden="true"> / </span><span>{semana ? `Semana ${semana}` : esExposiciones ? 'Exposiciones' : 'Evaluación'}</span></nav>
     <header class="taller-heading">
-      <p class="taller-eyebrow">{semana ? `RETO ${semana} DE 6 · 120 MINUTOS` : 'CRITERIOS COMPARTIDOS'}</p>
+      <p class="taller-eyebrow">{semana ? `RETO ${semana} DE 6 · 120 MINUTOS` : esExposiciones ? 'EXPOSICIONES INDIVIDUALES · 5.º A' : 'CRITERIOS COMPARTIDOS'}</p>
       <h1>{title}</h1>
       <p class="taller-lead">{description}</p>
       {actual && <p class="taller-delivery"><strong>Esta semana entregarás:</strong> {actual.entrega}.</p>}
@@ -22,12 +24,13 @@ const lecturas = actual ? temas.filter(t => actual.lecturas.includes(t.tema.slug
       <aside class="taller-sidebar" aria-label="Ruta del taller">
         <p class="taller-eyebrow">TU RUTA</p>
         {semanas.map(s => <a href={u(`/lengua-y-comunicacion/semana-${s.numero}`)} aria-current={s.numero === semana ? 'page' : undefined}><span>{String(s.numero).padStart(2,'0')}</span>{s.titulo}</a>)}
-        <a href={u('/lengua-y-comunicacion/evaluacion')} aria-current={!semana ? 'page' : undefined}>Cómo se evalúa</a>
+        <a href={u('/lengua-y-comunicacion/exposiciones')} aria-current={esExposiciones ? 'page' : undefined}>Mi tema y turno</a>
+        <a href={u('/lengua-y-comunicacion/evaluacion')} aria-current={!semana && !esExposiciones ? 'page' : undefined}>Cómo se evalúa</a>
         <a href={u('/lengua-y-comunicacion/biblioteca')}>Biblioteca de consulta</a>
         <button class="taller-print" type="button" data-taller-print>Imprimir / guardar PDF</button>
       </aside>
       <div>
-        <article class="taller-prose"><slot /></article>
+        <article class="taller-prose">{semana && <ExposicionesLengua semana={semana} />}<slot /></article>
         {lecturas.length > 0 && <section class="taller-reading"><p class="taller-eyebrow">PARA PROFUNDIZAR</p><h2>Consulta la antología</h2><p>Amplía estas ideas con las lecturas y fuentes de la biblioteca.</p><ul>{lecturas.map(t => <li><a href={u(`/lengua-y-comunicacion/${t.tema.slug}`)}>{t.tema.titulo} →</a></li>)}</ul></section>}
         <nav class="taller-next" aria-label="Continuar el taller">
           <a href={u(semana > 1 ? `/lengua-y-comunicacion/semana-${semana-1}` : '/lengua-y-comunicacion')}>← {semana > 1 ? 'Semana anterior' : 'Vista general'}</a>
@@ -35,7 +38,7 @@ const lecturas = actual ? temas.filter(t => actual.lecturas.includes(t.tema.slug
         </nav>
       </div>
     </div>
-  </main>
+  </div>
 </Layout>
 <script>
   document.addEventListener('click', (event) => {

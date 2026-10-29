@@ -1,0 +1,19 @@
+---
+import { exposiciones, agenda } from '../data/lengua/exposiciones';
+import { u } from '../lib/url';
+const { semana, completa = false } = Astro.props;
+const grupo = exposiciones.filter(e => e.semana === semana);
+const horario = agenda.find(a => a.semana === semana);
+---
+<section class="expo-week" id={`exposiciones-semana-${semana}`} data-expo-group>
+  <div class="expo-week-heading">
+    <div><p class="taller-eyebrow">{completa ? `SEMANA ${semana}` : 'EXPOSICIONES DE ESTA SEMANA'}</p><h2>{grupo.length ? `${grupo.length} turnos individuales · ${grupo.length * 6} minutos` : 'Aplicación en el proyecto final'}</h2></div>
+    {completa ? <a href={u(`/lengua-y-comunicacion/semana-${semana}`)}>Ir a la sesión →</a> : <a href={u('/lengua-y-comunicacion/exposiciones')}>Ver todo el reparto →</a>}
+  </div>
+  {grupo.length > 0 ? <ol class="expo-list" start={grupo[0].numero}>{grupo.map(e => <li value={e.numero} data-expo-item data-search={`${e.nombre} ${e.tema}`} id={`turno-${e.numero}`}>
+    <div class="expo-person"><span class="expo-order">{String(e.numero).padStart(2,'0')}</span><h3>{e.nombre}</h3></div>
+    <p class="expo-topic">{e.tema}</p>
+    <p class="expo-demo"><strong>Demuestra:</strong> {e.demostracion}</p>
+  </li>)}</ol> : <p>Todos participan en su equipo y responden individualmente sobre su aprendizaje. Esta sesión no añade temas nuevos de exposición.</p>}
+  {!completa && horario && <details class="expo-agenda"><summary>Así se distribuyen los 120 minutos</summary><table><thead><tr><th>Minutos</th><th>Actividad</th></tr></thead><tbody>{horario.bloques.map(b => <tr><td>{b.inicio}–{b.fin}</td><td>{b.actividad}</td></tr>)}</tbody></table></details>}
+</section>
