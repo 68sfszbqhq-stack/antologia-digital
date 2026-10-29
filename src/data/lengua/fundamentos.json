@@ -1,0 +1,1215 @@
+{
+  "fechaRevision": "2026-10-28",
+  "fuentes": {
+    "proposito": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 13.3 Purpose and Occasion",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/purpose-and-occasion/"
+    },
+    "audiencia": {
+      "titulo": "University of North Texas · Audience",
+      "url": "https://openbooks.library.unt.edu/writeandcommunicate/chapter/audience/"
+    },
+    "significado": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 10.4 Levels of Meaning",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/levels-of-meaning/"
+    },
+    "proceso": {
+      "titulo": "OpenStax · 13.2 The Communication Process",
+      "url": "https://openstax.org/books/principles-marketing/pages/13-2-the-communication-process"
+    },
+    "cultura": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 15.7 Learning About Culture From the Source",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/learning-about-culture-from-the-source/"
+    },
+    "gestos": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 12.3 Is “Body Language” a Language?",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/is-body-language-a-language-2/"
+    },
+    "escucha": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 4.4 Becoming A Better Listener",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/h1-becoming-a-better-listener/"
+    },
+    "preguntas": {
+      "titulo": "UC Berkeley, Greater Good in Action · Active Listening",
+      "url": "https://ggia.berkeley.edu/practice/Active_listening"
+    },
+    "empatia": {
+      "titulo": "Johns Hopkins University · How to be an active and empathetic listener",
+      "url": "https://wellbeing.jhu.edu/blog/2020/10/01/how-to-be-an-active-and-empathetic-listener/"
+    },
+    "asertividad": {
+      "titulo": "Centre for Clinical Interventions · Assertiveness",
+      "url": "https://www.cci.health.wa.gov.au/en/Resources/Looking-After-Yourself/Assertiveness"
+    },
+    "feedback": {
+      "titulo": "Education Endowment Foundation (2021) · Teacher Feedback to Improve Pupil Learning",
+      "url": "https://educationendowmentfoundation.org.uk/education-evidence/guidance-reports/feedback"
+    },
+    "crisis": {
+      "titulo": "CDC · Crisis & Emergency Risk Communication Manual",
+      "url": "https://www.cdc.gov/cerc/php/cerc-manual/index.html"
+    },
+    "negociar": {
+      "titulo": "Harvard, Program on Negotiation · Principled Negotiation: Focus on Interests to Create Value",
+      "url": "https://www.pon.harvard.edu/daily/negotiation-skills-daily/principled-negotiation-focus-interests-create-value/"
+    },
+    "argumento": {
+      "titulo": "OpenStax · 10.3 Thesis, Reasoning, and Evidence",
+      "url": "https://openstax.org/books/writing-guide/pages/10-3-glance-at-genre-thesis-reasoning-and-evidence"
+    },
+    "fuentes": {
+      "titulo": "McGrew y Breakstone (2023) · Civic Online Reasoning Across the Curriculum",
+      "url": "https://doi.org/10.1177/23328584231176451"
+    },
+    "citas": {
+      "titulo": "Purdue OWL · Quoting, Paraphrasing, and Summarizing",
+      "url": "https://owl.purdue.edu/owl/research_and_citation/using_research/quoting_paraphrasing_and_summarizing/index.html"
+    },
+    "ia": {
+      "titulo": "Fengchun Miao y Wayne Holmes, UNESCO (2023) · Guidance for generative AI in education and research",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research"
+    },
+    "falacias": {
+      "titulo": "Purdue OWL · Logical Fallacies",
+      "url": "https://owl.purdue.edu/owl/general_writing/academic_writing/logic_in_argumentative_writing/fallacies.html"
+    },
+    "parrafos": {
+      "titulo": "Purdue OWL · On Paragraphs",
+      "url": "https://owl.purdue.edu/owl/general_writing/academic_writing/paragraphs_and_paragraphing/index.html"
+    },
+    "correo": {
+      "titulo": "Purdue OWL · Email Etiquette",
+      "url": "https://owl.purdue.edu/owl/general_writing/academic_writing/email_etiquette.html"
+    },
+    "canales": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 18.3 Dimensions of Media",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/dimensions-of-media/"
+    },
+    "privacidad": {
+      "titulo": "Agencia de Ciberseguridad de Cataluña · Exposición de menores en Internet",
+      "url": "https://ciberseguretat.gencat.cat/es/ciutadania/proteccio-de-menors/exposicio-de-menors-a-internet"
+    },
+    "visual": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 14.7 Using Visual Media",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/using-visual-media/"
+    },
+    "huella": {
+      "titulo": "Agencia de Ciberseguridad de Cataluña · Huella digital",
+      "url": "https://ciberseguretat.gencat.cat/es/ciutadania/privacitat-i-dades/petjada-digital"
+    },
+    "estructura": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 13.6 Structure and Theme",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/structure-and-theme/"
+    },
+    "historia": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 11.5 How To Tell A Good Story",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/how-to-tell-a-good-story/"
+    },
+    "voz": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 14.5 Vocal Delivery",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/vocal-delivery/"
+    },
+    "nervios": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 14.3 Anxiety-Reducing Techniques",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/anxiety-reducing-techniques/"
+    },
+    "improvisar": {
+      "titulo": "Jeremy Rose (2025), Communication in Practice · 14.4 Delivery Modes",
+      "url": "https://open.lib.umn.edu/commpractice/chapter/delivery-modes/"
+    },
+    "sintesis": {
+      "titulo": "Harvard Guide to Using Sources · Summarizing, Paraphrasing, and Quoting",
+      "url": "https://usingsources.fas.harvard.edu/summarizing-paraphrasing-and-quoting"
+    }
+  },
+  "temas": [
+    {
+      "numero": 1,
+      "pregunta": "¿Quieres que te escuchen, que comprendan o que hagan algo?",
+      "base": "La intención comunicativa es el propósito que orienta un mensaje. Rose distingue discursos informativos y persuasivos, entre otros. En este taller separamos además explicar: informar comunica datos; explicar hace comprensible una relación o un procedimiento; persuadir propone aceptar una postura o actuar mediante razones. Pueden combinarse, pero conviene identificar el propósito principal. Una audiencia puede interpretar algo distinto de lo que pretendía el emisor: el resultado se comprueba, no se supone.",
+      "conceptos": [
+        {
+          "termino": "Informar",
+          "definicion": "Comunicar qué ocurre con datos relevantes."
+        },
+        {
+          "termino": "Explicar",
+          "definicion": "Mostrar cómo o por qué sucede algo."
+        },
+        {
+          "termino": "Persuadir",
+          "definicion": "Sostener una propuesta con razones que la audiencia pueda examinar."
+        }
+      ],
+      "pasos": [
+        "Completa: al terminar, mi audiencia podrá…",
+        "Selecciona datos, relaciones o argumentos según ese propósito.",
+        "Pide una respuesta observable: identificar el dato, explicar el proceso o valorar la propuesta."
+      ],
+      "caso": "Caso ficticio: «La biblioteca abre a las 8» informa. «El préstamo se registra para saber qué ejemplares están disponibles» explica. «Propongo ampliar el préstamo al viernes porque permitiría terminar la lectura semanal» busca persuadir.",
+      "analisis": "El asunto es el mismo; cambian la selección de información y la respuesta esperada. La última frase necesita comprobar que esa ampliación es viable: querer convencer no autoriza a inventar evidencia.",
+      "error": "Confundir hablar mucho de un tema con tener un propósito claro. Evita anunciar «voy a hablar de la biblioteca» sin precisar qué debe comprender el público.",
+      "reto": "Escribe tres mensajes sobre una entrega escolar: uno informativo, uno explicativo y uno persuasivo. Subraya qué palabras permiten distinguirlos.",
+      "orientacion": "Una respuesta sólida presenta fecha y producto; después explica el procedimiento; finalmente propone una mejora y la sostiene con una razón. Los tres conservan los mismos hechos.",
+      "defensa": "¿Cómo comprobarías que lograste explicar y no sólo que diste información?",
+      "fuentes": [
+        "proposito",
+        "audiencia"
+      ]
+    },
+    {
+      "numero": 2,
+      "pregunta": "¿Explicarías de la misma forma a alguien que apenas conoce el tema?",
+      "base": "El análisis de audiencia permite ajustar la comunicación a lo que otros saben, necesitan y pueden hacer con el mensaje. El manual de University of North Texas distingue escribir desde lo que entiende quien redacta y escribir pensando en quien recibe. Adaptar significa cambiar vocabulario, ejemplos, profundidad y orden; no modificar los hechos. La edad o el cargo ofrecen pistas insuficientes: conviene preguntar y observar la comprensión real.",
+      "conceptos": [
+        {
+          "termino": "Audiencia",
+          "definicion": "Personas que recibirán e interpretarán el mensaje."
+        },
+        {
+          "termino": "Conocimiento previo",
+          "definicion": "Ideas y experiencias desde las que pueden comprenderlo."
+        },
+        {
+          "termino": "Necesidad informativa",
+          "definicion": "Lo que requieren saber para entender o decidir."
+        }
+      ],
+      "pasos": [
+        "Anota qué sabe tu público y qué necesita resolver.",
+        "Define una palabra técnica con un ejemplo cercano.",
+        "Comprueba comprensión pidiendo que apliquen la idea a otro caso."
+      ],
+      "caso": "Caso ficticio: a un compañero le explicas una encuesta como «preguntar a varias personas con las mismas preguntas». Ante dirección agregas objetivo, selección de participantes y límites de los resultados.",
+      "analisis": "Las dos versiones conservan qué es una encuesta. La segunda incorpora información que una autoridad necesita para valorar una decisión, sin descalificar la capacidad del compañero.",
+      "error": "Usar estereotipos: «los jóvenes sólo entienden memes» o «una autoridad exige palabras difíciles». La adecuación depende de una necesidad concreta.",
+      "reto": "Explica qué es una fuente confiable en 40 palabras para un estudiante nuevo y en 70 para el comité que revisa un proyecto.",
+      "orientacion": "Conserva autoría, evidencia y posibilidad de comprobación en ambas versiones. Cambia el ejemplo y añade criterios de revisión para el comité.",
+      "defensa": "¿Qué parte mantuviste idéntica y cuál cambiaste por la audiencia?",
+      "fuentes": [
+        "audiencia",
+        "proposito"
+      ]
+    },
+    {
+      "numero": 3,
+      "pregunta": "¿Qué significa exactamente «entrégalo bien y pronto»?",
+      "base": "La semántica estudia el significado; una barrera semántica aparece cuando las personas asignan sentidos diferentes a una palabra o expresión. La ambigüedad permite más de una interpretación. Rose explica que el significado literal convive con implicaciones y relaciones entre hablantes. Comprender exige atender al contexto y aclarar referencias. Un mensaje puede oírse perfectamente y seguir siendo incomprensible porque su vocabulario o su alcance no están definidos.",
+      "conceptos": [
+        {
+          "termino": "Ambigüedad",
+          "definicion": "Posibilidad de interpretar un mensaje de varias maneras."
+        },
+        {
+          "termino": "Referente",
+          "definicion": "Persona, objeto o situación a la que apunta una expresión."
+        },
+        {
+          "termino": "Precisión",
+          "definicion": "Información suficiente para distinguir la acción esperada."
+        }
+      ],
+      "pasos": [
+        "Marca palabras vagas y pronombres sin referente claro.",
+        "Sustituye cada una por una acción, objeto o criterio observable.",
+        "Pide al receptor que diga qué hará con la instrucción."
+      ],
+      "caso": "Caso ficticio: «Mándaselo pronto» se transforma en «Envía el borrador de tu exposición al docente por el canal acordado antes del jueves a las 18:00; incluye título y dos fuentes».",
+      "analisis": "La mejora aclara producto, destinatario, medio, fecha y contenido. No hace falta añadir detalles sin función; la precisión responde a las dudas que impedirían actuar.",
+      "error": "Creer que repetir la misma palabra más fuerte resuelve una diferencia de significado. Define o ejemplifica lo que falta.",
+      "reto": "Reescribe «Eso está mal, arréglalo para después» como retroalimentación que un compañero pueda aplicar.",
+      "orientacion": "Por ejemplo: «El segundo párrafo no identifica la fuente del dato. Añade autor y enlace antes del ensayo del viernes». Explica qué información agregaste.",
+      "defensa": "¿Cómo distinguirías una barrera semántica de una falla de audio?",
+      "fuentes": [
+        "significado",
+        "proceso"
+      ]
+    },
+    {
+      "numero": 4,
+      "pregunta": "¿Qué haces si se corta el audio justo en la idea más importante?",
+      "base": "El modelo de comunicación presentado por OpenStax relaciona emisor, mensaje, canal, receptor, codificación, interpretación y retroalimentación. El ruido es una interferencia: puede impedir que llegue una señal o dificultar comprenderla. La retroalimentación ofrece indicios de recepción, pero un «sí» no garantiza comprensión. Para recuperar un mensaje hay que localizar la falla, restaurar lo esencial y verificar qué entendió el receptor.",
+      "conceptos": [
+        {
+          "termino": "Canal",
+          "definicion": "Medio utilizado para transmitir el mensaje."
+        },
+        {
+          "termino": "Ruido técnico",
+          "definicion": "Interferencia como audio entrecortado o imagen ilegible."
+        },
+        {
+          "termino": "Retroalimentación",
+          "definicion": "Respuesta que permite revisar cómo se recibió el mensaje."
+        }
+      ],
+      "pasos": [
+        "Pregunta qué parte se perdió, sin reiniciar todo automáticamente.",
+        "Recupera la idea con otro recurso: voz, pizarra o ficha impresa.",
+        "Pide que alguien reconstruya la instrucción o la idea clave."
+      ],
+      "caso": "Caso ficticio: el proyector deja de funcionar durante un gráfico. Dices: «La comparación era entre 12 y 18 respuestas; la diferencia es de seis». Escribes las cifras y señalas qué representaba cada grupo.",
+      "analisis": "La recuperación conserva datos y significado. Describir solamente «la barra azul» sería inútil si nadie puede ver la gráfica; también hacen falta categorías y unidades.",
+      "error": "Culpar de inmediato al público por no poner atención. Primero identifica si la información era audible, visible y accesible.",
+      "reto": "Ensaya 45 segundos de tu tema sin diapositivas. Un compañero interrumpe con «se perdió la última idea» y debes recuperarla en 15 segundos.",
+      "orientacion": "Se logra si puedes decir la idea central con palabras propias y comprobarla con una pregunta específica, sin depender del archivo.",
+      "defensa": "¿Qué información mínima debe sobrevivir si falla tu recurso principal?",
+      "fuentes": [
+        "proceso",
+        "visual"
+      ]
+    },
+    {
+      "numero": 5,
+      "pregunta": "¿Un silencio significa lo mismo para todas las personas?",
+      "base": "El contexto cultural incluye prácticas, expectativas y formas de relación que influyen en la interpretación. Rose invita a revisar desde qué perspectivas se describe una cultura y a escuchar a quienes participan en ella. Ninguna persona representa por sí sola a todo un país o grupo. Ante un malentendido conviene separar lo observado de la explicación que suponemos y preguntar por el significado en esa situación.",
+      "conceptos": [
+        {
+          "termino": "Contexto",
+          "definicion": "Circunstancias que ayudan a interpretar un mensaje."
+        },
+        {
+          "termino": "Expectativa cultural",
+          "definicion": "Forma de actuar aprendida en una comunidad."
+        },
+        {
+          "termino": "Estereotipo",
+          "definicion": "Generalización rígida aplicada a una persona por su pertenencia a un grupo."
+        }
+      ],
+      "pasos": [
+        "Describe la conducta sin evaluarla: guardó silencio diez segundos.",
+        "Propón al menos dos explicaciones posibles.",
+        "Pregunta con respeto y acuerda cómo comunicarse en ese equipo."
+      ],
+      "caso": "Caso ficticio: una compañera no contradice al coordinador durante la reunión, pero después plantea una duda. El equipo supone desinterés; ella explica que prefirió esperar a que terminara la intervención.",
+      "analisis": "El comportamiento observado era el silencio, no el desinterés. Acordar turnos explícitos ayuda más que asignarle una característica a su familia, localidad o nacionalidad.",
+      "error": "Convertir una tendencia cultural en regla universal. También influyen personalidad, situación, experiencias y relaciones de poder.",
+      "reto": "Inventa un malentendido por saludo, horario o turno de palabra. Escribe una observación neutral y dos preguntas de aclaración.",
+      "orientacion": "Las preguntas deben permitir que la persona explique su perspectiva: «¿Cómo prefieres que organicemos los turnos?» funciona mejor que «¿Por qué ustedes nunca participan?».",
+      "defensa": "¿Qué dato necesitarías antes de atribuir un conflicto a diferencias culturales?",
+      "fuentes": [
+        "cultura",
+        "gestos"
+      ]
+    },
+    {
+      "numero": 6,
+      "pregunta": "¿Puedes saber lo que alguien piensa sólo por cruzar los brazos?",
+      "base": "La comunicación no verbal comprende recursos como gestos, postura, mirada, distancia y cualidades de la voz. Puede acompañar, regular o matizar lo dicho. Rose advierte que muchos gestos tienen varios significados posibles y carecen de una interpretación universal. Por eso un gesto aislado no prueba mentira, desinterés ni seguridad. Al exponer, interesa que los recursos faciliten comprender, respetando diferencias corporales, culturales y de accesibilidad.",
+      "conceptos": [
+        {
+          "termino": "Gesto",
+          "definicion": "Movimiento corporal que puede acompañar un mensaje."
+        },
+        {
+          "termino": "Postura",
+          "definicion": "Disposición del cuerpo en una situación."
+        },
+        {
+          "termino": "Congruencia",
+          "definicion": "Relación entre recursos expresivos y el sentido que se quiere comunicar."
+        }
+      ],
+      "pasos": [
+        "Elige una idea que necesite señalar tamaño, orden o contraste.",
+        "Acompáñala con un recurso corporal cómodo y comprensible.",
+        "Pregunta qué ayudó a entender; no pidas que adivinen emociones."
+      ],
+      "caso": "Caso ficticio: para explicar tres etapas, señalas tres posiciones en una hoja. Después repites la explicación tapando la hoja con el cuerpo. El grupo compara cuál versión permitió seguir el proceso.",
+      "analisis": "La diferencia evaluable es el acceso al contenido. No se califica si el expositor tiene una personalidad extrovertida ni se exige mantener una mirada fija.",
+      "error": "Presentar porcentajes universales sobre cuánto comunica el cuerpo o usar gestos como detectores de mentiras. Una observación necesita contexto.",
+      "reto": "Describe tres posibles razones por las que alguien evita mirar al expositor. Después diseña una forma de comprobar comprensión sin juzgar su postura.",
+      "orientacion": "Puede estar tomando notas, pensando o sentirse incómodo. Pedir una explicación breve del concepto da evidencia más pertinente que interpretar su mirada.",
+      "defensa": "¿Cómo evaluarías el uso del cuerpo sin confundirlo con la personalidad?",
+      "fuentes": [
+        "gestos",
+        "voz"
+      ]
+    },
+    {
+      "numero": 7,
+      "pregunta": "¿Escuchaste su idea o sólo esperaste tu turno para responder?",
+      "base": "Escuchar activamente implica atender, elaborar el significado y comprobarlo. Rose distingue repetir palabras de reformular la idea con lenguaje propio. La paráfrasis oral devuelve lo entendido para que la otra persona lo confirme o corrija. No equivale a estar de acuerdo. Permite responder a lo que realmente se dijo y detectar diferencias antes de discutir una propuesta.",
+      "conceptos": [
+        {
+          "termino": "Atención",
+          "definicion": "Orientar el esfuerzo a comprender la intervención."
+        },
+        {
+          "termino": "Paráfrasis oral",
+          "definicion": "Reformular el sentido sin añadir una valoración propia."
+        },
+        {
+          "termino": "Verificación",
+          "definicion": "Permitir que el hablante confirme o corrija la interpretación."
+        }
+      ],
+      "pasos": [
+        "Deja terminar una idea y registra mentalmente su punto central.",
+        "Di «Si entendí bien…» y reformula sin exagerar.",
+        "Pregunta si falta algo antes de expresar tu postura."
+      ],
+      "caso": "Caso ficticio: «No puedo reunirme por la tarde, pero sí trabajar desde casa». Respuesta útil: «Puedes hacer una parte a distancia; lo difícil es coincidir por la tarde. ¿Es eso?».",
+      "analisis": "La respuesta distingue disponibilidad de desinterés. «Entonces no quieres ayudar» agrega una intención que no fue expresada y podría iniciar un conflicto innecesario.",
+      "error": "Repetir mecánicamente la última frase o introducir consejos antes de comprobar el sentido.",
+      "reto": "En pareja, una persona explica un problema ficticio de organización en 30 segundos. La otra lo parafrasea y recibe una corrección. Intercambien roles.",
+      "orientacion": "Comprueba que la paráfrasis conserva problema, posibilidad y límite. La persona escuchada debe poder corregirla sin que quien escucha se defienda.",
+      "defensa": "¿Cómo puedes demostrar comprensión aunque no estés de acuerdo?",
+      "fuentes": [
+        "escucha",
+        "preguntas"
+      ]
+    },
+    {
+      "numero": 8,
+      "pregunta": "¿Tu pregunta abre una conversación o ya contiene una acusación?",
+      "base": "Las preguntas sirven para precisar información, explorar razones y comprobar una interpretación. La práctica de escucha de UC Berkeley propone aclarar el sentido y evitar juicios precipitados. Una pregunta abierta permite desarrollar una respuesta; una cerrada acota o confirma un dato. Ninguna es siempre mejor: su utilidad depende de lo que falta saber. Una pregunta cargada introduce como cierto algo que aún no está demostrado.",
+      "conceptos": [
+        {
+          "termino": "Abierta",
+          "definicion": "Invita a explicar: «¿Qué dificultades encontraste?»."
+        },
+        {
+          "termino": "Cerrada",
+          "definicion": "Delimita una respuesta: «¿Entregaste la versión de hoy?»."
+        },
+        {
+          "termino": "De seguimiento",
+          "definicion": "Retoma algo dicho para profundizar o pedir un ejemplo."
+        }
+      ],
+      "pasos": [
+        "Identifica el dato que necesitas antes de preguntar.",
+        "Formula una pregunta por vez y deja espacio para responder.",
+        "Retoma la respuesta con una aclaración pertinente."
+      ],
+      "caso": "Caso ficticio: «¿Por qué nunca haces nada?» presupone incumplimiento permanente. «¿Qué parte del guion terminaste y qué obstáculo tienes con el resto?» permite conocer el avance.",
+      "analisis": "La segunda pregunta no elimina la responsabilidad; la vuelve verificable. Después puede cerrarse con «¿Puedes entregar esa parte mañana a las 12?».",
+      "error": "Encadenar cinco preguntas sin escuchar o pedir que alguien justifique una acusación presentada como hecho.",
+      "reto": "Convierte «¿No crees que mi propuesta es obviamente mejor?» en una pregunta abierta y otra para comparar opciones.",
+      "orientacion": "«¿Qué ventajas y límites ves en esta propuesta?» y «¿Cuál opción cumple mejor el tiempo disponible y por qué?» permiten una respuesta contraria a tu expectativa.",
+      "defensa": "¿Cuándo sería más útil una pregunta cerrada que una abierta?",
+      "fuentes": [
+        "preguntas",
+        "escucha"
+      ]
+    },
+    {
+      "numero": 9,
+      "pregunta": "¿Cómo decir una verdad incómoda sin minimizar lo que siente alguien?",
+      "base": "La empatía comunicativa busca comprender la perspectiva de otra persona y reconocer su experiencia sin afirmar que sabemos exactamente cómo se siente. Johns Hopkins propone evitar juicios y expresiones que bloquean la escucha. Aplicado a noticias escolares difíciles, esto exige claridad sobre el hecho y espacio para la reacción. Ser considerado no significa ocultar información, prometer soluciones imposibles ni aceptar cualquier conducta.",
+      "conceptos": [
+        {
+          "termino": "Perspectiva",
+          "definicion": "Forma en que alguien vive e interpreta una situación."
+        },
+        {
+          "termino": "Validación",
+          "definicion": "Reconocimiento de una experiencia sin convertirla en verdad universal."
+        },
+        {
+          "termino": "Claridad cuidadosa",
+          "definicion": "Comunicar un hecho comprensible con respeto por quien lo recibe."
+        }
+      ],
+      "pasos": [
+        "Elige un espacio adecuado y comunica el hecho sin rodeos crueles.",
+        "Escucha la respuesta y reconoce lo que la persona expresa.",
+        "Explica opciones reales y acuerda el siguiente paso."
+      ],
+      "caso": "Caso ficticio: «La sala no estará disponible y tenemos que cambiar el ensayo. Sé que ya organizaste tu horario. Podemos buscar otro espacio o ensayar por partes; ¿qué opción te funciona?».",
+      "analisis": "Se informa el cambio, se reconoce su impacto y se ofrecen alternativas posibles. «No es para tanto» evalúa desde fuera la importancia que tiene para la otra persona.",
+      "error": "Usar «sé exactamente cómo te sientes», inventar emociones o garantizar que todo saldrá bien.",
+      "reto": "Redacta un mensaje para avisar que un trabajo de equipo necesita una revisión importante. Incluye el problema y dos opciones viables.",
+      "orientacion": "Una buena respuesta identifica qué debe revisarse, reconoce el esfuerzo sin elogios vacíos y ofrece ayuda concreta sin hacer promesas que no puede cumplir.",
+      "defensa": "¿Cómo sostendrías un límite después de reconocer la molestia de alguien?",
+      "fuentes": [
+        "empatia",
+        "asertividad"
+      ]
+    },
+    {
+      "numero": 10,
+      "pregunta": "¿Puedes decir que no sin atacar ni desaparecer?",
+      "base": "La asertividad consiste en expresar una posición de manera clara y directa respetando a los demás, según el Centre for Clinical Interventions. Se diferencia de callar una necesidad por temor y de imponerla mediante agresión. Una petición propone una acción que puede discutirse; un límite indica lo que una persona puede o no hacer. La comunicación asertiva mejora la claridad, pero no garantiza que el otro acepte.",
+      "conceptos": [
+        {
+          "termino": "Petición",
+          "definicion": "Acción específica que solicitas a otra persona."
+        },
+        {
+          "termino": "Límite",
+          "definicion": "Condición o capacidad que comunicas con claridad."
+        },
+        {
+          "termino": "Desacuerdo",
+          "definicion": "Diferencia sobre una idea que puede expresarse sin atacar a quien la propone."
+        }
+      ],
+      "pasos": [
+        "Describe la situación sin etiquetas sobre la persona.",
+        "Expresa tu necesidad o límite en primera persona.",
+        "Solicita una acción concreta o plantea una alternativa realista."
+      ],
+      "caso": "Caso ficticio: «No puedo hacer también las conclusiones esta noche. Puedo revisar las fuentes durante 20 minutos. Necesitamos asignar las conclusiones a otra persona».",
+      "analisis": "El mensaje delimita capacidad y disponibilidad. No contiene insultos ni un consentimiento que después se incumplirá. La alternativa ayuda, pero no es obligatorio aceptar todas las tareas.",
+      "error": "Confundir asertividad con conseguir siempre lo que quieres o disfrazar una amenaza de petición amable.",
+      "reto": "Reescribe «Como siempre, me dejas todo» y «Está bien, yo hago todo» como una misma petición asertiva.",
+      "orientacion": "«Faltan las dos gráficas acordadas. Yo terminaré la introducción; necesito que confirmes cuál gráfica entregarás y a qué hora». Ajusta el ejemplo al reparto real.",
+      "defensa": "¿Qué harías si la otra persona responde que no puede aceptar tu petición?",
+      "fuentes": [
+        "asertividad",
+        "negociar"
+      ]
+    },
+    {
+      "numero": 11,
+      "pregunta": "¿Qué puede hacer alguien con el comentario «te faltó mejorar»?",
+      "base": "La retroalimentación relaciona un desempeño con una meta y orienta el siguiente intento. La guía de Education Endowment Foundation señala que su valor depende de que contribuya al aprendizaje y de planear cómo se utilizará; no basta con que sea escrita u oral. Aquí adaptamos ese principio a la revisión entre compañeros: observar una evidencia, vincularla con un criterio y proponer una acción realizable.",
+      "conceptos": [
+        {
+          "termino": "Criterio",
+          "definicion": "Aspecto compartido con el que se valora un trabajo."
+        },
+        {
+          "termino": "Evidencia de desempeño",
+          "definicion": "Algo que se puede señalar en el producto o la intervención."
+        },
+        {
+          "termino": "Siguiente paso",
+          "definicion": "Cambio concreto que el estudiante puede intentar y revisar."
+        }
+      ],
+      "pasos": [
+        "Elige un criterio: claridad, evidencia, estructura o aplicación.",
+        "Señala un fragmento específico y explica su efecto.",
+        "Propón una mejora y da oportunidad de probarla."
+      ],
+      "caso": "Caso ficticio: «Tu propuesta es clara, pero el dato de la segunda diapositiva no tiene fuente. Añade quién lo produjo y a qué grupo corresponde; luego revisa si permite sostener tu conclusión».",
+      "analisis": "La devolución no etiqueta al expositor como bueno o malo. Conecta un elemento observable con una acción que permitiría mejorar el argumento.",
+      "error": "Dar diez críticas simultáneas, elogiar sin especificar o convertir el comentario en un juicio sobre la inteligencia.",
+      "reto": "Revisa un párrafo ficticio que diga «todos prefieren trabajar solos». Escribe una devolución centrada en evidencia y alcance.",
+      "orientacion": "Puedes pedir que identifique quiénes respondieron y reemplace «todos» por una conclusión que corresponda a los datos disponibles. Después debe mostrar el párrafo corregido.",
+      "defensa": "¿Cómo sabrías si tu retroalimentación fue utilizada?",
+      "fuentes": [
+        "feedback",
+        "argumento"
+      ]
+    },
+    {
+      "numero": 12,
+      "pregunta": "¿Cómo informar cuando todavía no sabes todo lo que ocurrió?",
+      "base": "Comunicar un error requiere distinguir hechos confirmados, información pendiente y acciones. El manual CERC del CDC se diseñó para emergencias y recomienda precisión, credibilidad, empatía, respeto y orientación a la acción. En este taller trasladamos esos principios a avisos escolares sencillos; no estamos sustituyendo protocolos de emergencia. Admitir incertidumbre permite informar sin rellenar vacíos con rumores.",
+      "conceptos": [
+        {
+          "termino": "Hecho confirmado",
+          "definicion": "Información respaldada por una comprobación identificable."
+        },
+        {
+          "termino": "Incertidumbre",
+          "definicion": "Aspecto que todavía no se puede afirmar."
+        },
+        {
+          "termino": "Actualización",
+          "definicion": "Nueva información que corrige o completa el aviso anterior."
+        }
+      ],
+      "pasos": [
+        "Verifica el hecho con quien puede confirmarlo.",
+        "Redacta qué se sabe, qué falta y qué debe hacer la audiencia.",
+        "Indica quién actualizará el aviso y cuándo, si puedes cumplir ese plazo."
+      ],
+      "caso": "Caso ficticio: «El archivo enviado hoy no abre en los equipos que probamos. Aún revisamos la causa. Por ahora utilicen la copia impresa; a las 14:00 confirmaremos si hay una versión corregida».",
+      "analisis": "El aviso no afirma que hubo un ataque ni culpa a alguien sin evidencia. Ofrece una acción útil mientras la causa se investiga.",
+      "error": "Reenviar un audio anónimo como prueba o prometer una solución inmediata que no depende de ti.",
+      "reto": "Redacta un aviso de 60 palabras sobre un cambio de aula aún pendiente de confirmación. Separa claramente lo confirmado de lo provisional.",
+      "orientacion": "Identifica el cambio confirmado, omite causas especulativas y señala el canal donde se publicará el aula definitiva. Si no hay plazo seguro, di cuándo se hará la siguiente revisión.",
+      "defensa": "¿Cómo corregirías públicamente un dato equivocado que tú difundiste?",
+      "fuentes": [
+        "crisis",
+        "fuentes"
+      ]
+    },
+    {
+      "numero": 13,
+      "pregunta": "¿Defienden soluciones distintas o necesitan cosas distintas?",
+      "base": "La negociación por principios desarrollada en el Harvard Negotiation Project distingue posiciones e intereses. La posición es lo que alguien pide; el interés es la necesidad que intenta atender. Explorar intereses permite proponer opciones y compararlas con criterios compartidos. Un acuerdo útil debe ser viable para quienes participan; aceptar por presión puede producir un compromiso que después no se cumple.",
+      "conceptos": [
+        {
+          "termino": "Posición",
+          "definicion": "Solución que una persona dice querer."
+        },
+        {
+          "termino": "Interés",
+          "definicion": "Necesidad o preocupación detrás de esa solución."
+        },
+        {
+          "termino": "Criterio compartido",
+          "definicion": "Referencia acordada para comparar opciones con cierta independencia de las preferencias."
+        }
+      ],
+      "pasos": [
+        "Pide a cada persona que explique qué necesita resolver.",
+        "Construyan dos opciones y compárenlas por tiempo, acceso y trabajo.",
+        "Registren acción, responsable, plazo y momento de revisión."
+      ],
+      "caso": "Caso ficticio: alguien pide reunión presencial y otro exige videollamada. Uno necesita probar el cartel y el otro no puede trasladarse. Acuerdan revisar el contenido por llamada y probar el cartel en la siguiente clase.",
+      "analisis": "La solución atiende ambos intereses al separar tareas. No consiste necesariamente en partir la diferencia por la mitad; depende de qué problema resuelve cada opción.",
+      "error": "Confundir negociar con ceder siempre o votar antes de entender por qué las opciones son distintas.",
+      "reto": "Dos integrantes quieren presentar la apertura del proyecto. Propón un acuerdo usando como criterios preparación, distribución de participación y continuidad del mensaje.",
+      "orientacion": "Podrían separar presentación del problema y explicación del caso, o elegir después de un ensayo con el mismo criterio. Deben acordar cómo revisar el resultado.",
+      "defensa": "¿Qué harías si ninguna opción permite cumplir los intereses mínimos de ambos?",
+      "fuentes": [
+        "negociar",
+        "asertividad"
+      ]
+    },
+    {
+      "numero": 14,
+      "pregunta": "¿Lo observaste, lo valoraste o lo dedujiste?",
+      "base": "Para evaluar un mensaje conviene distinguir el tipo de afirmación. Un enunciado factual pretende describir algo verificable; no se vuelve verdadero sólo por sonar objetivo. Una opinión expresa una valoración. Una inferencia obtiene una conclusión a partir de indicios y puede requerir más comprobación. Esta distinción permite aplicar la exigencia de evidencia que desarrolla OpenStax al argumentar y evitar generalizaciones como las que analiza Purdue OWL.",
+      "conceptos": [
+        {
+          "termino": "Enunciado factual",
+          "definicion": "Afirmación que puede contrastarse con registros u observaciones."
+        },
+        {
+          "termino": "Opinión",
+          "definicion": "Juicio basado en preferencias o criterios que deben explicitarse."
+        },
+        {
+          "termino": "Inferencia",
+          "definicion": "Conclusión razonada a partir de información previa."
+        }
+      ],
+      "pasos": [
+        "Pregunta qué tipo de afirmación tienes delante.",
+        "Identifica el registro, criterio o razonamiento que la sostiene.",
+        "Reformula con el grado de certeza y alcance que puedes justificar."
+      ],
+      "caso": "Caso ficticio: «La entrega se registró a las 18:12» es verificable. «Ese horario es injusto» es una valoración. «Llegó tarde porque no le interesaba» atribuye una causa que el horario no demuestra.",
+      "analisis": "Una inferencia puede ser razonable o débil. Aquí existen otras causas posibles, como un problema de conexión; hace falta evidencia adicional antes de atribuir una intención.",
+      "error": "Confundir «es mi opinión» con una protección contra toda crítica, o tratar cualquier cifra como prueba suficiente.",
+      "reto": "Clasifica: «Respondieron 12 personas», «La encuesta es muy aburrida» y «Todo el grupo está inconforme porque seis personas se quejaron». Explica qué revisarías.",
+      "orientacion": "El primero requiere el registro; el segundo, un criterio de valoración; el tercero generaliza a partir de evidencia limitada y necesita revisar a quiénes representa.",
+      "defensa": "¿Puede una opinión estar bien fundamentada y un enunciado factual ser falso?",
+      "fuentes": [
+        "argumento",
+        "falacias"
+      ]
+    },
+    {
+      "numero": 15,
+      "pregunta": "¿Tu razón realmente sostiene lo que propones?",
+      "base": "Un argumento conecta una afirmación discutible con razones y evidencia. OpenStax explica que una postura necesita sustento y atención a posibles objeciones. La evidencia no habla por sí sola: hay que explicar qué permite concluir y bajo qué condiciones. La credibilidad de quien habla, la conexión emocional y la lógica pueden influir en la audiencia, pero una presentación convincente no sustituye la comprobación.",
+      "conceptos": [
+        {
+          "termino": "Tesis",
+          "definicion": "Postura central que se busca sostener."
+        },
+        {
+          "termino": "Razón",
+          "definicion": "Explicación de por qué debería aceptarse la tesis."
+        },
+        {
+          "termino": "Evidencia",
+          "definicion": "Información pertinente que respalda o cuestiona una razón."
+        }
+      ],
+      "pasos": [
+        "Escribe una propuesta concreta que alguien podría discutir.",
+        "Añade una razón, una evidencia y la explicación de su relación.",
+        "Plantea una objeción y reconoce qué límites tiene tu respuesta."
+      ],
+      "caso": "Caso ficticio: «Propongo ensayar una vez antes de exponer: permite detectar problemas de tiempo. En nuestro ensayo de hoy duramos siete minutos, tres más que el turno disponible. Por eso recortaremos dos ejemplos».",
+      "analisis": "El dato es pertinente para ese equipo y esa exposición. No demuestra que todos los grupos mejoren siempre con exactamente un ensayo; sustenta una decisión acotada.",
+      "error": "Pegar una estadística junto a una opinión sin explicar la relación o usar «lo dice alguien famoso» como única prueba.",
+      "reto": "Construye un argumento para mejorar un aviso escolar. Incluye evidencia ficticia claramente etiquetada y una objeción razonable.",
+      "orientacion": "El aviso podría necesitar una fecha explícita porque en una prueba simulada tres lectores interpretaron fechas distintas. Una objeción sobre longitud se responde redactando con precisión, no omitiendo la fecha.",
+      "defensa": "¿Qué evidencia te haría modificar tu propuesta?",
+      "fuentes": [
+        "argumento",
+        "fuentes"
+      ]
+    },
+    {
+      "numero": 16,
+      "pregunta": "¿Una página que parece profesional basta para confiar en ella?",
+      "base": "La lectura lateral consiste en salir de una página para investigar quién está detrás y contrastar sus afirmaciones con otras fuentes. McGrew y Breakstone estudian su enseñanza dentro del razonamiento cívico en línea. El aspecto visual o aparecer primero en un buscador no basta para valorar credibilidad. También importa el alcance del dato: una observación de pocos voluntarios describe a esos participantes y no representa automáticamente a toda una población.",
+      "conceptos": [
+        {
+          "termino": "Autoría",
+          "definicion": "Persona o institución responsable de la información."
+        },
+        {
+          "termino": "Lectura lateral",
+          "definicion": "Contrastar una fuente consultando información externa sobre ella."
+        },
+        {
+          "termino": "Alcance",
+          "definicion": "Grupo, periodo y condiciones a los que una conclusión puede aplicarse."
+        }
+      ],
+      "pasos": [
+        "Localiza autor, fecha, propósito y evidencia original.",
+        "Busca qué dicen fuentes independientes sobre la afirmación.",
+        "Revisa población, muestra, pregunta y límites antes de generalizar."
+      ],
+      "caso": "Caso ficticio: ocho voluntarios de 5.º A prefieren entregar en papel. El aviso «todo bachillerato rechaza las entregas digitales» excede el dato. «Ocho voluntarios consultados prefieren papel» sí describe el resultado.",
+      "analisis": "El problema no es que ocho respuestas carezcan de valor: pueden orientar preguntas iniciales. El error es atribuirles representatividad que no se ha demostrado.",
+      "error": "Elegir una fuente porque confirma tu postura, contar enlaces duplicados como confirmaciones independientes o citar un resumen sin localizar el original.",
+      "reto": "Compara dos páginas sobre un mismo tema. Registra quién publica, qué evidencia ofrece, cuándo y qué otra fuente confirma o contradice la afirmación.",
+      "orientacion": "Concluye cuál sirve para tu pregunta concreta y qué no permite asegurar. Si ambas repiten la misma nota, registra que tienen un solo origen informativo.",
+      "defensa": "¿Por qué muchas publicaciones de la misma cifra pueden seguir siendo una sola fuente?",
+      "fuentes": [
+        "fuentes",
+        "falacias"
+      ]
+    },
+    {
+      "numero": 17,
+      "pregunta": "¿Cambiar algunas palabras ya convierte una idea ajena en propia?",
+      "base": "Purdue OWL distingue cita, paráfrasis y resumen. La cita conserva palabras exactas y las identifica como ajenas; la paráfrasis reconstruye una idea con una formulación propia; el resumen selecciona sus puntos centrales. Los tres requieren reconocer la procedencia de las ideas utilizadas. Sustituir palabras por sinónimos dejando intacta la estructura no demuestra comprensión. La atribución permite que otra persona encuentre y examine el material original.",
+      "conceptos": [
+        {
+          "termino": "Cita directa",
+          "definicion": "Reproducción exacta, delimitada y atribuida."
+        },
+        {
+          "termino": "Paráfrasis",
+          "definicion": "Reformulación fiel de una idea con estructura y palabras propias."
+        },
+        {
+          "termino": "Referencia",
+          "definicion": "Datos que permiten localizar la fuente utilizada."
+        }
+      ],
+      "pasos": [
+        "Lee, aparta el original y escribe lo que comprendiste.",
+        "Compara tu versión: conserva sentido, condiciones y alcance.",
+        "Añade autor o institución, título, fecha disponible y enlace; en una cita, localizador cuando exista."
+      ],
+      "caso": "Texto ficticio del Comité de Biblioteca: «Durante el recreo se prestaron quince libros». Copia maquillada: «En el recreo fueron prestados quince libros». Paráfrasis atribuida: «El Comité de Biblioteca registró 15 préstamos en el periodo de descanso».",
+      "analisis": "La última versión conserva dato, periodo y responsable. Para una fuente real faltaría identificar el documento y su fecha. El texto ficticio sólo sirve para practicar; no es una evidencia sobre la escuela.",
+      "error": "Presentar a un buscador o a una IA como autor del documento que encontraste, o atribuir a una fuente una conclusión que no sostiene.",
+      "reto": "Elige dos oraciones de una fuente del tema. Haz una paráfrasis y un resumen; agrega la referencia y explica qué conservaste.",
+      "orientacion": "La paráfrasis mantiene el contenido específico; el resumen reduce a la idea esencial. Ninguno agrega causas, certezas o resultados ausentes del original.",
+      "defensa": "¿Por qué debes citar una idea aunque la expliques con tus palabras?",
+      "fuentes": [
+        "citas",
+        "sintesis"
+      ]
+    },
+    {
+      "numero": 18,
+      "pregunta": "¿Puedes defender una respuesta de IA sin volver a preguntarle a la IA?",
+      "base": "La IA generativa produce respuestas a partir de patrones aprendidos y de la información disponible en la interacción; una redacción fluida no asegura verdad ni comprensión. La guía de UNESCO propone conservar la agencia humana y validar el uso educativo de estas herramientas. En este curso, aprender con IA implica decidir qué ayuda necesitas, comprobar afirmaciones y asumir la responsabilidad de lo que entregas. Una referencia generada debe localizarse y leerse.",
+      "conceptos": [
+        {
+          "termino": "Agencia humana",
+          "definicion": "Capacidad de decidir y revisar el proceso de aprendizaje."
+        },
+        {
+          "termino": "Verificación",
+          "definicion": "Contrastar una afirmación con evidencia localizable."
+        },
+        {
+          "termino": "Transparencia de uso",
+          "definicion": "Explicar para qué se utilizó la herramienta y qué se modificó."
+        }
+      ],
+      "pasos": [
+        "Pide apoyo delimitado: preguntas de práctica, alternativas o crítica de un borrador.",
+        "Separa afirmaciones comprobables y busca sus fuentes originales.",
+        "Corrige, reescribe y explica qué aprendiste y qué ayuda recibiste."
+      ],
+      "caso": "Caso ficticio: una IA afirma «el 93% de cualquier mensaje es corporal». Antes de usarlo, revisas una fuente académica sobre comunicación no verbal y retiras esa generalización. Conservas una explicación contextual y verificable.",
+      "analisis": "La revisión cambia el producto y muestra criterio. Escribir «verificado con otra IA» no sustituye una fuente: dos herramientas pueden repetir el mismo error.",
+      "error": "Entregar un texto que no puedes explicar, inventar bibliografía o introducir datos personales de compañeros en una consulta.",
+      "reto": "Pide a una IA tres posibles preguntas sobre tu exposición —o usa preguntas de un compañero si no tienes acceso—. Responde una con apoyo en una fuente real y registra tu revisión.",
+      "orientacion": "Entrega una nota breve: ayuda recibida, afirmación revisada, fuente consultada y cambio realizado. Debes poder resolver una pregunta nueva sin depender de la herramienta.",
+      "defensa": "¿Qué harías si una respuesta parece convincente pero no encuentras evidencia que la respalde?",
+      "fuentes": [
+        "ia",
+        "fuentes"
+      ]
+    },
+    {
+      "numero": 19,
+      "pregunta": "¿Refutaste la idea o sólo atacaste a quien la dijo?",
+      "base": "Una objeción cuestiona una razón, una evidencia, un supuesto o una consecuencia. Una falacia es un error de razonamiento que debilita la relación entre premisas y conclusión. Purdue OWL describe, entre otros, la generalización apresurada y la falsa atribución causal. Nombrar una falacia no basta: hay que mostrar qué relación falla. Además, detectar un mal argumento no demuestra por sí solo que la conclusión contraria sea verdadera.",
+      "conceptos": [
+        {
+          "termino": "Objeción",
+          "definicion": "Dificultad relevante que una propuesta necesita responder."
+        },
+        {
+          "termino": "Ataque personal",
+          "definicion": "Descalificación de la persona usada en lugar de examinar su argumento."
+        },
+        {
+          "termino": "Generalización apresurada",
+          "definicion": "Conclusión amplia apoyada en evidencia insuficiente."
+        }
+      ],
+      "pasos": [
+        "Reformula la postura contraria de una forma que su autor reconozca.",
+        "Identifica exactamente qué punto cuestionas y por qué.",
+        "Responde con evidencia, una precisión o una modificación de tu propuesta."
+      ],
+      "caso": "Caso ficticio: ante «hagamos un ensayo», alguien dice «no te escucho porque eres desordenado». Esa respuesta no examina la utilidad del ensayo. «Sólo tenemos diez minutos libres» sí plantea una limitación pertinente.",
+      "analisis": "La limitación puede llevar a ensayar únicamente las transiciones. Responderla mejora el proyecto; atacar a quien la expresó evita resolver el problema de tiempo.",
+      "error": "Usar «eso es una falacia» como una etiqueta para terminar la conversación o caricaturizar la postura contraria.",
+      "reto": "Repara este argumento: «Dos equipos se retrasaron; por eso nadie del grupo sabe organizarse». Escribe una conclusión proporcionada y una pregunta útil.",
+      "orientacion": "«Dos equipos se retrasaron en esta actividad; necesitamos conocer sus dificultades antes de proponer cambios». La pregunta puede explorar tiempo, recursos y reparto.",
+      "defensa": "¿Puede una objeción ayudarte a mejorar una propuesta en lugar de abandonarla?",
+      "fuentes": [
+        "falacias",
+        "argumento"
+      ]
+    },
+    {
+      "numero": 20,
+      "pregunta": "¿Tus conectores unen ideas o sólo decoran el texto?",
+      "base": "Un párrafo desarrolla un foco reconocible. Purdue OWL relaciona su eficacia con unidad, coherencia y desarrollo suficiente. La coherencia es la relación comprensible entre ideas; la cohesión se apoya en recursos lingüísticos como referencias, repeticiones pertinentes y conectores. Escribir «por lo tanto» no crea una conclusión válida: la relación entre lo anterior y lo siguiente debe sostenerse por el contenido.",
+      "conceptos": [
+        {
+          "termino": "Unidad",
+          "definicion": "Las oraciones contribuyen al mismo foco."
+        },
+        {
+          "termino": "Coherencia",
+          "definicion": "Las ideas siguen una relación lógica comprensible."
+        },
+        {
+          "termino": "Conector",
+          "definicion": "Expresión que señala una relación como contraste, ejemplo o consecuencia."
+        }
+      ],
+      "pasos": [
+        "Escribe la idea central del párrafo en una oración.",
+        "Añade evidencia o ejemplo y explica su relación con la idea.",
+        "Elige conectores que correspondan a relaciones reales y elimina desvíos."
+      ],
+      "caso": "Caso ficticio: «El aviso necesita una fecha explícita. En una prueba simulada, tres lectores interpretaron días distintos. Por ello, proponemos escribir día y hora de entrega. Sin embargo, aún debemos confirmar el calendario».",
+      "analisis": "Cada oración cumple una función. «Por ello» une problema y propuesta; «sin embargo» señala una condición pendiente. El texto no presenta la fecha como confirmada.",
+      "error": "Acumular «además» para unir asuntos sin relación o usar un párrafo tan amplio que pierda su idea central.",
+      "reto": "Ordena estas ideas: propuesta de ensayo, resultado de una prueba de tiempo, explicación del problema y límite de disponibilidad. Redacta entre 70 y 90 palabras.",
+      "orientacion": "Puedes comenzar por el problema, mostrar el dato, proponer un ensayo breve y reconocer el límite. Hay varios órdenes válidos si justificas las relaciones.",
+      "defensa": "¿Qué conector cambiaría el sentido de tu párrafo y por qué?",
+      "fuentes": [
+        "parrafos",
+        "argumento"
+      ]
+    },
+    {
+      "numero": 21,
+      "pregunta": "¿«Como quieras» expresa libertad, enojo o resignación?",
+      "base": "El tono escrito es una interpretación que se construye mediante vocabulario, puntuación, contexto y relación entre participantes. No dispone de las mismas señales de una conversación presencial. Rose explica que un mensaje puede tener significado literal e implicaciones relacionales; Purdue OWL recomienda cautela con el humor en correo. Una frase breve puede ser eficiente y también dejar implícito algo que la otra persona interpreta de otra forma.",
+      "conceptos": [
+        {
+          "termino": "Tono",
+          "definicion": "Actitud que el lector interpreta en un mensaje."
+        },
+        {
+          "termino": "Implícito",
+          "definicion": "Sentido sugerido que no se expresa literalmente."
+        },
+        {
+          "termino": "Reparación",
+          "definicion": "Aclaración que permite corregir un malentendido."
+        }
+      ],
+      "pasos": [
+        "Lee el mensaje desde dos interpretaciones posibles.",
+        "Explicita propósito, acción o condición que estaba implícita.",
+        "Si ya hubo confusión, aclara tu intención y reconoce el efecto sin culpar al lector."
+      ],
+      "caso": "Caso ficticio: «Pues hazlo tú» puede leerse como autorización o reproche. «Puedes preparar la portada; yo reviso las referencias. Gracias por ofrecerte» expresa el acuerdo de trabajo.",
+      "analisis": "La mejora aclara responsabilidades. Agregar un emoji sin precisar la tarea no resolvería necesariamente la ambigüedad.",
+      "error": "Confundir ausencia de respuesta inmediata con rechazo o suponer que todo uso de mayúsculas tiene la misma intención.",
+      "reto": "Reescribe «Qué bueno que por fin contestas» como un mensaje que resuelva la demora sin ironía. Indica qué necesitas ahora.",
+      "orientacion": "«Necesitamos confirmar el reparto hoy. ¿Puedes revisar tu parte antes de las 17:00?» plantea una acción concreta; puede añadirse una conversación sobre el retraso si hace falta.",
+      "defensa": "¿Cuándo dejarías de escribir y pedirías una conversación para aclarar el tono?",
+      "fuentes": [
+        "significado",
+        "correo"
+      ]
+    },
+    {
+      "numero": 22,
+      "pregunta": "¿Tu destinatario sabe qué debe responder después de leerte?",
+      "base": "Un correo eficaz permite identificar asunto, contexto, solicitud y siguiente paso. Purdue OWL recomienda asuntos significativos y párrafos breves y directos. La cortesía se expresa con claridad y consideración por el tiempo del destinatario; no exige fórmulas rebuscadas. Debe distinguirse una fecha límite de una preferencia, y comprobar que los archivos mencionados realmente se adjuntaron y corresponden a la versión correcta.",
+      "conceptos": [
+        {
+          "termino": "Asunto",
+          "definicion": "Resumen específico del propósito del correo."
+        },
+        {
+          "termino": "Contexto mínimo",
+          "definicion": "Información necesaria para entender la solicitud."
+        },
+        {
+          "termino": "Petición accionable",
+          "definicion": "Solicitud cuya respuesta o realización se puede identificar."
+        }
+      ],
+      "pasos": [
+        "Redacta primero la petición y después el contexto indispensable.",
+        "Añade asunto, saludo y cierre adecuados al destinatario.",
+        "Revisa destinatarios, fecha, adjuntos y versión antes de enviar."
+      ],
+      "caso": "Modelo ficticio: Asunto: Revisión del guion de 5.º A. «Buen día, profesor. Adjunto el borrador de nuestra exposición. ¿Podría confirmar si el ejemplo del segundo apartado corresponde al tema? Ensayaremos el viernes. Gracias por su orientación. Equipo de comunicación».",
+      "analisis": "La pregunta acota qué revisar. El viernes explica la necesidad del equipo, pero no impone al docente un plazo que no se ha acordado.",
+      "error": "Usar «Urgente» para todo, enviar «aquí está» sin contexto o incluir datos personales que no son necesarios para la solicitud.",
+      "reto": "Redacta un correo de 80 palabras para pedir cambio de horario. Ofrece dos alternativas y deja claro que requieren confirmación.",
+      "orientacion": "Incluye actividad, horario original, razón breve, alternativas y pregunta final. No presentes el cambio como autorizado antes de recibir respuesta.",
+      "defensa": "¿Qué información podrías quitar sin dificultar la respuesta del destinatario?",
+      "fuentes": [
+        "correo",
+        "audiencia"
+      ]
+    },
+    {
+      "numero": 23,
+      "pregunta": "¿Este asunto necesita rapidez, registro, diálogo o privacidad?",
+      "base": "Los medios difieren en alcance, permanencia y posibilidades de interacción, como describe Rose. Elegir un canal consiste en relacionar esas características con la tarea y con el acceso de la audiencia. Una conversación permite aclaraciones inmediatas; un escrito facilita consultar detalles después. Ningún canal garantiza comprensión o privacidad por sí solo. Con frecuencia conviene combinar diálogo para resolver y un resumen escrito para confirmar acuerdos.",
+      "conceptos": [
+        {
+          "termino": "Sincronía",
+          "definicion": "Participación de las personas al mismo tiempo."
+        },
+        {
+          "termino": "Registro",
+          "definicion": "Posibilidad de consultar posteriormente lo comunicado."
+        },
+        {
+          "termino": "Accesibilidad",
+          "definicion": "Condiciones reales para recibir y utilizar el mensaje."
+        }
+      ],
+      "pasos": [
+        "Define urgencia, complejidad, necesidad de registro y sensibilidad.",
+        "Comprueba qué canales puede utilizar realmente la audiencia.",
+        "Elige un canal principal y cómo confirmar la recepción o el acuerdo."
+      ],
+      "caso": "Caso ficticio: un cambio simple de aula se anuncia en el canal acordado del grupo y se confirma en clase. Un desacuerdo sobre reparto se conversa; después se escribe quién hará cada tarea.",
+      "analisis": "La diferencia depende de la necesidad. Un debate por mensajes muy breves puede acumular malentendidos; una decisión sólo oral puede olvidarse si nadie la registra.",
+      "error": "Escoger siempre el canal que te resulta cómodo sin comprobar acceso, horarios o necesidad de respuesta.",
+      "reto": "Elige canales para solicitar un permiso, resolver un desacuerdo y recordar una fecha. Justifica cada elección con dos criterios.",
+      "orientacion": "No hay una única respuesta correcta: el permiso suele necesitar registro; el desacuerdo, diálogo; el recordatorio, alcance oportuno. Debes considerar las condiciones del grupo.",
+      "defensa": "¿Cómo confirmarías un acuerdo importante tomado en una conversación?",
+      "fuentes": [
+        "canales",
+        "correo"
+      ]
+    },
+    {
+      "numero": 24,
+      "pregunta": "¿Qué dato necesita el receptor y cuál estás exponiendo sin necesidad?",
+      "base": "La privacidad comunicativa exige pensar qué información compartimos, con quién y para qué. La Agencia de Ciberseguridad de Cataluña muestra que imágenes y publicaciones pueden revelar ubicaciones, rutinas o identidades que no advertimos. En la práctica escolar conviene reducir datos al propósito de la tarea y revisar también capturas, fondos y permisos de acceso. Estas son pautas de cuidado digital, no una exposición de legislación mexicana.",
+      "conceptos": [
+        {
+          "termino": "Dato identificable",
+          "definicion": "Información que permite reconocer a una persona por sí sola o combinada."
+        },
+        {
+          "termino": "Minimización",
+          "definicion": "Compartir únicamente lo necesario para el propósito."
+        },
+        {
+          "termino": "Control de acceso",
+          "definicion": "Definir quién puede consultar o modificar un recurso."
+        }
+      ],
+      "pasos": [
+        "Pregunta para qué se necesita cada dato del mensaje.",
+        "Retira información ajena innecesaria y usa ejemplos ficticios al practicar.",
+        "Revisa destinatarios y permisos; no compartas contraseñas o códigos de acceso."
+      ],
+      "caso": "Caso ficticio: para mostrar que un aviso fue confuso, una captura incluye teléfonos y mensajes de otros compañeros. El equipo reconstruye el aviso con nombres ficticios y explica el problema sin mostrar el chat original.",
+      "analisis": "El aprendizaje se conserva sin divulgar la conversación. Ocultar sólo el nombre puede ser insuficiente si una foto, un número o el contexto permiten identificar a la persona.",
+      "error": "Creer que un grupo cerrado impide las capturas o reenvíos, o que tener acceso a una imagen significa poder publicarla.",
+      "reto": "Crea una invitación ficticia a un ensayo. Señala qué datos son indispensables, qué datos personales retirarías y quién necesita recibirla.",
+      "orientacion": "Actividad, fecha, lugar acordado y destinatarios pertinentes suelen bastar. No necesitas agregar domicilios particulares, documentos ni listas de teléfonos.",
+      "defensa": "¿Qué información podría revelar una fotografía aunque no aparezca ningún nombre?",
+      "fuentes": [
+        "privacidad",
+        "huella"
+      ]
+    },
+    {
+      "numero": 25,
+      "pregunta": "¿Tu diapositiva ayuda a entender algo que la voz sola no muestra?",
+      "base": "Un apoyo visual tiene una función explicativa: permite observar relaciones, pasos, contrastes o evidencias. Rose recomienda evitar que las diapositivas compitan con el discurso y revisar legibilidad y distracciones. Una imagen decorativa no equivale a una explicación. La calidad se comprueba desde el lugar del público: se deben distinguir títulos, datos, categorías y fuentes, y entender qué relación señala el expositor.",
+      "conceptos": [
+        {
+          "termino": "Jerarquía visual",
+          "definicion": "Orden de importancia que se comunica con tamaño, posición y contraste."
+        },
+        {
+          "termino": "Legibilidad",
+          "definicion": "Facilidad para distinguir y leer los elementos."
+        },
+        {
+          "termino": "Representación fiel",
+          "definicion": "Mostrar datos sin ocultar unidades, escalas o límites relevantes."
+        }
+      ],
+      "pasos": [
+        "Decide qué relación necesita ver la audiencia.",
+        "Elimina elementos que no ayuden y escribe un título informativo.",
+        "Prueba el recurso desde el fondo del aula y descríbelo también con palabras."
+      ],
+      "caso": "Caso ficticio: una diapositiva contiene el guion completo. La reemplazas por tres pasos: observar, interpretar, comprobar; debajo añades una frase ambigua que el grupo analizará. La explicación oral conecta los pasos.",
+      "analisis": "La nueva versión sirve como mapa del proceso y objeto de análisis. No existe un número mágico de palabras válido para toda diapositiva: importa su función y legibilidad.",
+      "error": "Usar letra pequeña para que quepa todo, gráficas sin unidades o colores como única manera de distinguir categorías.",
+      "reto": "Diseña en papel un apoyo para tu tema y prueba si un compañero identifica en diez segundos qué relación vas a explicar.",
+      "orientacion": "Pídele que describa lo que entendió. Si sólo reconoce un título o un adorno, agrega una relación visible: comparación, secuencia o ejemplo anotado.",
+      "defensa": "¿Cómo explicarías el contenido si alguien no puede ver el apoyo visual?",
+      "fuentes": [
+        "visual",
+        "voz"
+      ]
+    },
+    {
+      "numero": 26,
+      "pregunta": "¿Lo que publicas para tus amigos también lo entendería otra audiencia?",
+      "base": "La huella digital es el rastro de información asociado a la actividad en línea. La Agencia de Ciberseguridad de Cataluña distingue información compartida activamente de datos recogidos sin que el usuario lo advierta. Parte de lo publicado puede circular fuera de su audiencia inicial. Presentarse en línea exige decidir qué mostrar y con qué propósito, sin confundir visibilidad con valor personal ni asumir que borrar garantiza eliminar todas las copias.",
+      "conceptos": [
+        {
+          "termino": "Huella activa",
+          "definicion": "Información que compartes deliberadamente."
+        },
+        {
+          "termino": "Huella pasiva",
+          "definicion": "Información recogida sobre tu actividad sin una participación consciente en cada registro."
+        },
+        {
+          "termino": "Audiencia imprevista",
+          "definicion": "Personas que acceden a un contenido fuera del grupo inicialmente pensado."
+        }
+      ],
+      "pasos": [
+        "Define qué quieres comunicar y a quién.",
+        "Revisa si cada dato aporta al propósito o expone información innecesaria.",
+        "Considera cómo se interpretaría fuera de su contexto original."
+      ],
+      "caso": "Caso ficticio: una biografía para un proyecto dice «Diseño carteles y colaboro en el club de lectura». No necesita incluir domicilio, horario diario ni teléfono personal para mostrar esas capacidades.",
+      "analisis": "La presentación selecciona información pertinente. No se trata de fingir una identidad perfecta: se trata de comunicar intereses y evidencias sin exponer toda la vida privada.",
+      "error": "Pensar que una cuenta privada elimina cualquier posibilidad de difusión o que el número de seguidores demuestra confiabilidad.",
+      "reto": "Escribe dos biografías ficticias: una para un club escolar y otra para presentar un proyecto. Explica tres decisiones de inclusión o exclusión.",
+      "orientacion": "Puedes cambiar el énfasis según la audiencia, conservando datos verdaderos en un caso real. Justifica por pertinencia y privacidad, no por popularidad.",
+      "defensa": "¿Qué contenido podría perder su sentido al circular sin el contexto original?",
+      "fuentes": [
+        "huella",
+        "audiencia"
+      ]
+    },
+    {
+      "numero": 27,
+      "pregunta": "¿Qué idea debe recordar el grupo al terminar tus cuatro minutos?",
+      "base": "Organizar una exposición implica seleccionar y relacionar ideas alrededor de un mensaje central. Rose distingue tema general y afirmación central: «comunicación» es un campo; «una instrucción precisa reduce interpretaciones incompatibles» es una idea que puede desarrollarse. Apertura, desarrollo y cierre cumplen funciones: orientar, explicar con sustento y recuperar lo esencial. La estructura debe ajustarse al tiempo y al propósito.",
+      "conceptos": [
+        {
+          "termino": "Apertura",
+          "definicion": "Sitúa un problema y anuncia el foco."
+        },
+        {
+          "termino": "Desarrollo",
+          "definicion": "Explica conceptos y relaciones con ejemplos o evidencia."
+        },
+        {
+          "termino": "Cierre",
+          "definicion": "Recupera la idea central y su aplicación sin abrir otro tema."
+        }
+      ],
+      "pasos": [
+        "Escribe en una oración qué quieres que recuerden.",
+        "Elige uno o dos conceptos y una demostración que los conecte.",
+        "Ensaya apertura, desarrollo y cierre dentro de los cuatro minutos."
+      ],
+      "caso": "Caso ficticio: abres con «¿Qué harías si te digo entrégalo pronto?». Explicas ambigüedad, comparas dos instrucciones y cierras con «precisar producto, fecha y destinatario permite actuar».",
+      "analisis": "La misma pregunta recorre la intervención. La definición sirve para resolver el problema inicial, y el cierre muestra qué puede hacer la audiencia con lo aprendido.",
+      "error": "Empezar con una lista extensa de definiciones o terminar con información nueva que ya no puedes explicar.",
+      "reto": "Crea un guion de tres bloques para tu tema y escribe la frase que conecta cada bloque con el siguiente.",
+      "orientacion": "La apertura plantea una necesidad; el desarrollo aporta una explicación; el cierre vuelve a esa necesidad con una respuesta. Comprueba que ninguna parte sea un tema aislado.",
+      "defensa": "¿Qué quitarías si tu ensayo dura cinco minutos?",
+      "fuentes": [
+        "estructura",
+        "proposito"
+      ]
+    },
+    {
+      "numero": 28,
+      "pregunta": "¿Tu historia explica la idea o sólo entretiene?",
+      "base": "Una narración organiza acontecimientos para que el público siga una situación, una dificultad y un resultado. Rose recomienda concretar las acciones para hacer comprensible la experiencia. En una exposición académica, el ejemplo debe conectarse explícitamente con el concepto. Una historia ilustra una posibilidad; por sí sola no demuestra qué ocurre siempre ni con qué frecuencia. Los casos inventados deben identificarse como ficticios.",
+      "conceptos": [
+        {
+          "termino": "Situación",
+          "definicion": "Contexto mínimo para comprender lo que ocurre."
+        },
+        {
+          "termino": "Conflicto narrativo",
+          "definicion": "Dificultad que da dirección al relato."
+        },
+        {
+          "termino": "Vínculo conceptual",
+          "definicion": "Explicación de qué muestra el caso respecto del tema."
+        }
+      ],
+      "pasos": [
+        "Elige una situación que muestre un concepto, no toda una biografía.",
+        "Narra problema, decisión y resultado con detalles pertinentes.",
+        "Di qué ilustra el caso y qué no permite generalizar."
+      ],
+      "caso": "Caso ficticio: «El equipo recibió “mañana traigan eso”. Una persona llevó una cartulina y otra una memoria. Al precisar “traigan el cartel impreso”, acordaron el mismo producto».",
+      "analisis": "La historia muestra cómo una referencia vaga puede producir acciones distintas. Después hay que nombrar la ambigüedad y explicar la corrección; no basta con que el relato sea simpático.",
+      "error": "Presentar una anécdota como evidencia de que todos actúan igual o usar un caso personal de alguien sin su autorización.",
+      "reto": "Cuenta en 30 segundos un caso inventado que ilustre tu tema. Termina con «Este caso muestra…» y añade un límite.",
+      "orientacion": "El relato debe permitir reconocer el concepto. El límite puede ser «no demuestra que todos interpreten igual» o «es una simulación, no un resultado medido».",
+      "defensa": "¿Qué información adicional necesitarías para convertir una anécdota en una afirmación general?",
+      "fuentes": [
+        "historia",
+        "falacias"
+      ]
+    },
+    {
+      "numero": 29,
+      "pregunta": "¿Tu voz permite distinguir lo principal de los detalles?",
+      "base": "La voz aporta señales de énfasis y organización. Rose analiza variaciones de volumen, tono y velocidad, además del uso de pausas. Al explicar un concepto nuevo, la audiencia necesita tiempo para procesarlo. El objetivo es hacer audible y comprensible el mensaje, no imitar una voz profesional ni eliminar el acento personal. La velocidad adecuada depende de contenido, público, espacio y condiciones de escucha.",
+      "conceptos": [
+        {
+          "termino": "Volumen",
+          "definicion": "Intensidad suficiente para que la audiencia pueda oír."
+        },
+        {
+          "termino": "Ritmo",
+          "definicion": "Distribución de velocidad, acentos y pausas durante la intervención."
+        },
+        {
+          "termino": "Pausa",
+          "definicion": "Silencio que puede separar ideas o permitir procesamiento."
+        }
+      ],
+      "pasos": [
+        "Marca en tu guion las palabras que contienen la idea central.",
+        "Coloca una pausa después de una definición o dato importante.",
+        "Ensaya con alguien situado a distancia y pide que reconstruya el mensaje."
+      ],
+      "caso": "Caso ficticio: «El problema no es la cantidad de mensajes [pausa], sino que ninguno indica la fecha». El énfasis en cantidad y fecha hace visible el contraste que sostiene la explicación.",
+      "analisis": "La variación sirve al significado. Gritar toda la intervención elimina el contraste y puede dificultar escuchar cómodamente.",
+      "error": "Intentar resolver el exceso de contenido acelerando, o juzgar el dominio de alguien por su acento o timbre natural.",
+      "reto": "Lee una explicación de 60 palabras dos veces: primero sin pausas intencionales y después marcando dos ideas clave. Pide una comparación sobre comprensión.",
+      "orientacion": "No busques la versión más teatral. Elige aquella en la que el oyente identifica mejor las ideas y explica dónde necesitó más tiempo.",
+      "defensa": "¿Cómo ajustarías tu ritmo al introducir un término desconocido?",
+      "fuentes": [
+        "voz",
+        "estructura"
+      ]
+    },
+    {
+      "numero": 30,
+      "pregunta": "¿Puedes recuperar la idea aunque no recuerdes la frase exacta?",
+      "base": "Prepararse para hablar incluye prever interrupciones y pérdidas del hilo. Rose plantea que ensayar también debe preparar para lo que puede salir mal. Un esquema de ideas permite retomar el sentido sin depender de recordar cada palabra. En este taller practicamos recursos de presentación: una pausa, una tarjeta con palabras clave y una frase de enlace. Su función es ayudar a continuar; no prometen eliminar los nervios.",
+      "conceptos": [
+        {
+          "termino": "Palabra clave",
+          "definicion": "Señal breve que recuerda un bloque de contenido."
+        },
+        {
+          "termino": "Recuperación",
+          "definicion": "Retomar la idea central después de una interrupción."
+        },
+        {
+          "termino": "Ensayo flexible",
+          "definicion": "Práctica que admite cambios de palabras conservando el sentido."
+        }
+      ],
+      "pasos": [
+        "Prepara una tarjeta con idea, ejemplo y cierre.",
+        "Ensaya una interrupción deliberada y localiza el siguiente bloque.",
+        "Haz una pausa y retoma con «La idea que necesitamos conservar es…»."
+      ],
+      "caso": "Caso ficticio: olvidas una definición memorizada. Miras la palabra «referente», señalas tu ejemplo y explicas: «En esta frase no sabemos qué objeto significa “eso”; necesitamos nombrarlo».",
+      "analisis": "La explicación muestra comprensión aunque cambie el texto. Volver al ejemplo permite reconstruir la idea y continuar con el propósito de la exposición.",
+      "error": "Creer que una pausa arruina toda la presentación o memorizar palabra por palabra sin comprender las relaciones.",
+      "reto": "Explica tu tema durante un minuto. A los 30 segundos, un compañero dice «pausa». Retoma desde otra frase conservando la misma idea.",
+      "orientacion": "Valora si recuperaste el sentido, no si repetiste exactamente el guion. Anota una palabra clave que habría facilitado continuar.",
+      "defensa": "¿Qué parte de tu preparación permite continuar aunque olvides una oración?",
+      "fuentes": [
+        "nervios",
+        "improvisar"
+      ]
+    },
+    {
+      "numero": 31,
+      "pregunta": "¿Puedes responder una pregunta nueva sin inventar datos?",
+      "base": "Responder exige comprender la pregunta, seleccionar lo pertinente y reconocer el límite de lo que se sabe. Rose distingue improvisación de intervención preparada con un esquema: sonar natural no significa carecer de preparación. Para una defensa académica se practica una respuesta breve apoyada en conceptos y evidencia. Decir qué falta verificar puede mostrar más dominio que ofrecer una certeza sin sustento.",
+      "conceptos": [
+        {
+          "termino": "Aclaración",
+          "definicion": "Comprobación del sentido o alcance de la pregunta."
+        },
+        {
+          "termino": "Respuesta pertinente",
+          "definicion": "Intervención que atiende lo preguntado sin desviarse."
+        },
+        {
+          "termino": "Límite de conocimiento",
+          "definicion": "Aspecto sobre el que aún no se dispone de evidencia suficiente."
+        }
+      ],
+      "pasos": [
+        "Escucha y, si hace falta, reformula la pregunta.",
+        "Responde primero la idea central y después justifica con un ejemplo o fuente.",
+        "Delimita lo que no puedes asegurar y cómo lo comprobarías."
+      ],
+      "caso": "Caso ficticio: preguntan «¿Tu técnica funciona con todo el mundo?». Respondes: «No puedo asegurar eso. La aplicamos a una instrucción escolar y mejoró su precisión; para valorar otros contextos habría que probarla con otras audiencias».",
+      "analisis": "La respuesta distingue la aplicación demostrada de una generalización. No evita la pregunta: responde su alcance y señala qué evidencia falta.",
+      "error": "Repetir todo el discurso, tomar cada duda como ataque o inventar un autor para parecer preparado.",
+      "reto": "Pide tres preguntas: definición, aplicación a otro caso y límite de tu propuesta. Responde cada una en 30 segundos.",
+      "orientacion": "Usa concepto y ejemplo en las primeras dos. En la tercera, explica una condición que podría cambiar el resultado y una manera de revisarla.",
+      "defensa": "¿Cómo contestarías si la pregunta contiene una suposición falsa?",
+      "fuentes": [
+        "improvisar",
+        "fuentes"
+      ]
+    },
+    {
+      "numero": 32,
+      "pregunta": "¿Puedes decir menos sin cambiar el sentido?",
+      "base": "Sintetizar consiste en seleccionar ideas esenciales y conservar sus relaciones. Harvard Guide to Using Sources distingue resumir de reproducir todos los detalles: se mantiene el núcleo y se reconoce la procedencia cuando se trabaja con ideas ajenas. En una síntesis oral, el tiempo obliga a priorizar. Se puede eliminar un ejemplo secundario, pero no una condición que cambie el alcance de la afirmación.",
+      "conceptos": [
+        {
+          "termino": "Núcleo",
+          "definicion": "Idea indispensable para conservar el mensaje."
+        },
+        {
+          "termino": "Detalle de apoyo",
+          "definicion": "Información que aclara o ilustra, pero puede reducirse según el propósito."
+        },
+        {
+          "termino": "Matiz necesario",
+          "definicion": "Condición o límite cuya omisión alteraría el sentido."
+        }
+      ],
+      "pasos": [
+        "Escribe una oración central y un límite indispensable.",
+        "Prepara versiones de 60, 30 y 15 segundos seleccionando apoyos.",
+        "Compara las versiones para comprobar que no cambiaron la afirmación."
+      ],
+      "caso": "Caso ficticio: versión amplia: «En una consulta voluntaria, ocho estudiantes dijeron preferir papel; no sabemos si representan al grupo». Síntesis fiel: «Ocho voluntarios prefieren papel; falta conocer al resto». Síntesis engañosa: «El grupo quiere papel».",
+      "analisis": "La versión fiel elimina palabras, pero conserva muestra y límite. La última cambia quiénes sostienen la preferencia y convierte un resultado parcial en una afirmación colectiva.",
+      "error": "Hablar más rápido para meter todo o borrar los límites de una cifra para que la frase parezca contundente.",
+      "reto": "Prepara tres versiones de tu conclusión. Un compañero señala qué información desapareció y si alguna pérdida cambió el sentido.",
+      "orientacion": "La versión de 15 segundos debe conservar idea central y matiz necesario. La de 60 puede recuperar explicación, ejemplo y procedencia de la evidencia.",
+      "defensa": "¿Qué nunca quitarías al resumir el dato que utilizas en tu exposición?",
+      "fuentes": [
+        "sintesis",
+        "estructura"
+      ]
+    }
+  ]
+}

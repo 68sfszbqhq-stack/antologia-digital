@@ -1,5 +1,6 @@
 ---
 import { exposiciones, agenda } from '../data/lengua/exposiciones';
+import { fundamentos } from '../data/lengua/fundamentos';
 import { u } from '../lib/url';
 const { semana, completa = false } = Astro.props;
 const grupo = exposiciones.filter(e => e.semana === semana);
@@ -14,6 +15,12 @@ const horario = agenda.find(a => a.semana === semana);
     <div class="expo-person"><span class="expo-order">{String(e.numero).padStart(2,'0')}</span><h3>{e.nombre}</h3></div>
     <p class="expo-topic">{e.tema}</p>
     <p class="expo-demo"><strong>Demuestra:</strong> {e.demostracion}</p>
+    <details class="expo-foundation-preview">
+      <summary>Bases del tema · lectura para todo el grupo</summary>
+      <p>{fundamentos.find(t => t.numero === e.numero)?.base}</p>
+      <p><a href={u(`/lengua-y-comunicacion/fundamentos/${e.numero}#fuentes`)}>Consultar las fuentes de esta explicación →</a></p>
+    </details>
+    <a class="expo-study-link" href={u(`/lengua-y-comunicacion/fundamentos/${e.numero}`)}>Estudiar tema {e.numero}: conceptos, ejemplo y práctica →</a>
   </li>)}</ol> : <p>Todos participan en su equipo y responden individualmente sobre su aprendizaje. Esta sesión no añade temas nuevos de exposición.</p>}
   {!completa && horario && <details class="expo-agenda"><summary>Así se distribuyen los 120 minutos</summary><table><thead><tr><th>Minutos</th><th>Actividad</th></tr></thead><tbody>{horario.bloques.map(b => <tr><td>{b.inicio}–{b.fin}</td><td>{b.actividad}</td></tr>)}</tbody></table></details>}
 </section>

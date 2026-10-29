@@ -1,0 +1,69 @@
+---
+import TallerLengua from '../../../layouts/TallerLengua.astro';
+import { exposiciones } from '../../../data/lengua/exposiciones';
+import { fundamentos, fuentesFundamentos } from '../../../data/lengua/fundamentos';
+import { u } from '../../../lib/url';
+
+export function getStaticPaths() {
+  return exposiciones.map(exposicion => ({
+    params: { numero: String(exposicion.numero) },
+    props: { exposicion, lectura: fundamentos.find(t => t.numero === exposicion.numero)! },
+  }));
+}
+const { exposicion: e, lectura: t } = Astro.props;
+const referencias = t.fuentes.map(clave => fuentesFundamentos[clave as keyof typeof fuentesFundamentos]);
+---
+<TallerLengua frontmatter={{ title: e.tema, description: t.pregunta, seccion: 'fundamentos' }}>
+  <div class="foundation-assignment">
+    <p class="taller-eyebrow">TEMA {String(e.numero).padStart(2, '0')} DE 32 · SEMANA {e.semana}</p>
+    <p><strong>Expone:</strong> {e.nombre}</p>
+    <p>Esta lectura es para todo el grupo. El nombre indica quién presenta el tema; todos pueden estudiarlo y practicarlo.</p>
+    <a href={u(`/lengua-y-comunicacion/semana-${e.semana}`)}>Ver la sesión y su aplicación →</a>
+  </div>
+  <nav class="foundation-jumps" aria-label="Contenido de la lectura">
+    <a href="#bases">Bases</a><a href="#conceptos">Conceptos</a><a href="#caso">Ejemplo</a><a href="#practica">Práctica</a><a href="#fuentes">Fuentes</a>
+  </nav>
+  <section id="bases" class="foundation-section">
+    <h2>1. Comprende la base</h2>
+    <p>{t.base}</p>
+    <p class="foundation-source-note">Fundamento de consulta: <a href={referencias[0].url}>{referencias[0].titulo}</a>. Síntesis didáctica en español; los casos y ejercicios de esta página son propuestas del taller.</p>
+  </section>
+  <section id="conceptos" class="foundation-section">
+    <h2>2. Domina estos conceptos</h2>
+    <dl class="foundation-concepts">{t.conceptos.map(c => <div><dt>{c.termino}</dt><dd>{c.definicion}</dd></div>)}</dl>
+  </section>
+  <section id="caso" class="foundation-section">
+    <h2>3. Mira cómo se aplica</h2>
+    <p class="foundation-case">{t.caso}</p>
+    <h3>Qué debes observar</h3><p>{t.analisis}</p>
+    <h3>Un error que conviene evitar</h3><p>{t.error}</p>
+  </section>
+  <section class="foundation-section">
+    <h2>4. Pruébalo paso a paso</h2>
+    <ol>{t.pasos.map(p => <li>{p}</li>)}</ol>
+  </section>
+  <section id="practica" class="foundation-section">
+    <h2>5. Practica y comprueba</h2>
+    <p>{t.reto}</p>
+    <p class="foundation-source-note">Intenta resolverlo antes de abrir la orientación. Puedes hacerlo en tu cuaderno; esta página no envía respuestas ni registra calificaciones.</p>
+    <details class="foundation-answer"><summary>Comparar con una respuesta orientativa</summary><p>{t.orientacion}</p><p>No es la única respuesta posible: justifica tus decisiones con los conceptos del tema.</p></details>
+    <h3>Pregunta para defender tu comprensión</h3><blockquote>{t.defensa}</blockquote>
+    <p>Responde con una idea, una razón y un ejemplo diferente del que acabas de leer.</p>
+  </section>
+  <section class="foundation-section">
+    <h2>Si este es tu tema de exposición</h2>
+    <p><strong>Tu demostración asignada:</strong> {e.demostracion}</p>
+    <p>Usa esta lectura como punto de partida. Consulta las dos fuentes, elige uno o dos conceptos y prepara tu propio caso. Dispones de cuatro minutos para explicar y demostrar, uno para responder y uno para la devolución y el cambio de turno.</p>
+    <p><a href={u('/lengua-y-comunicacion/evaluacion')}>Revisa la rúbrica y los criterios de evaluación →</a></p>
+  </section>
+  <section id="fuentes" class="foundation-section foundation-sources">
+    <h2>Fuentes para investigar y profundizar</h2>
+    <ol>{referencias.map((r, i) => <li><a href={r.url}>{r.titulo}</a><span>{i === 0 ? 'Base conceptual de esta lectura.' : 'Lectura complementaria para relacionar y ampliar el tema.'}</span></li>)}</ol>
+    <p>Revisión de fuentes: 28 de octubre de 2026. Algunos materiales están en inglés; puedes apoyar su lectura con traducción, comprobando los términos en el original. Los textos de Jeremy Rose se publican bajo <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; las explicaciones de este taller son síntesis y adaptaciones educativas, no citas literales.</p>
+  </section>
+  <nav class="foundation-pagination" aria-label="Otros temas de estudio">
+    {e.numero > 1 && <a href={u(`/lengua-y-comunicacion/fundamentos/${e.numero - 1}`)}>← Tema {e.numero - 1}</a>}
+    <a href={u(`/lengua-y-comunicacion/exposiciones#turno-${e.numero}`)}>Volver a los 32 temas</a>
+    {e.numero < 32 && <a href={u(`/lengua-y-comunicacion/fundamentos/${e.numero + 1}`)}>Tema {e.numero + 1} →</a>}
+  </nav>
+</TallerLengua>
