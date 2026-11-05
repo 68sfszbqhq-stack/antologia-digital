@@ -30,6 +30,16 @@ export interface Aviso {
 
 export const avisos: Aviso[] = [
   {
+    fecha: "2026-11-05",
+    titulo: "Actividad: curso de Platzi, entrega el domingo 8 de noviembre",
+    texto:
+      "Vean el Curso de Fundamentos de Ingeniería de Software de Freddy Vega en Platzi. Platzi da días de prueba gratis al crear su cuenta, aprovéchenlos. Tienen tres días para verlo, hasta el domingo 8 de noviembre.\n\n" +
+      "En su libreta hagan un reporte con: 1. Su nombre, la fecha y el nombre del curso. 2. Qué es un bit y qué es un byte, con sus palabras. 3. Para qué sirven el procesador y la memoria RAM. 4. Qué es un dominio de internet y para qué sirve el DNS. 5. Lo que más les sirvió del curso y una duda que les haya quedado.\n\n" +
+      "Si no alcanzan a ver todo, anoten hasta qué clase llegaron.",
+    etiqueta: "Cultura Digital",
+    enlace: { texto: "Abrir el curso en Platzi", href: "https://platzi.com/cursos/ingenieria/" },
+  },
+  {
     fecha: "2026-09-10",
     titulo: "Estrenamos portada",
     texto:
