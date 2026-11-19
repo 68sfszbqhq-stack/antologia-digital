@@ -1,0 +1,223 @@
+---
+// Gimnasio mental: práctica de razonamiento para Lengua y Comunicación.
+// Los alumnos contestan una ronda sin saber si van bien (como en un examen),
+// al final ven su resultado con la explicación de cada error y pueden repetir
+// SOLO las que fallaron, con las opciones en otro orden, hasta dominarlas.
+// Las preguntas viven en src/data/lengua/gimnasio-mental.ts y son distintas a
+// las del simulador psicométrico. No guarda nada en Firebase: el avance vive
+// solo en el navegador del alumno (localStorage).
+// El script es is:inline y se cuelga de astro:page-load por las View Transitions.
+import Layout from '../../layouts/Layout.astro';
+import { u } from '../../lib/url';
+import '../../styles/taller-lengua.css';
+import { TIPOS, EJERCICIOS } from '../../data/lengua/gimnasio-mental';
+const GIM = { TIPOS, EJERCICIOS };
+---
+<Layout title="Gimnasio mental · Lengua y Comunicación" description="Ejercicios de razonamiento como los de las pruebas de selección, con explicación de cada error.">
+  <div class="taller-shell">
+    <nav class="taller-breadcrumb" aria-label="Ubicación"><a href={u('/')}>Inicio</a><span aria-hidden="true"> / </span><a href={u('/lengua-y-comunicacion')}>Lengua y Comunicación</a><span aria-hidden="true"> / </span><span>Gimnasio mental</span></nav>
+    <header class="taller-heading">
+      <p class="taller-eyebrow">PRÁCTICA · RAZONAMIENTO</p>
+      <h1>Gimnasio mental</h1>
+      <p>Ejercicios como los de las pruebas de selección. Contesta la ronda completa; al final verás en qué fallaste, el truco para resolverlo, y podrás repetir solo esas hasta dominarlas.</p>
+    </header>
+    <section id="gim"><div id="gim-app"><p class="taller-footnote">Cargando los ejercicios…</p></div></section>
+  </div>
+</Layout>
+
+<style is:global>
+#gim{--hoja:#121b2c;--tinta:#e2e8f0;--gris:#a2adc0;--linea:#2b3549;--oro:#fbbf24;--bien:#4ade80;--mal:#f87171;color:var(--tinta);line-height:1.55;scroll-margin-top:72px}
+#gim *{box-sizing:border-box}
+#gim h2{font-size:1.5rem;font-weight:800;margin:0;color:#f8fafc;text-wrap:balance}
+#gim h3{font-size:1.05rem;font-weight:700;margin:0;color:#f8fafc}
+#gim p{margin:0}
+#gim .lbl{font:600 .7rem/1.2 'Roboto Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--oro)}
+#gim .gris{color:var(--gris)}
+#gim .panel{background:var(--hoja);border:1px solid var(--linea);border-radius:16px;padding:clamp(18px,4vw,28px);display:flex;flex-direction:column;gap:18px}
+#gim .tipos{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+#gim .tipo{text-align:left;background:#182235;border:1.5px solid var(--linea);border-radius:12px;padding:14px;color:var(--tinta);cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:6px}
+#gim .tipo:hover{border-color:var(--oro)}
+#gim .tipo.todos{border-color:#9d7a2c;background:#20293a}
+#gim .tipo b{color:#fff}
+#gim .tipo small{color:var(--gris);font-size:.8rem}
+#gim .medidor{height:6px;border-radius:99px;background:#2b3549;overflow:hidden}
+#gim .medidor i{display:block;height:100%;background:var(--bien)}
+#gim .btn{font-weight:800;font-size:15px;padding:13px 20px;border-radius:10px;border:0;background:var(--oro);color:#101827;cursor:pointer}
+#gim .btn:hover{background:#fde68a}
+#gim .btn.sec{background:transparent;border:1px solid #48566c;color:#f1f5f9}
+#gim .btn:focus-visible,#gim .tipo:focus-visible,#gim .op:focus-visible{outline:3px solid #fcd34d;outline-offset:3px}
+#gim .fila{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#gim .barra{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+#gim .progreso{flex:1;height:8px;border-radius:99px;background:#2b3549;overflow:hidden}
+#gim .progreso i{display:block;height:100%;background:var(--oro);transition:width .2s}
+#gim .num{font:700 .95rem/1 'Roboto Mono',ui-monospace,monospace;color:var(--gris);font-variant-numeric:tabular-nums}
+#gim .pregunta{font-size:1.25rem;font-weight:700;color:#fff}
+#gim .big{font:700 clamp(1.3rem,4.5vw,1.9rem)/1.3 'Roboto Mono',ui-monospace,monospace;letter-spacing:.04em;color:#fde68a;text-align:center;padding:14px;border:1px dashed var(--linea);border-radius:12px}
+#gim .ops{display:flex;flex-direction:column;gap:10px}
+#gim .op{text-align:left;font:600 1rem/1.35 inherit;padding:14px 16px;border-radius:12px;border:1.5px solid var(--linea);background:#182235;color:var(--tinta);cursor:pointer;display:flex;gap:12px;align-items:center}
+#gim .op:hover{border-color:var(--oro)}
+#gim .op .l{flex:none;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--oro);color:var(--oro);font:700 .8rem/1 'Roboto Mono',ui-monospace,monospace}
+#gim .op.elegida{border-color:var(--oro);background:#2a2412}
+#gim .op.elegida .l{background:var(--oro);color:#101827}
+#gim .grande{font:800 clamp(3rem,10vw,4.5rem)/1 'Roboto Mono',ui-monospace,monospace;color:var(--oro)}
+#gim .centro{text-align:center;align-items:center}
+#gim .porTipo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;width:100%}
+#gim .porTipo div{background:#182235;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;text-align:left}
+#gim .error{border-top:1px dashed var(--linea);padding-top:16px;display:flex;flex-direction:column;gap:8px}
+#gim .error:first-of-type{border-top:0;padding-top:0}
+#gim .tu{color:var(--mal)}#gim .ok{color:var(--bien)}
+#gim .truco{background:#1d2a3f;border-left:3px solid var(--oro);padding:10px 12px;border-radius:0 8px 8px 0;font-size:.92rem}
+@media(prefers-reduced-motion:reduce){#gim .progreso i{transition:none}}
+</style>
+
+<script is:inline define:vars={{ GIM }}>
+(() => {
+  const { TIPOS, EJERCICIOS } = GIM;
+  const POR_RONDA = 10;
+  const LETRAS = 'ABCD';
+  const porId = Object.fromEntries(EJERCICIOS.map((e) => [e.id, e]));
+
+  const barajar = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  // Avance por ejercicio: { id: { v: veces bien, m: veces mal } }. Solo en este navegador.
+  const leer = () => { try { return JSON.parse(localStorage.getItem('gim-avance')) || {}; } catch { return {}; } };
+  const guardar = (a) => { try { localStorage.setItem('gim-avance', JSON.stringify(a)); } catch {} };
+  const dominado = (r) => r && r.v > 0 && (!r.m || r.ultimo === 'v');
+
+  function iniciar() {
+    const raiz = document.getElementById('gim-app');
+    if (!raiz || raiz.dataset.listo) return;
+    raiz.dataset.listo = '1';
+    const subir = () => { const s = document.getElementById('gim'); if (s && s.getBoundingClientRect().top < 0) s.scrollIntoView({ block: 'start' }); };
+
+    // ─── Inicio: elegir tipo ────────────────────────────────────────────────
+    function inicio() {
+      const av = leer();
+      const cuenta = (t) => {
+        const del = EJERCICIOS.filter((e) => !t || e.t === t);
+        return { n: del.length, d: del.filter((e) => dominado(av[e.id])).length };
+      };
+      const tot = cuenta(null);
+      raiz.innerHTML = `
+        <div class="panel">
+          <div><p class="lbl">Elige qué entrenar</p><p class="gris">Rondas de ${POR_RONDA} ejercicios. Llevas <strong>${tot.d} de ${tot.n}</strong> dominados.</p></div>
+          <div class="tipos">
+            <button class="tipo todos" data-t=""><b>Mezcla de todo</b><small>Como en una prueba real</small>${barra(tot)}</button>
+            ${Object.entries(TIPOS).map(([k, x]) => { const c = cuenta(k); return `<button class="tipo" data-t="${k}"><b>${esc(x.n)}</b><small>${c.d} de ${c.n} dominados</small>${barra(c)}</button>`; }).join('')}
+          </div>
+          ${tot.d ? '<div class="fila"><button class="btn sec" id="gim-borrar">Borrar mi avance</button></div>' : ''}
+        </div>`;
+      raiz.querySelectorAll('[data-t]').forEach((b) => b.addEventListener('click', () => nuevaRonda(b.dataset.t || null)));
+      raiz.querySelector('#gim-borrar')?.addEventListener('click', () => { guardar({}); inicio(); });
+    }
+    const barra = (c) => `<span class="medidor" aria-hidden="true"><i style="width:${c.n ? Math.round(c.d / c.n * 100) : 0}%"></i></span>`;
+
+    // Arma una ronda dando prioridad a lo que no ha dominado; si ya dominó todo, repasa al azar.
+    function nuevaRonda(t) {
+      const av = leer();
+      const pool = EJERCICIOS.filter((e) => !t || e.t === t);
+      const pendientes = barajar(pool.filter((e) => !dominado(av[e.id])));
+      const resto = barajar(pool.filter((e) => dominado(av[e.id])));
+      const ids = pendientes.concat(resto).slice(0, POR_RONDA).map((e) => e.id);
+      jugar(barajar(ids), { t, repaso: false });
+    }
+
+    // ─── Contestar una ronda (sin decir si va bien) ─────────────────────────
+    function jugar(ids, ctx) {
+      const resp = {};      // id → opción elegida (texto)
+      const orden = {};     // id → opciones barajadas para esta vuelta
+      ids.forEach((id) => { orden[id] = barajar(porId[id].o); });
+      let i = 0;
+
+      function pintar() {
+        const e = porId[ids[i]];
+        raiz.innerHTML = `
+          <div class="panel">
+            <div class="barra"><span class="num">${i + 1} / ${ids.length}</span><span class="progreso"><i style="width:${i / ids.length * 100}%"></i></span><span class="lbl">${esc(TIPOS[e.t].n)}</span></div>
+            ${ctx.repaso ? '<p class="lbl">Repaso de errores</p>' : ''}
+            <p class="pregunta">${esc(e.q)}</p>
+            ${e.big ? `<p class="big">${esc(e.big)}</p>` : ''}
+            <div class="ops" role="group" aria-label="Opciones">
+              ${orden[e.id].map((o, k) => `<button class="op ${resp[e.id] === o ? 'elegida' : ''}" data-k="${k}"><span class="l">${LETRAS[k]}</span><span>${esc(o)}</span></button>`).join('')}
+            </div>
+            <div class="fila">${i > 0 ? '<button class="btn sec" id="gim-atras">← Anterior</button>' : ''}<button class="btn sec" id="gim-salir">Salir</button></div>
+          </div>`;
+        raiz.querySelectorAll('.op').forEach((b) => b.addEventListener('click', () => {
+          resp[e.id] = orden[e.id][+b.dataset.k];
+          b.classList.add('elegida');
+          setTimeout(() => { if (i < ids.length - 1) { i++; pintar(); } else terminar(); }, 180);
+        }));
+        raiz.querySelector('#gim-atras')?.addEventListener('click', () => { i--; pintar(); });
+        raiz.querySelector('#gim-salir').addEventListener('click', inicio);
+        subir();
+      }
+
+      function terminar() {
+        const av = leer();
+        const mal = [];
+        ids.forEach((id) => {
+          const e = porId[id], bien = resp[id] === e.o[0];
+          const r = av[id] || (av[id] = { v: 0, m: 0 });
+          if (bien) { r.v++; r.ultimo = 'v'; } else { r.m++; r.ultimo = 'm'; mal.push(id); }
+        });
+        guardar(av);
+        resultado(ids, resp, mal, ctx);
+      }
+      pintar();
+    }
+
+    // ─── Resultado con retroalimentación ────────────────────────────────────
+    function resultado(ids, resp, mal, ctx) {
+      const bien = ids.length - mal.length;
+      const tipos = [...new Set(ids.map((id) => porId[id].t))];
+      const porTipo = tipos.map((t) => {
+        const del = ids.filter((id) => porId[id].t === t);
+        const b = del.filter((id) => !mal.includes(id)).length;
+        return `<div><b>${esc(TIPOS[t].n)}</b><span class="gris">${b} de ${del.length}</span>${barra({ n: del.length, d: b })}</div>`;
+      }).join('');
+      const tiposMal = [...new Set(mal.map((id) => porId[id].t))];
+      const mensaje = !mal.length
+        ? (ctx.repaso ? '¡Ya las dominas todas! Así se entrena: equivocarse, entender y volver a intentar.' : '¡Perfecto! Prueba otra ronda o un tipo más difícil.')
+        : bien / ids.length >= 0.8 ? 'Muy bien. Revisa tus errores y repítelos para dejarlos en cero.'
+        : bien / ids.length >= 0.5 ? 'Vas bien. Lee el truco de cada error antes de repetir.'
+        : 'Es normal al principio. Lee con calma cada explicación y repite: la segunda vez sale mejor.';
+
+      raiz.innerHTML = `
+        <div class="panel centro">
+          <p class="lbl">${ctx.repaso ? 'Resultado del repaso' : 'Tu resultado'}</p>
+          <p class="grande">${bien}/${ids.length}</p>
+          <p>${mensaje}</p>
+          ${tipos.length > 1 ? `<div class="porTipo">${porTipo}</div>` : ''}
+          <div class="fila" style="justify-content:center">
+            ${mal.length ? `<button class="btn" id="gim-rep">Repetir solo las que fallé (${mal.length})</button>` : ''}
+            <button class="btn ${mal.length ? 'sec' : ''}" id="gim-nueva">Nueva ronda</button>
+            <button class="btn sec" id="gim-ini">Elegir otro tipo</button>
+          </div>
+        </div>
+        ${mal.length ? `
+        <div class="panel" style="margin-top:16px">
+          <h2>Lo que te faltó</h2>
+          ${mal.map((id) => { const e = porId[id]; return `
+            <div class="error">
+              <p class="lbl">${esc(TIPOS[e.t].n)}</p>
+              <h3>${esc(e.q)}</h3>
+              ${e.big ? `<p class="big">${esc(e.big)}</p>` : ''}
+              <p class="tu">✗ Elegiste: ${esc(resp[id] ?? 'sin contestar')}</p>
+              <p class="ok">✓ Correcta: ${esc(e.o[0])}</p>
+              <p>${esc(e.x)}</p>
+            </div>`; }).join('')}
+          ${tiposMal.map((t) => `<p class="truco"><strong>Truco para ${esc(TIPOS[t].n.toLowerCase())}:</strong> ${esc(TIPOS[t].truco)}</p>`).join('')}
+        </div>` : ''}`;
+      raiz.querySelector('#gim-rep')?.addEventListener('click', () => jugar(barajar(mal), { ...ctx, repaso: true }));
+      raiz.querySelector('#gim-nueva').addEventListener('click', () => nuevaRonda(ctx.t));
+      raiz.querySelector('#gim-ini').addEventListener('click', inicio);
+      subir();
+    }
+
+    inicio();
+  }
+
+  document.addEventListener('astro:page-load', iniciar);
+  if (document.readyState !== 'loading') iniciar();
+})();
+</script>
