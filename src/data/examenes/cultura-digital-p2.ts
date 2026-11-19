@@ -84,19 +84,9 @@ export const EXAMEN_CD_P2: Examen = {
       opciones: ["Google Chrome", "Microsoft Word", "Linux", "WhatsApp"],
     },
     {
-      id: "q9", tipo: "opcion",
-      texto: "¿Cuál de estos SÍ es un sistema operativo?",
-      opciones: ["Mozilla Firefox", "Android", "Safari", "Microsoft Edge"],
-    },
-    {
       id: "q10", tipo: "opcion",
       texto: "¿Cuál de estos NO es un sistema operativo?",
       opciones: ["Windows", "macOS", "iOS", "Opera"],
-    },
-    {
-      id: "q11", tipo: "opcion",
-      texto: "Google Chrome, Firefox, Safari y Edge son:",
-      opciones: ["Sistemas operativos", "Antivirus", "Navegadores web", "Redes sociales"],
     },
 
     // ─── Internet: IP y DNS ───────────────────────────────────────────────
@@ -127,17 +117,6 @@ export const EXAMEN_CD_P2: Examen = {
       texto: "Un programa que puedes usar, estudiar, modificar y compartir libremente es:",
       opciones: ["Software privativo", "Shareware", "Software pirata", "Software libre"],
     },
-    // ─── Impacto social (1.3) ─────────────────────────────────────────────
-    {
-      id: "q17", tipo: "opcion",
-      texto: "Una app \"gratis\" recopila lo que haces para venderlo a anunciantes. ¿Qué significa?",
-      opciones: [
-        "Que la app es software libre",
-        "Que no pasa nada con tus datos",
-        "Que es una red privada",
-        "Que tus datos son el pago: el producto eres tú",
-      ],
-    },
 
     // ─── Ciudadanía digital ───────────────────────────────────────────────
     {
@@ -158,16 +137,6 @@ export const EXAMEN_CD_P2: Examen = {
         "Tu contraseña",
         "El rastro de todo lo que haces y publicas en internet",
         "Un programa antivirus",
-      ],
-    },
-    {
-      id: "q20", tipo: "opcion",
-      texto: "¿Cuál es un ejemplo de huella digital PASIVA?",
-      opciones: [
-        "Una foto que subiste a Instagram",
-        "Un comentario que escribiste",
-        "Un formulario que llenaste",
-        "Tu ubicación y tu dirección IP, que quedan registradas sin que te des cuenta",
       ],
     },
     {
@@ -204,11 +173,6 @@ export const EXAMEN_CD_P2: Examen = {
       id: "q24", tipo: "opcion",
       texto: "Te llega un mensaje: \"Tu cuenta será bloqueada hoy. Entra a este enlace y escribe tu contraseña\". Es un ejemplo de:",
       opciones: ["Netiqueta", "Una actualización del sistema", "Software libre", "Phishing: un engaño para robar tus datos"],
-    },
-    {
-      id: "q25", tipo: "opcion",
-      texto: "¿Cuál es la contraseña más segura?",
-      opciones: ["123456", "tunombre2009", "Mar!Pue6la-2026#Gato", "contraseña"],
     },
 
     // ─── Abiertas ─────────────────────────────────────────────────────────

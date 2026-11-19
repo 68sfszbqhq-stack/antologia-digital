@@ -17,12 +17,11 @@ import type { Desglose } from "./cultura-digital-p1-clave";
 export const CLAVE_OPCION: Record<string, number> = {
   q1: 1, q2: 2, q3: 3, q4: 1,            // bits y bytes
   q5: 2, q6: 3, q7: 1,                   // microprocesadores
-  q8: 2, q9: 1, q10: 3, q11: 2,          // sistemas operativos
+  q8: 2, q10: 3,                         // sistemas operativos (con trampa)
   q12: 3, q13: 1,                        // IP y DNS
-  q14: 3,                               // licencias
-  q17: 3,                               // impacto social (uso de datos)
-  q18: 1, q19: 2, q20: 3, q21: 0,        // netiqueta, huella, marca personal
-  q22: 2, q23: 1, q24: 3, q25: 2,        // ciberacoso, normatividad, seguridad
+  q14: 3,                                // software libre
+  q18: 1, q19: 2, q21: 0,                // netiqueta, huella, marca personal
+  q22: 2, q23: 1, q24: 3,                // ciberacoso, normatividad, seguridad
 };
 
 export const CLAVE_ORDEN: Record<string, { correcta: "antes" | "despues"; nota: string }[]> = {};
@@ -35,7 +34,7 @@ export const ESPERADO: Record<string, string> = {
 
 // ─── Cómo se calcula la calificación ─────────────────────────────────────────
 //
-// Opción múltiple 80 % (23 preguntas) y las dos abiertas 20 % (0, 1 o 2 cada
+// Opción múltiple 80 % (18 preguntas) y las dos abiertas 20 % (0, 1 o 2 cada
 // una). Mientras falte calificar una abierta, sale como "provisional".
 
 export const PESOS = { texto: 2, botones: 0, opcion: 8 } as const;
