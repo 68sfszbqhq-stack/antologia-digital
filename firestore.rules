@@ -301,6 +301,77 @@ service cloud.firestore {
       allow update, delete: if esProfesor();
     }
 
+    // ─── Ojo Rápido en vivo (Lengua y Comunicación) ──────────────────────
+    //
+    // El profesor abre una sala con un código de 4 dígitos y la proyecta.
+    // En la sala solo viajan las 8 opciones de una carta; la otra carta se
+    // queda en la computadora del profesor, así que desde el celular no se
+    // puede deducir la respuesta. Cada alumno contesta una vez por ronda (el
+    // id es <ronda>_<uid> y no hay update) y solo mientras la ronda está
+    // abierta. Nombre y grupo salen de su ficha, no se teclean.
+
+    function ojoRespBienFormada(codigo, respId) {
+      let d = request.resource.data;
+      let sala = get(/databases/$(database)/documents/ojoSalas/$(codigo)).data;
+      return d.keys().hasOnly(['uid', 'nombre', 'grupo', 'ronda', 's', 't'])
+        && d.uid == request.auth.uid
+        && d.nombre == fichaAlumno().nombre
+        && d.grupo == fichaAlumno().grupo
+        && sala.estado == 'pregunta'
+        && d.ronda is int && d.ronda == sala.ronda
+        && respId == string(d.ronda) + '_' + request.auth.uid
+        && d.s is int && d.s in sala.opciones
+        && d.t == request.time;
+    }
+
+    // ─── Gimnasio mental (Lengua y Comunicación) ──────────────────────────
+    //
+    // Un documento por alumno (/gimnasio/<uid>) con su avance: cuántas rondas
+    // lleva, qué ejercicios domina y cómo le fue en la última. Lo escribe el
+    // propio alumno al terminar cada ronda; el nombre y el grupo salen de su
+    // ficha. Las rondas solo suben de una en una. El profesor lo lee al abrir
+    // su cuaderno y de ahí sale la columna "Gimnasio mental".
+
+    function gimBienFormado() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['uid', 'nombre', 'grupo', 'rondas', 'dominados',
+               'ultimaBien', 'ultimaDe', 'av', 'actualizado'])
+        && d.uid == request.auth.uid
+        && d.nombre == fichaAlumno().nombre
+        && d.grupo == fichaAlumno().grupo
+        && d.rondas is int
+        && d.dominados is int  && d.dominados >= 0 && d.dominados <= 60
+        && d.ultimaDe is int   && d.ultimaDe >= 1  && d.ultimaDe <= 10
+        && d.ultimaBien is int && d.ultimaBien >= 0 && d.ultimaBien <= d.ultimaDe
+        && d.av is map && d.av.size() <= 60
+        && d.actualizado == request.time;
+    }
+
+    match /gimnasio/{alumnoId} {
+      allow get: if esProfesor()
+        || (request.auth != null && request.auth.uid == alumnoId);
+      allow list: if esProfesor();
+      allow create: if alumnoActivo() && alumnoId == request.auth.uid
+        && gimBienFormado() && request.resource.data.rondas == 1;
+      allow update: if alumnoActivo() && alumnoId == request.auth.uid
+        && gimBienFormado() && request.resource.data.rondas == resource.data.rondas + 1;
+      allow delete: if esProfesor();
+    }
+
+    match /ojoSalas/{codigo} {
+      allow get: if esProfesor() || alumnoActivo();
+      allow list: if esProfesor();
+      allow create, update, delete: if esProfesor();
+
+      match /resp/{respId} {
+        allow get: if esProfesor()
+          || (request.auth != null && resource.data.uid == request.auth.uid);
+        allow list: if esProfesor();
+        allow create: if alumnoActivo() && ojoRespBienFormada(codigo, respId);
+        allow delete: if esProfesor();
+      }
+    }
+
     // ─── Diagnóstico integral (atención + temperamento + evaluación) ──────
     //
     // AQUÍ SE ENTRA CON CUENTA DE GOOGLE, a diferencia de /landolt. El contraste

@@ -219,6 +219,9 @@ function Cuaderno({ c, onError }) {
     return p;
   }, [alumnos, columnas, notas]);
 
+  // Criterio que se llena solo desde el Gimnasio mental (ver GimnasioEnCuaderno).
+  const colGim = columnas.find((col) => col.fuente === 'gimnasio');
+
   const ponderado = columnas.some((col) => col.peso > 0);
   const sumaPesos = columnas.reduce((s, col) => s + (col.peso > 0 ? col.peso : 0), 0);
 
@@ -261,6 +264,14 @@ function Cuaderno({ c, onError }) {
         <BotonChico onClick={() => setEditando('alumno')}>+ Alumno</BotonChico>
         <BotonChico onClick={() => setEditando('datos')}>Nombre del cuaderno</BotonChico>
         <BotonChico onClick={exportar} disabled={!columnas.length}>Descargar CSV para iDoceo</BotonChico>
+        {!colGim && (
+          <BotonChico
+            onClick={() => guardar({ columnas: [...columnas, { id: 'cgimnasio', nombre: 'Gimnasio mental', max: 10, fuente: 'gimnasio' }] })}
+            title="Columna /10 que se llena sola con el avance de cada alumno en el Gimnasio mental"
+          >
+            + Columna del Gimnasio mental
+          </BotonChico>
+        )}
         <label className="ml-auto flex items-center gap-2 text-xs font-mono-tech text-slate-400 cursor-pointer select-none">
           <input
             type="checkbox"
@@ -424,6 +435,8 @@ function Cuaderno({ c, onError }) {
         </table>
       </div>
 
+      {colGim && <GimnasioEnCuaderno c={c} col={colGim} guardar={guardar} />}
+
       <p className="text-[11px] text-slate-600 leading-relaxed mt-4">
         Cada calificación se guarda sola al salir de la casilla. <b>Enter</b> baja al siguiente alumno;
         <b> Tab</b> pasa al siguiente criterio. Para pegar una columna entera copiada de Excel o iDoceo,
@@ -435,6 +448,173 @@ function Cuaderno({ c, onError }) {
           ? 'Las casillas vacías cuentan como cero.'
           : 'Las casillas vacías no cuentan todavía: marca "Vacías cuentan como 0" al cerrar el parcial.'}
       </p>
+    </div>
+  );
+}
+
+/* ── Gimnasio mental → cuaderno ──────────────────────────────────
+ *
+ * Los alumnos guardan su avance en /gimnasio/<uid> al terminar cada ronda
+ * (página lengua-y-comunicacion/gimnasio-mental). Aquí, cada vez que el
+ * profesor tiene abierto un cuaderno con la columna del Gimnasio, se pasa a esa
+ * columna: dominados ÷ 60 × 10. La nota SOLO SUBE: si el alumno vuelve a fallar
+ * un ejercicio, no pierde lo ganado, y si el profesor pone a mano una nota
+ * mayor, se respeta.
+ *
+ * Los alumnos del cuaderno no traen su cuenta, así que cada cuenta se empareja
+ * por nombre una sola vez y queda guardado en `vinculosGim: { <uid>: <alumnoId> }`.
+ * Varias cuentas pueden ser del mismo alumno (algunos tienen dos); cuenta la
+ * mejor. Se empareja solo cuando todas las palabras del nombre de la ficha
+ * están en el nombre de la lista y hay UN candidato; lo dudoso lo elige el
+ * profesor.
+ */
+const TOTAL_GIMNASIO = 60;
+
+const palabras = (s) => (s || '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  .replace(/[^a-z\s]/g, ' ').split(/\s+/).filter((t) => t.length >= 3);
+
+// "3º A Vesp", "3°A", "3º A Vespertino 2026-2027" → "3a". Sin grado claro, null.
+const grupoCorto = (g) => {
+  const m = (g || '').normalize('NFD').toLowerCase().match(/(\d)\D{0,6}?([a-z])(?![a-z])/);
+  return m ? m[1] + m[2] : null;
+};
+
+function GimnasioEnCuaderno({ c, col, guardar }) {
+  const [docs, setDocs] = useState(null);
+  const [error, setError] = useState('');
+  const alumnos = c.alumnos ?? [];
+  const vinculos = c.vinculosGim ?? {};
+
+  useEffect(() => onSnapshot(
+    collection(db(), 'gimnasio'),
+    (s) => setDocs(s.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    (e) => setError(`No se pudo leer el Gimnasio mental (${e?.code ?? e}).`),
+  ), []);
+
+  const gc = grupoCorto(c.grupo);
+  const delGrupo = useMemo(
+    () => (docs ?? []).filter((d) => { const g = grupoCorto(d.grupo); return !gc || !g || g === gc; }),
+    [docs, gc],
+  );
+
+  // Empareja lo seguro y sube las notas que mejoraron, en una sola escritura.
+  useEffect(() => {
+    if (!docs) return;
+    const cambios = {};
+    const v = { ...vinculos };
+    for (const d of delGrupo) {
+      if (v[d.id]) continue;
+      const t = palabras(d.nombre);
+      if (t.length < 2) continue;
+      const cand = alumnos.filter((a) => t.every((p) => palabras(a.nombre).includes(p)));
+      if (cand.length === 1) { v[d.id] = cand[0].id; cambios[`vinculosGim.${d.id}`] = cand[0].id; }
+    }
+    const mejor = {};
+    for (const [uid, aId] of Object.entries(v)) {
+      const d = docs.find((x) => x.id === uid);
+      if (d) mejor[aId] = Math.max(mejor[aId] ?? 0, d.dominados || 0);
+    }
+    for (const [aId, dom] of Object.entries(mejor)) {
+      if (!alumnos.some((a) => a.id === aId)) continue;
+      const nota = Math.round((dom / TOTAL_GIMNASIO) * 100) / 10;
+      const actual = c.notas?.[aId]?.[col.id];
+      if (nota > 0 && (typeof actual !== 'number' || actual < nota)) cambios[`notas.${aId}.${col.id}`] = nota;
+    }
+    if (Object.keys(cambios).length) guardar(cambios);
+  }, [docs, c.notas, c.vinculosGim]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (error) return <Aviso>{error}</Aviso>;
+  if (!docs) return null;
+
+  const porUid = Object.fromEntries(docs.map((d) => [d.id, d]));
+  const sueltos = delGrupo.filter((d) => !vinculos[d.id]);
+  // Por alumno: rondas sumadas de todas sus cuentas; dominados, la mejor.
+  const filas = alumnos.map((a) => {
+    const cuentas = Object.entries(vinculos).filter(([uid, aId]) => aId === a.id && porUid[uid]).map(([uid]) => porUid[uid]);
+    if (!cuentas.length) return null;
+    const ult = cuentas.reduce((x, y) => ((y.actualizado?.seconds ?? 0) > (x.actualizado?.seconds ?? 0) ? y : x));
+    return {
+      a, cuentas, ult,
+      rondas: cuentas.reduce((s, d) => s + (d.rondas || 0), 0),
+      dominados: Math.max(...cuentas.map((d) => d.dominados || 0)),
+    };
+  }).filter(Boolean).sort((x, y) => (y.dominados - x.dominados) || (y.rondas - x.rondas));
+  const fecha = (t) => t?.toDate?.().toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) ?? '—';
+
+  return (
+    <div className={`${caja} p-5 mt-5`}>
+      <h3 className="text-base font-bold text-white mb-1">Gimnasio mental</h3>
+      <p className="text-xs text-slate-400 mb-4">
+        La columna «{col.nombre}» se llena sola: ejercicios dominados ÷ {TOTAL_GIMNASIO} × 10, y solo sube.
+        Las rondas son cuántas veces practicó; no cuentan en el promedio.
+      </p>
+
+      {sueltos.length > 0 && (
+        <div className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+          <p className="text-sm text-amber-200 mb-3">
+            {sueltos.length === 1 ? 'Una cuenta practicó' : `${sueltos.length} cuentas practicaron`} y no sé de quién son en tu lista.
+            Elige una vez y queda guardado (si un alumno tiene dos cuentas, elige el mismo nombre en las dos):
+          </p>
+          <div className="flex flex-col gap-2">
+            {sueltos.map((d) => (
+              <label key={d.id} className="flex flex-wrap items-center gap-3 text-sm text-slate-200">
+                <span className="min-w-[14rem]">{d.nombre} <span className="text-slate-500 text-xs">({d.grupo} · {d.rondas} {d.rondas === 1 ? 'ronda' : 'rondas'})</span></span>
+                <select
+                  defaultValue=""
+                  onChange={(e) => e.target.value && guardar({ [`vinculosGim.${d.id}`]: e.target.value })}
+                  className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white"
+                >
+                  <option value="">¿Quién es?</option>
+                  {alumnos.map((a) => <option key={a.id} value={a.id}>{a.nombre}</option>)}
+                </select>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {filas.length ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs font-mono-tech text-slate-500">
+                <th className="py-2 pr-3 font-normal">Alumno</th>
+                <th className="py-2 px-3 font-normal text-center">Rondas</th>
+                <th className="py-2 px-3 font-normal text-center">Dominados</th>
+                <th className="py-2 px-3 font-normal text-center">Última ronda</th>
+                <th className="py-2 px-3 font-normal">Última vez</th>
+                <th className="py-2 pl-3 font-normal" />
+              </tr>
+            </thead>
+            <tbody>
+              {filas.map(({ a, cuentas, ult, rondas, dominados }) => (
+                <tr key={a.id} className="border-t border-white/5">
+                  <td className="py-2 pr-3 text-white">
+                    {a.nombre}
+                    {cuentas.length > 1 && <span className="ml-2 text-[11px] text-slate-500">({cuentas.length} cuentas)</span>}
+                  </td>
+                  <td className="py-2 px-3 text-center font-mono-tech">{rondas}</td>
+                  <td className="py-2 px-3 text-center font-mono-tech">{dominados}/{TOTAL_GIMNASIO}</td>
+                  <td className="py-2 px-3 text-center font-mono-tech">{ult.ultimaBien}/{ult.ultimaDe}</td>
+                  <td className="py-2 px-3 text-slate-400 text-xs">{fecha(ult.actualizado)}</td>
+                  <td className="py-2 pl-3 text-right">
+                    <button
+                      onClick={() => guardar(Object.fromEntries(cuentas.map((d) => [`vinculosGim.${d.id}`, deleteField()])))}
+                      title={`Desemparejar (su cuenta: «${cuentas.map((d) => d.nombre).join('», «')}»)`}
+                      className="text-xs text-slate-600 hover:text-rose-400"
+                    >
+                      no es
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        !sueltos.length && <p className="text-sm text-slate-500">Nadie de este grupo ha practicado todavía con su cuenta.</p>
+      )}
     </div>
   );
 }

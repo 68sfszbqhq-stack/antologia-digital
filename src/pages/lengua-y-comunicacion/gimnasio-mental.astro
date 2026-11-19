@@ -70,6 +70,78 @@ const GIM = { TIPOS, EJERCICIOS };
 @media(prefers-reduced-motion:reduce){#gim .progreso i{transition:none}}
 </style>
 
+<script>
+  // Puente entre el juego (is:inline, no puede importar) y Firebase, igual que
+  // en el simulador psicométrico. Expone window.gimNube y avisa los cambios de
+  // sesión con el evento "gim:sesion". El avance se guarda en /gimnasio/<uid>
+  // (ver la sección "Gimnasio mental" de firestore.rules) y el cuaderno del
+  // profesor lo convierte en la columna "Gimnasio mental".
+  import { doc, getDoc, setDoc, increment, serverTimestamp } from "firebase/firestore";
+  import { db, firebaseConfigurado } from "../../lib/firebase";
+
+  const w = window as any;
+  const alumno = () => import("../../lib/alumno");
+  let quitar: null | (() => void) = null;
+  let sesion: any = null;
+
+  function avisar(s: any) {
+    sesion = s;
+    document.dispatchEvent(new CustomEvent("gim:sesion"));
+  }
+
+  w.gimNube = {
+    sesion: () => sesion,
+    entrar: async () => { const a = await alumno(); await a.entrarConGoogle(); },
+    salir: async () => { const a = await alumno(); await a.salir(); },
+    crearFicha: async (nombre: string, grupo: string) => {
+      const a = await alumno();
+      const us = sesion?.user;
+      if (!us) throw new Error("sin sesión");
+      const f = await a.crearMiFicha(us, nombre, grupo);
+      avisar({ ...sesion, ficha: true, activo: true, nombre: f.nombre, grupo: f.grupo });
+    },
+    leer: async () => {
+      if (!sesion?.ficha) return null;
+      const s = await getDoc(doc(db(), "gimnasio", sesion.uid));
+      return s.exists() ? s.data() : null;
+    },
+    // Una escritura por ronda terminada; las reglas exigen que "rondas" suba de uno en uno.
+    guardar: async (d: { av: Record<string, unknown>; dominados: number; ultimaBien: number; ultimaDe: number }) => {
+      if (!sesion?.ficha) throw new Error("sin ficha");
+      await setDoc(doc(db(), "gimnasio", sesion.uid), {
+        ...d, uid: sesion.uid, nombre: sesion.nombre, grupo: sesion.grupo,
+        rondas: increment(1), actualizado: serverTimestamp(),
+      }, { merge: true });
+    },
+  };
+
+  document.addEventListener("astro:page-load", async () => {
+    if (!document.getElementById("gim-app")) return;
+    if (!firebaseConfigurado()) { avisar({ sinFirebase: true }); return; }
+    const a = await alumno();
+    a.sesionPorRedireccion();
+    quitar?.();
+    quitar = a.observarSesion(async (us) => {
+      if (!us) { avisar(null); return; }
+      const base = { user: us, uid: us.uid, correo: us.email ?? "" };
+      if (a.esProfesor(us)) { avisar({ ...base, profe: true }); return; }
+      avisar({ ...base, cargando: true });
+      try {
+        let f = await a.fichaDe(us.uid);
+        if (!f) {
+          const prev = await a.datosDelDiagnostico(us);
+          if (prev && prev.nombre && prev.grupo) f = await a.crearMiFicha(us, prev.nombre, prev.grupo);
+        }
+        avisar(f ? { ...base, ficha: true, activo: f.activo, nombre: f.nombre, grupo: f.grupo } : { ...base, ficha: false });
+      } catch (e) {
+        console.error(e);
+        avisar({ ...base, ficha: false, error: true });
+      }
+    });
+  });
+  document.addEventListener("astro:before-swap", () => { quitar?.(); quitar = null; });
+</script>
+
 <script is:inline define:vars={{ GIM }}>
 (() => {
   const { TIPOS, EJERCICIOS } = GIM;
@@ -79,19 +151,70 @@ const GIM = { TIPOS, EJERCICIOS };
 
   const barajar = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  // Avance por ejercicio: { id: { v: veces bien, m: veces mal } }. Solo en este navegador.
-  const leer = () => { try { return JSON.parse(localStorage.getItem('gim-avance')) || {}; } catch { return {}; } };
-  const guardar = (a) => { try { localStorage.setItem('gim-avance', JSON.stringify(a)); } catch {} };
-  const dominado = (r) => r && r.v > 0 && (!r.m || r.ultimo === 'v');
+  // Avance por ejercicio: { id: { v: veces bien, m: veces mal, ultimo: 'v'|'m' } }.
+  // Se guarda en el navegador; si el alumno entró con su cuenta, por separado
+  // para cada cuenta (en un celular compartido no se mezclan) y además en Firebase.
+  const nube = () => window.gimNube;
+  const ses = () => (nube() ? nube().sesion() : null);
+  const conCuenta = () => { const s = ses(); return !!(s && s.ficha && s.activo !== false); };
+  const clave = () => (conCuenta() ? 'gim-avance-' + ses().uid : 'gim-avance');
+  const leer = () => { try { return JSON.parse(localStorage.getItem(clave())) || {}; } catch { return {}; } };
+  const guardar = (a) => { try { localStorage.setItem(clave(), JSON.stringify(a)); } catch {} };
+  const dominado = (r) => r && r.v > 0 && r.ultimo === 'v';
+  // Junta el avance local con el de la nube: por ejercicio gana el que tiene más intentos.
+  const juntar = (a, b) => {
+    const r = { ...a };
+    for (const [id, x] of Object.entries(b || {})) {
+      if (!porId[id] || !x) continue;
+      const y = r[id];
+      if (!y || (x.v || 0) + (x.m || 0) > (y.v || 0) + (y.m || 0)) r[id] = { v: x.v || 0, m: x.m || 0, ultimo: x.ultimo === 'v' ? 'v' : 'm' };
+    }
+    return r;
+  };
 
   function iniciar() {
     const raiz = document.getElementById('gim-app');
     if (!raiz || raiz.dataset.listo) return;
     raiz.dataset.listo = '1';
     const subir = () => { const s = document.getElementById('gim'); if (s && s.getBoundingClientRect().top < 0) s.scrollIntoView({ block: 'start' }); };
+    let enInicio = false, cargadoDe = null;
+
+    // Al entrar con la cuenta, se trae su avance de la nube una vez.
+    document.addEventListener('gim:sesion', async () => {
+      if (!raiz.isConnected) return;
+      const s = ses();
+      if (conCuenta() && cargadoDe !== s.uid) {
+        cargadoDe = s.uid;
+        try { const d = await nube().leer(); if (d && d.av) guardar(juntar(leer(), d.av)); } catch (e) { console.error(e); }
+      }
+      if (enInicio) inicio();
+    });
+
+    // Recuadro de la cuenta: con ella, el avance cuenta en el cuaderno del profesor.
+    function cajaCuenta() {
+      const s = ses();
+      if (!nube() || (s && s.sinFirebase)) return '';
+      if (!s) return `<div class="truco"><strong>Entra con tu cuenta de Google para que tu avance cuente en tu calificación.</strong> Sin entrar puedes practicar, pero tu profesor no lo verá.<div class="fila" style="margin-top:10px"><button class="btn" id="gim-entrar">Entrar con Google</button></div></div>`;
+      if (s.cargando) return '<p class="gris">Revisando tu cuenta…</p>';
+      if (s.profe) return '<p class="truco">Entraste como profesor: puedes probar los ejercicios, pero tu avance no se registra.</p>';
+      if (!s.ficha) return `<div class="truco"><strong>Falta un paso:</strong> escribe tu nombre completo como aparece en lista y tu grupo. Solo se pregunta una vez.
+          <div class="fila" style="margin-top:10px"><input id="gim-nom" placeholder="Nombre completo" maxlength="80" style="flex:1;min-width:200px"><input id="gim-gru" placeholder="Grupo (ej. 3º A Vesp)" maxlength="30" style="width:170px"><button class="btn" id="gim-ficha">Guardar</button></div><p class="tu" id="gim-err"></p></div>`;
+      if (s.activo === false) return '<p class="truco">Tu cuenta está desactivada: habla con tu profesor.</p>';
+      return `<p class="gris">✓ Tu avance se registra en el cuaderno de tu profesor como <strong>${esc(s.nombre)}</strong> · <button class="btn sec" id="gim-salir-cta" style="padding:6px 10px;font-size:12px">No soy yo</button></p>`;
+    }
+    function engancharCuenta() {
+      raiz.querySelector('#gim-entrar')?.addEventListener('click', () => nube().entrar().catch((e) => console.error(e)));
+      raiz.querySelector('#gim-salir-cta')?.addEventListener('click', () => nube().salir());
+      raiz.querySelector('#gim-ficha')?.addEventListener('click', () => {
+        const n = raiz.querySelector('#gim-nom').value.trim(), g = raiz.querySelector('#gim-gru').value.trim(), err = raiz.querySelector('#gim-err');
+        if (n.length < 5 || !g) { err.textContent = 'Escribe tu nombre completo y tu grupo.'; return; }
+        nube().crearFicha(n, g).catch((e) => { console.error(e); err.textContent = 'No se pudo guardar. Intenta de nuevo.'; });
+      });
+    }
 
     // ─── Inicio: elegir tipo ────────────────────────────────────────────────
     function inicio() {
+      enInicio = true;
       const av = leer();
       const cuenta = (t) => {
         const del = EJERCICIOS.filter((e) => !t || e.t === t);
@@ -100,6 +223,7 @@ const GIM = { TIPOS, EJERCICIOS };
       const tot = cuenta(null);
       raiz.innerHTML = `
         <div class="panel">
+          ${cajaCuenta()}
           <div><p class="lbl">Elige qué entrenar</p><p class="gris">Rondas de ${POR_RONDA} ejercicios. Llevas <strong>${tot.d} de ${tot.n}</strong> dominados.</p></div>
           <div class="tipos">
             <button class="tipo todos" data-t=""><b>Mezcla de todo</b><small>Como en una prueba real</small>${barra(tot)}</button>
@@ -109,6 +233,7 @@ const GIM = { TIPOS, EJERCICIOS };
         </div>`;
       raiz.querySelectorAll('[data-t]').forEach((b) => b.addEventListener('click', () => nuevaRonda(b.dataset.t || null)));
       raiz.querySelector('#gim-borrar')?.addEventListener('click', () => { guardar({}); inicio(); });
+      engancharCuenta();
     }
     const barra = (c) => `<span class="medidor" aria-hidden="true"><i style="width:${c.n ? Math.round(c.d / c.n * 100) : 0}%"></i></span>`;
 
@@ -124,6 +249,7 @@ const GIM = { TIPOS, EJERCICIOS };
 
     // ─── Contestar una ronda (sin decir si va bien) ─────────────────────────
     function jugar(ids, ctx) {
+      enInicio = false;
       const resp = {};      // id → opción elegida (texto)
       const orden = {};     // id → opciones barajadas para esta vuelta
       ids.forEach((id) => { orden[id] = barajar(porId[id].o); });
@@ -162,8 +288,26 @@ const GIM = { TIPOS, EJERCICIOS };
         });
         guardar(av);
         resultado(ids, resp, mal, ctx);
+        registrar(av, ids.length - mal.length, ids.length);
       }
       pintar();
+    }
+
+    // Manda la ronda a la nube y avisa en la pantalla de resultado si quedó registrada.
+    async function registrar(av, bien, de) {
+      const el = () => raiz.querySelector('#gim-reg');
+      if (!conCuenta()) { if (el()) el().innerHTML = ses() && ses().profe ? '' : 'Tu avance no cuenta para tu calificación porque no entraste con tu cuenta. <a href="#gim" id="gim-ir-ini">Entrar</a>'; raiz.querySelector('#gim-ir-ini')?.addEventListener('click', (e) => { e.preventDefault(); inicio(); }); return; }
+      const limpio = {};
+      for (const [id, x] of Object.entries(av)) if (porId[id]) limpio[id] = { v: x.v || 0, m: x.m || 0, ultimo: x.ultimo === 'v' ? 'v' : 'm' };
+      const dominados = Object.values(limpio).filter(dominado).length;
+      if (el()) el().textContent = 'Guardando en el cuaderno de tu profesor…';
+      try {
+        await nube().guardar({ av: limpio, dominados, ultimaBien: bien, ultimaDe: de });
+        if (el()) el().innerHTML = `✓ Registrado en el cuaderno de tu profesor · dominas <strong>${dominados} de ${EJERCICIOS.length}</strong>`;
+      } catch (e) {
+        console.error(e);
+        if (el()) el().textContent = 'No se pudo registrar esta ronda (¿sin internet?). Tu avance quedó guardado en este celular y se enviará con tu siguiente ronda.';
+      }
     }
 
     // ─── Resultado con retroalimentación ────────────────────────────────────
@@ -187,6 +331,7 @@ const GIM = { TIPOS, EJERCICIOS };
           <p class="lbl">${ctx.repaso ? 'Resultado del repaso' : 'Tu resultado'}</p>
           <p class="grande">${bien}/${ids.length}</p>
           <p>${mensaje}</p>
+          <p class="gris" id="gim-reg" aria-live="polite"></p>
           ${tipos.length > 1 ? `<div class="porTipo">${porTipo}</div>` : ''}
           <div class="fila" style="justify-content:center">
             ${mal.length ? `<button class="btn" id="gim-rep">Repetir solo las que fallé (${mal.length})</button>` : ''}
