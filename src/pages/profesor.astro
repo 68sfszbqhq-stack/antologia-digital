@@ -896,6 +896,9 @@ const linksAlumnos = [
   let psico: RegistroPsico[] | null = null;
 
   const PERFIL: Record<string, string> = { D: "Dominante", I: "Influyente", S: "Estable", C: "Cumplido" };
+  // Sin ningún renglón de personalidad contestado, el perfil guardado es un
+  // empate en cero y no significa nada: se muestra como "sin contestar".
+  const perfilPsico = (r: RegistroPsico) => r.discOk > 0 ? (PERFIL[r.perfil] ?? r.perfil) : "";
   const nivelPsico = (p: number) => p >= 80 ? "Vas muy bien" : p >= 60 ? "Vas bien, con detalles por pulir" : "Te conviene practicar más";
 
   async function cargarPsico() {
@@ -929,7 +932,7 @@ const linksAlumnos = [
       `Razonamiento: ${r.raz} de 16\n` +
       `Situaciones laborales: ${r.sit} de 8\n` +
       `Integridad: ${r.intP}%\n` +
-      `Perfil de personalidad: ${PERFIL[r.perfil] ?? r.perfil}\n\n` +
+      `Perfil de personalidad: ${perfilPsico(r) || "sin contestar"}\n\n` +
       `Qué te conviene practicar:\n` + tips.map((t) => `• ${t}`).join("\n");
   }
 
@@ -968,7 +971,7 @@ const linksAlumnos = [
         <td class="py-3 px-2 text-center font-mono-tech">${r.raz}/16</td>
         <td class="py-3 px-2 text-center font-mono-tech">${r.sit}/8</td>
         <td class="py-3 px-2 text-center font-mono-tech">${r.intP}%</td>
-        <td class="py-3 px-2 text-xs">${PERFIL[r.perfil] ?? ""}</td>
+        <td class="py-3 px-2 text-xs">${perfilPsico(r) || '<span class="text-slate-500 italic">sin contestar</span>'}</td>
         <td class="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">${r.enviado ? r.enviado.toDate().toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }) : ""}</td>
         <td class="py-3 pl-2 text-right whitespace-nowrap">
           <a href="${wa}" target="_blank" rel="noopener" class="text-xs font-mono-tech text-emerald-400 hover:underline mr-3" title="${r.celular ? "Abre el chat de " + escapar(r.nombre) : "Sin número: eliges el chat en WhatsApp"}">WhatsApp${r.celular ? "" : " ↗"}</a>
