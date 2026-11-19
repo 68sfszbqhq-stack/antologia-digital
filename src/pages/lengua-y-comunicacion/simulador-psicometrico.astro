@@ -1,0 +1,458 @@
+---
+// Simulador de pruebas psicométricas para Lengua y Comunicación.
+// Práctica para procesos de selección: personalidad (estilo DISC), razonamiento,
+// integridad y situaciones laborales, con reloj por sección y pronóstico al final.
+// Las preguntas son originales (no se copian pruebas comerciales).
+// No guarda nada en Firebase: todo pasa en el navegador del alumno.
+// El script es is:inline y se cuelga de astro:page-load por las View Transitions.
+import Layout from '../../layouts/Layout.astro';
+import { u } from '../../lib/url';
+import '../../styles/taller-lengua.css';
+---
+<Layout title="Simulador psicométrico · Lengua y Comunicación" description="Practica las pruebas psicométricas de los procesos de selección y descubre cómo te iría.">
+  <div class="taller-shell">
+    <nav class="taller-breadcrumb" aria-label="Ubicación"><a href={u('/')}>Inicio</a><span aria-hidden="true"> / </span><a href={u('/lengua-y-comunicacion')}>Lengua y Comunicación</a><span aria-hidden="true"> / </span><span>Simulador psicométrico</span></nav>
+    <header class="taller-heading">
+      <p class="taller-eyebrow">PRÁCTICA · PROCESOS DE SELECCIÓN</p>
+      <h1>Simulador de pruebas psicométricas</h1>
+      <p>Muchas empresas y escuelas aplican estas pruebas antes de contratar. Aquí practicas las cuatro más comunes en 25 minutos y al final ves cómo te iría y qué te conviene mejorar.</p>
+    </header>
+    <section id="psico"><div id="psico-app"><p class="taller-footnote">Cargando el simulador…</p></div></section>
+  </div>
+</Layout>
+
+<style is:global>
+#psico{--paper:#0f1726;--sheet:#121b2c;--ink:#e2e8f0;--muted:#a2adc0;--line:#2b3549;--omr:#fbbf24;--pencil:#fde68a;--good:#4ade80;--warn:#fbbf24;--bad:#f87171;
+--display:inherit;--body:inherit;--mono:'Roboto Mono',ui-monospace,monospace;color:var(--ink);line-height:1.55;font-size:16px;scroll-margin-top:72px}
+#psico *{box-sizing:border-box}
+#psico h2,#psico h3{text-wrap:balance;margin:0;line-height:1.2;color:#f8fafc}
+#psico h2{font-size:1.6rem;font-weight:800}#psico h3{font-size:1.1rem;font-weight:700}#psico p{margin:0}
+#psico .lbl{font:600 .7rem/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--omr)}
+#psico .muted{color:var(--muted)}#psico .stack{display:flex;flex-direction:column;gap:16px}
+#psico .bar{position:sticky;top:64px;z-index:5;background:#0b1220;padding:12px 4px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#psico .steps{display:flex;gap:6px;flex-wrap:wrap}
+#psico .steps span{font:600 .68rem/1 var(--mono);padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+#psico .steps span.on{border-color:var(--omr);color:var(--omr)}#psico .steps span.done{background:#1d2a3f;color:var(--ink)}
+#psico .clock{font:600 1.1rem/1 var(--mono);font-variant-numeric:tabular-nums}#psico .clock.low{color:var(--bad)}
+#psico .sheet{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,4vw,30px);margin-top:20px}
+#psico .head{display:flex;flex-direction:column;gap:8px}
+#psico .item{padding:18px 0;border-top:1px dashed var(--line);display:grid;grid-template-columns:2.4rem minmax(0,1fr);gap:4px 10px}
+#psico .item:first-of-type{border-top:0}
+#psico .num{font:600 .85rem/1.8 var(--mono);color:var(--omr)}
+#psico .q .big{font:600 1.5rem/1.3 var(--mono);letter-spacing:.06em;color:#fde68a;margin-top:6px}
+#psico .opts{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+#psico .opt{display:flex;align-items:center;gap:10px;cursor:pointer;padding:5px 6px;border-radius:8px}
+#psico .opt:hover{background:#182235}
+#psico input[type=radio]{position:absolute;opacity:0;width:1px;height:1px}
+#psico .o{flex:none;display:inline-grid;place-items:center;width:34px;height:22px;border:1.5px solid var(--omr);border-radius:50%;font:600 .72rem/1 var(--mono);color:var(--omr)}
+#psico input:checked+.o{background:var(--omr);color:#101827}
+#psico input:focus-visible+.o{outline:3px solid #fcd34d;outline-offset:3px}
+#psico .disc{width:100%;border-collapse:collapse;margin-top:6px}
+#psico .disc th{font:600 .66rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--omr);text-align:center;padding:4px}
+#psico .disc th:first-child{text-align:left}#psico .disc td{padding:4px;border-top:1px solid var(--line)}#psico .disc td.w{width:100%}
+#psico .cell{display:grid;place-items:center;cursor:pointer;padding:2px}
+#psico .lik{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;max-width:440px}
+#psico .lik label{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font:500 .62rem/1.2 var(--mono);color:var(--muted);text-align:center}
+#psico .btn{font-weight:800;font-size:14px;padding:13px 19px;border-radius:10px;border:0;background:#fbbf24;color:#101827;cursor:pointer}
+#psico .btn:hover{background:#fde68a}
+#psico .ghost{font-weight:700;font-size:14px;padding:12px 18px;border-radius:10px;border:1px solid #48566c;background:transparent;color:#f1f5f9;cursor:pointer}
+#psico .btn:focus-visible,#psico .ghost:focus-visible,#psico input[type=text]:focus-visible{outline:3px solid #fcd34d;outline-offset:3px}
+#psico .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+#psico .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+#psico input[type=text]{font:inherit;font-size:15px;padding:12px;border:1px solid #64748b;border-radius:8px;background:#0d1523;color:#fff;width:100%;max-width:420px}
+#psico .secs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+#psico .sec{border:1px solid var(--line);background:#0f1726;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+#psico .sec b{font-size:1.05rem;color:#f8fafc}#psico .sec .t{font:600 .78rem var(--mono);color:var(--omr)}
+#psico .datos{display:grid;grid-template-columns:2fr 1fr 1.3fr;gap:12px}#psico .datos>div{display:flex;flex-direction:column;gap:6px;min-width:0}#psico .err{color:var(--bad);font-size:.9rem;min-height:1.2em}#psico .envio{font-size:.95rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#psico .login{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:16px;border:1px solid var(--line);border-radius:12px;background:#0f1726}
+#psico .google{font-weight:700;font-size:14px;padding:12px 18px;border-radius:10px;border:0;background:#fff;color:#1f2937;cursor:pointer}
+#psico .quien{font-size:.95rem}#psico .link{background:none;border:0;color:#fcd34d;text-decoration:underline;cursor:pointer;font-size:.85rem;margin-left:6px}
+#psico .btn:disabled{opacity:.45;cursor:not-allowed}
+#psico .note{font-size:.88rem;color:var(--muted);border-left:3px solid #fbbf24;padding-left:12px}
+#psico .verdict{border:2px solid var(--v);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px}
+#psico .verdict .score{font-weight:900;font-size:3.4rem;line-height:1;color:var(--v)}
+#psico .bars{display:flex;flex-direction:column;gap:14px}
+#psico .br{display:grid;grid-template-columns:10rem 1fr 3.2rem;gap:10px;align-items:center}
+#psico .br .tr{height:12px;background:#0b1220;border-radius:6px;overflow:hidden}#psico .br .fl{height:100%;border-radius:6px}
+#psico .br .pc{font:600 .9rem var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+#psico .disc-res{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+#psico .disc-res div{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+#psico .disc-res div.top{border-color:var(--omr)}#psico .disc-res b{display:block;font-size:1.5rem;font-weight:900;color:#f8fafc}
+#psico .disc-res span{font:500 .7rem var(--mono);color:var(--muted)}
+#psico .rev{display:flex;flex-direction:column;gap:10px}#psico .rev div{font-size:.92rem;padding:10px 12px;border-radius:8px;background:#0f1726}
+#psico .ok{color:var(--good);font-weight:700}#psico .no{color:var(--bad);font-weight:700}
+#psico ul.tips{margin:0;padding-left:1.2rem;list-style:disc;display:flex;flex-direction:column;gap:8px}
+#psico details summary{cursor:pointer;font-weight:700;color:#fcd34d}
+#psico textarea{background:#0d1523;color:#fff;border:1px solid #64748b;border-radius:8px;padding:10px;font:inherit;font-size:14px}
+@media(max-width:560px){#psico .datos{grid-template-columns:1fr}#psico .br{grid-template-columns:1fr 3rem}#psico .br .n{grid-column:1/-1}#psico .disc-res{grid-template-columns:repeat(2,1fr)}#psico .item{grid-template-columns:minmax(0,1fr)}#psico .num{line-height:1}}
+</style>
+
+<script>
+  // Puente entre el simulador (is:inline, no puede importar) y Firebase.
+  // Igual que los módulos: el alumno entra con Google y se usa su ficha de
+  // /alumnos. Si no tiene ficha, se busca en su diagnóstico de inicio; si
+  // tampoco, el simulador le pide nombre y grupo una sola vez.
+  import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+  import { db, firebaseConfigurado } from "../../lib/firebase";
+
+  const w = window as any;
+  const alumno = () => import("../../lib/alumno");
+  let quitar: null | (() => void) = null;
+
+  function avisar(estado: any) {
+    w.psicoUsuario = estado;
+    document.dispatchEvent(new CustomEvent("psico:sesion"));
+  }
+
+  w.psicoEntrar = async () => {
+    const { entrarConGoogle } = await alumno();
+    await entrarConGoogle();
+  };
+  w.psicoSalir = async () => {
+    const { salir } = await alumno();
+    await salir();
+  };
+  w.psicoCrearFicha = async (nombre: string, grupo: string) => {
+    const a = await alumno();
+    const u = w.psicoUsuario?.user;
+    if (!u) throw new Error("sin sesión");
+    const ficha = await a.crearMiFicha(u, nombre, grupo);
+    avisar({ user: u, uid: u.uid, correo: u.email ?? "", nombre: ficha.nombre, grupo: ficha.grupo, ficha: true, activo: true });
+  };
+  w.guardarPsico = async (d: Record<string, unknown>) => {
+    const u = w.psicoUsuario;
+    if (!firebaseConfigurado() || !u?.ficha) throw new Error("sin sesión");
+    await addDoc(collection(db(), "psicometrico"), {
+      ...d, uid: u.uid, nombre: u.nombre, grupo: u.grupo, enviado: serverTimestamp(),
+    });
+  };
+
+  document.addEventListener("astro:page-load", async () => {
+    if (!document.getElementById("psico-app")) return;
+    if (!firebaseConfigurado()) { avisar({ sinFirebase: true }); return; }
+    const a = await alumno();
+    a.sesionPorRedireccion();
+    quitar?.();
+    quitar = a.observarSesion(async (u) => {
+      if (!u) { avisar(null); return; }
+      avisar({ cargando: true });
+      try {
+        let f = await a.fichaDe(u.uid);
+        if (!f) {
+          const prev = await a.datosDelDiagnostico(u);
+          if (prev && prev.nombre && prev.grupo) f = await a.crearMiFicha(u, prev.nombre, prev.grupo);
+        }
+        avisar(f
+          ? { user: u, uid: u.uid, correo: u.email ?? "", nombre: f.nombre, grupo: f.grupo, ficha: true, activo: f.activo }
+          : { user: u, uid: u.uid, correo: u.email ?? "", ficha: false });
+      } catch (e) {
+        console.error(e);
+        avisar({ user: u, uid: u.uid, correo: u.email ?? "", ficha: false, error: true });
+      }
+    });
+  });
+  document.addEventListener("astro:before-swap", () => { quitar?.(); quitar = null; });
+</script>
+
+<script is:inline>
+(function(){
+function iniciarPsico(){
+if(!document.getElementById('psico-app')||document.getElementById('psico-app').dataset.listo)return;
+document.getElementById('psico-app').dataset.listo='1';
+
+const SECS=[
+ {id:'disc',nombre:'Personalidad',estilo:'tipo Cleaver / DISC',min:5,
+  instr:'En cada renglón hay 4 palabras. Marca en la columna MÁS la que mejor te describe y en MENOS la que menos te describe. Usa una palabra distinta en cada columna. No hay respuestas buenas ni malas.'},
+ {id:'raz',nombre:'Razonamiento',estilo:'tipo Terman / Raven',min:10,
+  instr:'Elige la respuesta correcta. Si una pregunta se te atora, sigue con la siguiente y regresa al final. Las preguntas sin contestar cuentan como error.'},
+ {id:'int',nombre:'Valores e integridad',estilo:'honestidad y reglas',min:4,
+  instr:'Indica qué tan de acuerdo estás con cada frase. Contesta lo que de verdad piensas, no lo que crees que quieren leer.'},
+ {id:'sit',nombre:'Situaciones laborales',estilo:'tipo Moss / Kostick',min:6,
+  instr:'Lee cada situación y elige lo que harías. Piensa en lo que resuelve el problema y cuida la relación con las personas.'}
+];
+
+const DISC=[
+ [['Paciente','S'],['Decidido','D'],['Preciso','C'],['Sociable','I']],
+ [['Entusiasta','I'],['Ordenado','C'],['Competitivo','D'],['Leal','S']],
+ [['Cuidadoso','C'],['Tranquilo','S'],['Convincente','I'],['Directo','D']],
+ [['Atrevido','D'],['Analítico','C'],['Alegre','I'],['Cooperador','S']],
+ [['Constante','S'],['Expresivo','I'],['Exigente','D'],['Perfeccionista','C']],
+ [['Optimista','I'],['Firme','D'],['Amable','S'],['Reservado','C']],
+ [['Metódico','C'],['Comprensivo','S'],['Independiente','D'],['Comunicativo','I']],
+ [['Calmado','S'],['Enérgico','D'],['Prudente','C'],['Encantador','I']]
+];
+const DISC_INFO={
+ D:{n:'Dominante',t:'Vas directo a los resultados, decides rápido y te gustan los retos.',c:'En la entrevista muestra que también sabes escuchar y trabajar en equipo.'},
+ I:{n:'Influyente',t:'Convences, animas al grupo y te comunicas con facilidad.',c:'Demuestra que eres constante y que cumples con detalles y fechas, no solo con ideas.'},
+ S:{n:'Estable',t:'Eres paciente, leal y das tranquilidad al equipo.',c:'Prepara ejemplos donde tomaste la iniciativa o te adaptaste a un cambio.'},
+ C:{n:'Cumplido',t:'Eres preciso, ordenado y cuidas la calidad.',c:'Muestra que también decides a tiempo aunque no tengas toda la información.'}
+};
+
+const RAZ=[
+ {q:'Pie es a zapato como mano es a…',o:['dedo','guante','brazo','anillo'],a:1},
+ {q:'Pincel es a pintor como bisturí es a…',o:['hospital','corte','cirujano','enfermera'],a:2},
+ {q:'¿Qué número sigue?',big:'2 · 6 · 12 · 20 · 30 · ?',o:['40','36','44','42'],a:3,x:'Se suma 4, 6, 8, 10 y luego 12.'},
+ {q:'¿Qué número sigue?',big:'81 · 27 · 9 · 3 · ?',o:['1','0','2','1.5'],a:0,x:'Cada número se divide entre 3.'},
+ {q:'¿Qué número sigue?',big:'3 · 4 · 8 · 17 · 33 · ?',o:['49','66','58','50'],a:2,x:'Se suma 1, 4, 9, 16 y luego 25 (cuadrados).'},
+ {q:'Sinónimo de EFÍMERO',o:['eterno','pasajero','frágil','oculto'],a:1},
+ {q:'Antónimo de LOCUAZ',o:['hablador','nervioso','callado','sabio'],a:2},
+ {q:'¿Qué palabra no pertenece al grupo?',o:['Metáfora','Hipérbole','Párrafo','Símil'],a:2,x:'Las otras tres son figuras retóricas.'},
+ {q:'Todos los locutores tienen buena dicción. Ana tiene buena dicción. Por lo tanto…',o:['Ana es locutora','Ana puede ser locutora o no','Ana no es locutora','Todo el que tiene buena dicción es locutor'],a:1,x:'La regla no dice que solo los locutores tengan buena dicción.'},
+ {q:'Un video dura 4 min 30 s. Si lo publicas en partes de 45 segundos, ¿cuántas partes salen?',o:['5','7','9','6'],a:3,x:'270 segundos entre 45 = 6.'},
+ {q:'3 reporteros escriben 3 notas en 3 horas. ¿Cuántas notas escriben 6 reporteros en 6 horas?',o:['6','9','12','18'],a:2,x:'Cada reportero escribe 1 nota cada 3 horas: 6 reporteros × 2 notas = 12.'},
+ {q:'Luis llegó antes que Marta. Pedro llegó después de Marta. Sofía llegó antes que Luis. ¿Quién llegó en tercer lugar?',o:['Luis','Marta','Pedro','Sofía'],a:1,x:'El orden es Sofía, Luis, Marta y Pedro.'},
+ {q:'¿Qué letra sigue?',big:'A · C · F · J · O · ?',o:['T','V','U','S'],a:2,x:'Se avanzan 2, 3, 4, 5 y luego 6 letras.'},
+ {q:'¿Qué figura sigue?',big:'↑ · → · ↓ · ?',o:['↑','←','↗','↓'],a:1,x:'La flecha gira un cuarto de vuelta cada vez.'},
+ {q:'Completa la tabla.',big:'2 4 8 / 3 9 27 / 4 16 ?',o:['32','48','64','20'],a:2,x:'Cada fila multiplica por el primer número: 4 × 4 × 4 = 64.'},
+ {q:'"El vocero declaró que la empresa no descarta aumentar sus precios." Esto significa que…',o:['los precios subirán seguro','los precios no subirán','es posible que los precios suban','los precios ya bajaron'],a:2,x:'"No descartar" deja la puerta abierta, pero no lo confirma.'}
+];
+
+// k: + conviene estar de acuerdo, - conviene estar en desacuerdo, L = escala de "quedar bien"
+const INT=[
+ {q:'Si encuentro un error en mi trabajo, lo reporto aunque nadie lo haya notado.',k:'+'},
+ {q:'Llevarse algo pequeño de la oficina no le hace daño a nadie.',k:'-'},
+ {q:'Nunca en mi vida he dicho una mentira.',k:'L'},
+ {q:'Las reglas se pueden saltar si el resultado final es bueno.',k:'-'},
+ {q:'Prefiero avisar que me retrasé antes que inventar una excusa.',k:'+'},
+ {q:'Jamás me he enojado con nadie.',k:'L'},
+ {q:'Publicar algo sin verificarlo está bien si mucha gente ya lo compartió.',k:'-'},
+ {q:'Cumplir el horario es importante aunque el jefe no esté.',k:'+'},
+ {q:'Siempre he sido amable con todas las personas, sin excepción.',k:'L'},
+ {q:'Usar el trabajo de otra persona sin darle crédito es aceptable si lo mejoro.',k:'-'},
+ {q:'Si me equivoco con un cliente, lo admito y busco cómo arreglarlo.',k:'+'},
+ {q:'Si un compañero hace trampa, no es asunto mío.',k:'-'}
+];
+const LIK=['Muy en desacuerdo','En desacuerdo','Neutral','De acuerdo','Muy de acuerdo'];
+
+const SIT=[
+ {q:'Tu jefe te corrige frente a todo el equipo y sientes que fue injusto.',o:['Le contestas ahí mismo para defenderte','Lo hablas con él en privado más tarde','Te quejas con tus compañeros','Ya no vuelves a dar tu opinión'],a:1,x:'Hablarlo en privado cuida la relación y aclara el problema.'},
+ {q:'Llega un compañero nuevo que no entiende el sistema y tú vas atrasado.',o:['Le dices que le pregunte a otra persona','Haces su trabajo para que no se atrase','Le explicas lo básico y acuerdan otro momento para lo demás','Avisas al jefe que no sabe'],a:2,x:'Ayudas sin descuidar lo tuyo.'},
+ {q:'Un cliente llega molesto por un error que no fue tuyo.',o:['Lo escuchas, te disculpas en nombre de la empresa y buscas la solución','Le aclaras que no fue tu culpa','Lo mandas con el responsable sin más','Le pides que se calme'],a:0,x:'Para el cliente tú eres la empresa: primero escuchar y resolver.'},
+ {q:'Tienes dos entregas el mismo día y no te alcanza el tiempo.',o:['Haces las dos a medias','Entregas una y no dices nada de la otra','Te desvelas sin avisar a nadie','Hablas con tu jefe para decidir cuál va primero'],a:3,x:'Avisar a tiempo y priorizar juntos evita sorpresas.'},
+ {q:'Te piden coordinar a un equipo de personas con más edad y experiencia que tú.',o:['Rechazas el puesto','Das órdenes firmes desde el primer día','Te reúnes con ellos, escuchas su experiencia y acuerdan cómo trabajar','Dejas que ellos decidan todo'],a:2,x:'Liderar es escuchar y acordar, sin soltar la responsabilidad.'},
+ {q:'Propones una idea en una junta y nadie la apoya.',o:['Preguntas qué les preocupa y la ajustas','Insistes hasta que la acepten','No vuelves a proponer nada','La aplicas por tu cuenta'],a:0,x:'Las objeciones te dan información para mejorar la idea.'},
+ {q:'Ves que un compañero publicó un dato equivocado en las redes de la empresa.',o:['Lo corriges en los comentarios para que todos lo vean','Esperas a que alguien más lo note','Le avisas en privado para que lo corrija pronto','Lo reportas a dirección sin hablar con él'],a:2,x:'Rápido y en privado: se corrige el error sin exhibir a nadie.'},
+ {q:'Te asignan una tarea que nunca has hecho.',o:['Dices que no sabes y la rechazas','Esperas a que te den instrucciones paso a paso','Se la pasas a alguien que sepa','Investigas, haces un intento y pides retroalimentación'],a:3,x:'Muestra iniciativa y disposición para aprender.'}
+];
+
+const fresh=()=>({stage:'inicio',nombre:'',grupo:'',celular:'',envio:'',disc:{},raz:{},int:{},sit:{},left:SECS.map(s=>s.min*60)});
+let S=fresh();
+const app=document.getElementById('psico-app');
+let tick=null;
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const L='ABCD';
+const fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+
+function bar(){
+  const i=typeof S.stage==='number'?S.stage:-1;
+  const steps=SECS.map((s,k)=>`<span class="${k===i?'on':k<i||S.stage==='res'?'done':''}">${k+1} ${s.nombre.split(' ')[0]}</span>`).join('');
+  const clk=i>=0?`<span class="clock ${S.left[i]<=60?'low':''}" id="clk" aria-live="off">⏱ ${fmt(S.left[i])}</span>`:'';
+  return `<div class="bar"><div class="steps">${steps}</div>${clk}</div>`;
+}
+
+function listo(){const u=window.psicoUsuario;return !!(u&&u.user&&(u.ficha?u.activo!==false:true));}
+function puerta(){
+  const u=window.psicoUsuario;
+  const cel=`<div><label for="cel" class="lbl">Tu WhatsApp (opcional)</label>
+    <input type="text" id="cel" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="10 dígitos" value="${esc(S.celular)}"></div>`;
+  const nota='<p class="muted" style="font-size:.85rem">Tu resultado le llega a tu profesor. Si pones tu número, te lo puede mandar por WhatsApp. Solo él lo ve.</p>';
+  if(u===undefined||(u&&u.cargando))return '<p class="muted">Verificando tu cuenta…</p>';
+  if(u&&u.sinFirebase)return '<p class="no">El simulador no puede guardar resultados en este momento. Avísale a tu profesor.</p>';
+  if(!u)return `<div class="login"><p>Para que tu resultado le llegue a tu profesor, entra con la <strong>misma cuenta de Google</strong> que usas en la Antología.</p>
+    <button class="google" id="entrar" type="button">Entrar con Google</button></div>`;
+  if(u.ficha&&u.activo===false)return '<p class="no">Tu cuenta está desactivada en la Antología. Habla con tu profesor.</p>';
+  if(u.ficha)return `<p class="quien">Entraste como <strong>${esc(u.nombre)}</strong> · ${esc(u.grupo)} <button class="link" id="salir" type="button">No soy yo</button></p>
+    <div class="datos">${cel}</div>${nota}`;
+  return `<p class="quien">Entraste con <strong>${esc(u.correo)}</strong>. Es tu primera vez: escribe tu nombre y tu grupo. <button class="link" id="salir" type="button">Usar otra cuenta</button></p>
+    <div class="datos"><div><label for="nom" class="lbl">Nombre completo</label>
+    <input type="text" id="nom" autocomplete="name" placeholder="Nombre y apellidos" value="${esc(S.nombre)}"></div>
+    <div><label for="gru" class="lbl">Grupo</label>
+    <input type="text" id="gru" maxlength="12" placeholder="Ej. 5.º A" value="${esc(S.grupo)}"></div>${cel}</div>${nota}`;
+}
+function inicio(){
+  return `${bar()}<div class="sheet stack">
+      <h2 class="ps-h1">Antes de empezar</h2>
+   <div class="secs">${SECS.map((s,k)=>`<div class="sec"><span class="lbl">Sección ${k+1}</span><b>${s.nombre}</b><span class="muted" style="font-size:.85rem">${s.estilo}</span><span class="t">${s.min} min</span></div>`).join('')}</div>
+${puerta()}
+   <p class="err" id="errdatos" role="alert"></p>
+   <div class="row"><button class="btn" id="go" ${listo()?"":"disabled"}>Empezar</button><span class="muted" style="font-size:.88rem">Cada sección tiene su propio tiempo. Al terminarse, pasa sola a la siguiente.</span></div>
+   <p class="note">Es una práctica con preguntas de ejemplo. No es una prueba oficial y no sustituye una evaluación psicológica.</p>
+  </div>`;
+}
+
+function seccion(i){
+  const s=SECS[i]; let body='';
+  if(s.id==='disc'){
+    body=DISC.map((g,gi)=>`<div class="item"><span class="num">${String(gi+1).padStart(2,'0')}</span><div class="q">
+      <table class="disc"><thead><tr><th>Palabra</th><th>Más</th><th>Menos</th></tr></thead><tbody>
+      ${g.map((w,wi)=>`<tr><td class="w">${w[0]}</td>
+        <td><label class="cell"><input type="radio" id="dm${gi}_${wi}" name="dm${gi}" data-k="disc" data-g="${gi}" data-t="mas" value="${wi}" ${S.disc[gi]?.mas==wi?'checked':''} aria-label="Más: ${w[0]}"><span class="o">+</span></label></td>
+        <td><label class="cell"><input type="radio" id="dn${gi}_${wi}" name="dn${gi}" data-k="disc" data-g="${gi}" data-t="menos" value="${wi}" ${S.disc[gi]?.menos==wi?'checked':''} aria-label="Menos: ${w[0]}"><span class="o">−</span></label></td></tr>`).join('')}
+      </tbody></table></div></div>`).join('');
+  } else if(s.id==='int'){
+    body=INT.map((it,qi)=>`<div class="item"><span class="num">${String(qi+1).padStart(2,'0')}</span><div class="q"><p>${it.q}</p>
+      <div class="lik" role="radiogroup" aria-label="Pregunta ${qi+1}">${LIK.map((l,v)=>`<label><input type="radio" id="i${qi}_${v}" name="i${qi}" data-k="int" data-g="${qi}" value="${v+1}" ${S.int[qi]==v+1?'checked':''}><span class="o">${v+1}</span>${l}</label>`).join('')}</div></div></div>`).join('');
+  } else {
+    const data=s.id==='raz'?RAZ:SIT;
+    body=data.map((it,qi)=>`<div class="item"><span class="num">${String(qi+1).padStart(2,'0')}</span><div class="q"><p>${it.q}</p>
+      ${it.big?`<p class="big">${it.big}</p>`:''}
+      <div class="opts">${it.o.map((o,oi)=>`<label class="opt"><input type="radio" id="${s.id}${qi}_${oi}" name="${s.id}${qi}" data-k="${s.id}" data-g="${qi}" value="${oi}" ${S[s.id][qi]==oi?'checked':''}><span class="o">${L[oi]}</span><span>${o}</span></label>`).join('')}</div></div></div>`).join('');
+  }
+  const total=s.id==='disc'?DISC.length:s.id==='raz'?RAZ.length:s.id==='int'?INT.length:SIT.length;
+  return `${bar()}<div class="sheet"><div class="head"><span class="lbl">Sección ${i+1} de 4 · ${s.estilo}</span><h2>${s.nombre}</h2><p class="muted">${s.instr}</p></div>
+   <div style="margin-top:12px">${body}</div>
+   <div class="foot"><span class="muted" id="cnt">${contestadas(s.id)} de ${total} contestadas</span>
+   <button class="btn" id="next">${i<3?'Siguiente sección':'Terminar y ver resultados'}</button></div></div>`;
+}
+
+function contestadas(id){
+  if(id==='disc')return Object.values(S.disc).filter(g=>g.mas!=null&&g.menos!=null).length;
+  return Object.keys(S[id]).length;
+}
+
+function calc(){
+  const prof={D:0,I:0,S:0,C:0};
+  DISC.forEach((g,gi)=>{const a=S.disc[gi]||{};if(a.mas!=null)prof[g[a.mas][1]]++;if(a.menos!=null)prof[g[a.menos][1]]--;});
+  const discOk=contestadas('disc');
+  const top=Object.entries(prof).sort((a,b)=>b[1]-a[1])[0][0];
+  const raz=RAZ.filter((q,i)=>S.raz[i]==q.a).length;
+  let ip=0,lie=0,iAns=0;
+  INT.forEach((it,i)=>{const v=S.int[i];if(v==null)return;
+    if(it.k==='L'){if(v>=4)lie++;return;}
+    iAns++;ip+=it.k==='+'?(v-1)/4:(5-v)/4;});
+  const nI=INT.filter(x=>x.k!=='L').length;
+  let intP=Math.round(ip/nI*100);
+  if(lie>=2)intP=Math.max(0,intP-15);
+  const sit=SIT.filter((q,i)=>S.sit[i]==q.a).length;
+  const razP=Math.round(raz/RAZ.length*100), sitP=Math.round(sit/SIT.length*100), discP=Math.round(discOk/DISC.length*100);
+  const total=Math.round(razP*.35+sitP*.30+intP*.25+discP*.10);
+  return {prof,top,discOk,discP,raz,razP,intP,lie,sit,sitP,total};
+}
+
+function nivel(p){return p>=80?['Vas muy bien','var(--good)']:p>=60?['Vas bien, con detalles por pulir','var(--warn)']:['Te conviene practicar más','var(--bad)'];}
+
+function estadoEnvio(){
+  if(S.envio==='ok')return '<span class="ok">✓ Tu resultado ya le llegó a tu profesor.</span>';
+  if(S.envio==='enviando')return '<span class="muted">Enviando tu resultado a tu profesor…</span>';
+  if(S.envio==='error')return '<span class="no">No se pudo enviar tu resultado. Revisa tu internet.</span> <button class="ghost" id="reenviar">Intentar de nuevo</button>';
+  return '';
+}
+async function enviar(){
+  if(S.envio==='ok'||S.envio==='enviando')return;
+  const r=calc(); S.envio='enviando'; pintarEnvio();
+  try{
+    if(typeof window.guardarPsico!=='function')throw new Error('sin conexión');
+    await window.guardarPsico({celular:S.celular,
+      total:r.total,raz:r.raz,sit:r.sit,intP:r.intP,mentira:r.lie,discOk:r.discOk,perfil:r.top});
+    S.envio='ok';
+  }catch(err){console.error(err);S.envio='error';}
+  pintarEnvio();
+}
+function pintarEnvio(){const e=document.getElementById('envio');if(e)e.innerHTML=estadoEnvio();}
+
+function resultado(){
+  const r=calc(); const [vt,vc]=nivel(r.total); const di=DISC_INFO[r.top];
+  const tips=[];
+  if(r.razP<70)tips.push('Razonamiento: practica series de números, analogías y problemas de proporciones. En el examen real no te quedes atorado en una pregunta; avanza y regresa.');
+  if(r.sitP<75)tips.push('Situaciones laborales: la respuesta que buscan casi siempre resuelve el problema, avisa a tiempo y habla en privado antes de escalar.');
+  if(r.intP<75)tips.push('Integridad: algunas respuestas muestran que justificas saltarte reglas. Las empresas revisan esto con mucho cuidado.');
+  if(r.lie>=2)tips.push('Contestaste "de acuerdo" a frases como "nunca he dicho una mentira". Nadie es perfecto y las pruebas reales detectan cuando alguien responde para quedar bien. Sé sincero.');
+  if(r.discP<100)tips.push('Personalidad: dejaste renglones incompletos. En los exámenes reales, un perfil incompleto se puede invalidar.');
+  tips.push('El día del examen: duerme bien, lleva lápiz y goma, lee las instrucciones completas y cuida el tiempo de cada sección.');
+  const bars=[['Razonamiento',r.razP,`${r.raz}/${RAZ.length}`],['Situaciones laborales',r.sitP,`${r.sit}/${SIT.length}`],['Integridad',r.intP,''],['Personalidad completa',r.discP,`${r.discOk}/${DISC.length}`]];
+  const col=p=>p>=80?'var(--good)':p>=60?'var(--warn)':'var(--bad)';
+  const errs=RAZ.map((q,i)=>S.raz[i]==q.a?'':`<div><span class="no">${i+1}.</span> ${q.q}${q.big?' '+q.big:''}<br>Tu respuesta: ${S.raz[i]!=null?q.o[S.raz[i]]:'sin contestar'} · Correcta: <span class="ok">${q.o[q.a]}</span>${q.x?`<br><span class="muted">${q.x}</span>`:''}</div>`).join('');
+  const sErr=SIT.map((q,i)=>S.sit[i]==q.a?'':`<div><span class="no">${i+1}.</span> ${q.q}<br>Mejor respuesta: <span class="ok">${q.o[q.a]}</span><br><span class="muted">${q.x}</span></div>`).join('');
+  return `${bar()}<div class="sheet stack">
+   <span class="lbl">Resultados${window.psicoUsuario&&window.psicoUsuario.nombre?' · '+esc(window.psicoUsuario.nombre):''}</span>
+   <p class="envio" id="envio">${estadoEnvio()}</p>
+   <div class="verdict" style="--v:${vc}"><span class="lbl" style="color:${vc}">Pronóstico</span><span class="score">${r.total}<small style="font-size:1.2rem"> / 100</small></span><h2>${vt}</h2>
+   <p class="muted">Así te iría hoy en un proceso de selección con pruebas parecidas. Con práctica, este número sube.</p></div>
+   <div class="bars">${bars.map(b=>`<div class="br"><span class="n">${b[0]}</span><div class="tr"><div class="fl" style="width:${b[1]}%;background:${col(b[1])}"></div></div><span class="pc">${b[1]}%</span></div>`).join('')}</div>
+   <h3>Tu perfil de personalidad: ${di.n}</h3>
+   <div class="disc-res">${['D','I','S','C'].map(k=>`<div class="${k===r.top?'top':''}"><b>${k}</b><span>${DISC_INFO[k].n} · ${r.prof[k]>0?'+':''}${r.prof[k]}</span></div>`).join('')}</div>
+   <p>${di.t} ${di.c}</p>
+   <h3>Qué te conviene mejorar</h3>
+   <ul class="tips">${tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+   ${errs?`<details><summary>Revisar errores de razonamiento</summary><div class="rev" style="margin-top:10px">${errs}</div></details>`:'<p class="ok">Razonamiento sin errores.</p>'}
+   ${sErr?`<details><summary>Revisar situaciones laborales</summary><div class="rev" style="margin-top:10px">${sErr}</div></details>`:'<p class="ok">Situaciones laborales sin errores.</p>'}
+   <div class="row"><button class="ghost" id="copy">Copiar mi resumen</button><button class="ghost" id="again">Volver a empezar</button><span class="muted" id="msg" role="status"></span></div>
+   <textarea id="sumtxt" readonly hidden style="width:100%;min-height:120px">${esc(resumen(r))}</textarea>
+  </div>`;
+}
+
+function resumen(r){
+  return `Simulador psicométrico\nNombre: ${(window.psicoUsuario&&window.psicoUsuario.nombre)||S.nombre||'(sin nombre)'}\nPronóstico: ${r.total}/100 (${nivel(r.total)[0]})\nRazonamiento: ${r.raz}/${RAZ.length}\nSituaciones laborales: ${r.sit}/${SIT.length}\nIntegridad: ${r.intP}%${r.lie>=2?' (respondió para quedar bien)':''}\nPerfil: ${DISC_INFO[r.top].n}`;
+}
+
+function render(){
+  clearInterval(tick);
+  if(S.stage==='inicio')app.innerHTML=inicio();
+  else if(S.stage==='res'){app.innerHTML=resultado();if(!S.envio)enviar();}
+  else{app.innerHTML=seccion(S.stage);startClock();}
+  if(S.stage!=='inicio')document.getElementById('psico').scrollIntoView({block:'start'});
+}
+
+function startClock(){
+  tick=setInterval(()=>{
+    const i=S.stage; if(typeof i!=='number')return;
+    S.left[i]=Math.max(0,S.left[i]-1);
+    const c=document.getElementById('clk');
+    if(c){c.textContent='⏱ '+fmt(S.left[i]);c.classList.toggle('low',S.left[i]<=60);}
+    if(S.left[i]===0)avanzar();
+  },1000);
+}
+function avanzar(){S.stage=S.stage<3?S.stage+1:'res';render();}
+
+app.addEventListener('change',e=>{
+  const t=e.target; if(!t.dataset.k)return;
+  const k=t.dataset.k,g=+t.dataset.g,v=+t.value;
+  if(k==='disc'){
+    const a=S.disc[g]||(S.disc[g]={});
+    a[t.dataset.t]=v;
+    const other=t.dataset.t==='mas'?'menos':'mas';
+    if(a[other]===v){delete a[other];const o=document.getElementById((other==='mas'?'dm':'dn')+g+'_'+v);if(o)o.checked=false;}
+  } else S[k][g]=v;
+  const c=document.getElementById('cnt');
+  const tot={disc:DISC.length,raz:RAZ.length,int:INT.length,sit:SIT.length}[k];
+  if(c)c.textContent=`${contestadas(k)} de ${tot} contestadas`;
+});
+app.addEventListener('input',e=>{const t=e.target;
+  if(t.id==='nom')S.nombre=t.value.trim();
+  if(t.id==='gru')S.grupo=t.value.trim();
+  if(t.id==='cel'){t.value=t.value.replace(/\D/g,'').slice(0,10);S.celular=t.value;}});
+app.addEventListener('click',e=>{
+  const id=e.target.id;
+  if(id==='go'){
+    const m=document.getElementById('errdatos'),u=window.psicoUsuario;
+    if(!listo()){m.textContent='Primero entra con tu cuenta de Google.';return;}
+    if(S.celular&&S.celular.length!==10){m.textContent='El número de WhatsApp debe tener 10 dígitos, o déjalo vacío.';return;}
+    if(!u.ficha){
+      if(S.nombre.length<5||S.nombre.indexOf(' ')<0){m.textContent='Escribe tu nombre completo, con apellidos.';return;}
+      if(!S.grupo){m.textContent='Escribe tu grupo.';return;}
+      e.target.disabled=true;m.textContent='';
+      window.psicoCrearFicha(S.nombre,S.grupo).then(()=>{S.stage=0;render();})
+        .catch(err=>{console.error(err);e.target.disabled=false;m.textContent='No se pudo guardar tu nombre. Revisa tu internet e intenta de nuevo.';});
+      return;
+    }
+    S.stage=0;render();}
+  else if(id==='entrar'){window.psicoEntrar().catch(err=>{console.error(err);const m=document.getElementById('errdatos');if(m)m.textContent='No se pudo entrar con Google. Intenta de nuevo.';});}
+  else if(id==='salir'){window.psicoSalir();}
+  else if(id==='reenviar')enviar();
+  else if(id==='next')avanzar();
+  else if(id==='again'){S=fresh();render();}
+  else if(id==='copy'){
+    const txt=resumen(calc()),m=document.getElementById('msg');
+    const fallback=()=>{const ta=document.getElementById('sumtxt');ta.hidden=false;ta.select();m.textContent='Selecciona el texto y cópialo.';};
+    try{navigator.clipboard.writeText(txt).then(()=>m.textContent='Resumen copiado.',fallback);}catch(err){fallback();}
+  }
+});
+
+
+document.addEventListener('astro:before-swap',()=>clearInterval(tick),{once:true});
+document.addEventListener('psico:sesion',()=>{if(S.stage==='inicio'&&document.getElementById('psico-app'))render();});
+render();
+}
+document.addEventListener('astro:page-load',iniciarPsico);
+})();
+</script>

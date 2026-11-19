@@ -249,6 +249,43 @@ service cloud.firestore {
       allow update, delete: if esProfesor();
     }
 
+    // ─── Simulador psicométrico (Lengua y Comunicación) ──────────────────
+    //
+    // Práctica para procesos de selección. Se entra con la cuenta de Google y
+    // la ficha de /alumnos, como en los quizzes del Máster: el nombre y el
+    // grupo tienen que ser los de la ficha, no unos tecleados. El celular es
+    // opcional y sirve para que el profesor le mande su resultado por WhatsApp.
+    //
+    // Es práctica: se puede repetir, por eso el id lo pone Firestore. Leer la
+    // lista es solo del profesor (hay celulares de menores); cada alumno puede
+    // leer solo los suyos.
+
+    function psicoBienFormado() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['uid', 'nombre', 'grupo', 'celular', 'total', 'raz',
+               'sit', 'intP', 'mentira', 'discOk', 'perfil', 'enviado'])
+        && d.uid == request.auth.uid
+        && d.nombre == fichaAlumno().nombre
+        && d.grupo == fichaAlumno().grupo
+        && d.celular is string && d.celular.matches('^([0-9]{10})?$')
+        && d.total is int   && d.total >= 0 && d.total <= 100
+        && d.raz is int     && d.raz >= 0   && d.raz <= 16
+        && d.sit is int     && d.sit >= 0   && d.sit <= 8
+        && d.intP is int    && d.intP >= 0  && d.intP <= 100
+        && d.mentira is int && d.mentira >= 0 && d.mentira <= 3
+        && d.discOk is int  && d.discOk >= 0 && d.discOk <= 8
+        && d.perfil is string && d.perfil in ['D', 'I', 'S', 'C']
+        && d.enviado == request.time;
+    }
+
+    match /psicometrico/{registroId} {
+      allow get: if esProfesor()
+        || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow list: if esProfesor();
+      allow create: if alumnoActivo() && psicoBienFormado();
+      allow update, delete: if esProfesor();
+    }
+
     // ─── Diagnóstico integral (atención + temperamento + evaluación) ──────
     //
     // AQUÍ SE ENTRA CON CUENTA DE GOOGLE, a diferencia de /landolt. El contraste

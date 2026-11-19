@@ -245,6 +245,32 @@ const linksAlumnos = [
         </div>
       </section>
 
+      <!-- Simulador psicométrico de Lengua y Comunicación -->
+      <section class="glass-card rounded-2xl p-6 border border-white/10 mt-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-white mb-1">Lengua y Comunicación · simulador psicométrico</h2>
+            <p id="pr-psico-resumen" class="text-xs text-slate-400 font-mono-tech">
+              Resultados de la práctica. Toca WhatsApp para mandarle a cada alumno su resultado con consejos.
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <select id="pr-psico-grupo" class="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white font-mono-tech focus:outline-none focus:border-cyan-400/50">
+              <option value="">Todos los grupos</option>
+            </select>
+            <button id="pr-psico-cargar" class="btn-primary px-5 py-2.5 text-xs font-mono-tech">Ver resultados</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody id="pr-psico-tbody" class="text-slate-300"></tbody>
+          </table>
+        </div>
+        <p class="text-[11px] text-slate-600 mt-6 leading-relaxed">
+          Si el alumno dejó su número, WhatsApp abre su chat con el mensaje escrito; si no, eliges tú el chat. Nada se manda solo: tú le das enviar.
+        </p>
+      </section>
+
       <div id="pr-taller-foto" class="hidden fixed inset-0 z-[200] bg-black/85 flex items-center justify-center p-4">
         <div class="max-w-4xl w-full">
           <img id="pr-taller-img" alt="Captura del armado" class="w-full rounded-xl border border-white/10" />
@@ -477,6 +503,12 @@ const linksAlumnos = [
     una("pr-exportar", exportar);
     una("pr-lyc-exportar", exportarLyc);
     una("pr-taller-cargar", cargarTaller);
+    una("pr-psico-cargar", cargarPsico);
+    const psicoSel = document.getElementById("pr-psico-grupo");
+    if (psicoSel && !psicoSel.dataset.listo) {
+      psicoSel.dataset.listo = "1";
+      psicoSel.addEventListener("change", () => { if (psico) pintarPsico(); });
+    }
     una("pr-taller-cerrar", () => ver("pr-taller-foto", false));
     const armadoSel = document.getElementById("pr-taller-armado");
     if (armadoSel && !armadoSel.dataset.listo) {
@@ -843,6 +875,120 @@ const linksAlumnos = [
       ]);
       taller = (taller ?? []).filter((x) => x.id !== id);
       pintarTaller();
+    } catch {
+      alert("No se pudo borrar. Revisa tu conexión e intenta de nuevo.");
+    }
+  }
+
+  // ─── Simulador psicométrico ───────────────────────────────────────────────
+  //
+  // /psicometrico lo llenan los alumnos con sesión anónima al terminar la
+  // práctica (ver lengua-y-comunicacion/simulador-psicometrico.astro). Aquí se
+  // leen y se arma el mensaje de WhatsApp de cada uno. El panel no manda nada:
+  // solo abre WhatsApp con el texto listo.
+
+  interface RegistroPsico {
+    id: string; nombre: string; grupo: string; celular: string;
+    total: number; raz: number; sit: number; intP: number;
+    mentira: number; discOk: number; perfil: string;
+    enviado?: { toDate(): Date };
+  }
+  let psico: RegistroPsico[] | null = null;
+
+  const PERFIL: Record<string, string> = { D: "Dominante", I: "Influyente", S: "Estable", C: "Cumplido" };
+  const nivelPsico = (p: number) => p >= 80 ? "Vas muy bien" : p >= 60 ? "Vas bien, con detalles por pulir" : "Te conviene practicar más";
+
+  async function cargarPsico() {
+    const resumen = document.getElementById("pr-psico-resumen");
+    if (resumen) resumen.textContent = "Cargando…";
+    try {
+      const snap = await getDocs(collection(db(), "psicometrico"));
+      psico = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<RegistroPsico, "id">) }));
+      const sel = document.getElementById("pr-psico-grupo") as HTMLSelectElement;
+      const actual = sel.value;
+      const grupos = [...new Set(psico.map((r) => r.grupo))].sort((a, b) => a.localeCompare(b, "es"));
+      sel.innerHTML = '<option value="">Todos los grupos</option>' +
+        grupos.map((g) => `<option value="${escapar(g)}">${escapar(g)}</option>`).join("");
+      sel.value = grupos.includes(actual) ? actual : "";
+      pintarPsico();
+    } catch (e: any) {
+      if (resumen) resumen.textContent = "No pude leer los resultados: " + (e?.message ?? "error desconocido");
+    }
+  }
+
+  function mensajePsico(r: RegistroPsico): string {
+    const tips: string[] = [];
+    if (r.raz / 16 < 0.7) tips.push("Practica series de números, analogías y problemas de proporciones. Si una pregunta se te atora, avanza y regresa al final.");
+    if (r.sit / 8 < 0.75) tips.push("En situaciones de trabajo, la mejor respuesta casi siempre resuelve el problema, avisa a tiempo y habla en privado antes de acusar.");
+    if (r.intP < 75) tips.push("En integridad, algunas respuestas justifican saltarse reglas. Las empresas revisan eso con mucho cuidado.");
+    if (r.mentira >= 2) tips.push("Contestaste como si nunca te hubieras equivocado. Las pruebas reales detectan cuando alguien responde para quedar bien: sé sincero.");
+    if (r.discOk < 8) tips.push("Dejaste renglones de personalidad sin contestar. En un examen real eso puede invalidar el perfil.");
+    if (!tips.length) tips.push("Sigue así. Antes del examen real, duerme bien y lee completas las instrucciones.");
+    return `Hola, ${r.nombre}. Te comparto tu resultado del simulador de pruebas psicométricas:\n\n` +
+      `*Pronóstico: ${r.total}/100* (${nivelPsico(r.total)})\n` +
+      `Razonamiento: ${r.raz} de 16\n` +
+      `Situaciones laborales: ${r.sit} de 8\n` +
+      `Integridad: ${r.intP}%\n` +
+      `Perfil de personalidad: ${PERFIL[r.perfil] ?? r.perfil}\n\n` +
+      `Qué te conviene practicar:\n` + tips.map((t) => `• ${t}`).join("\n");
+  }
+
+  function pintarPsico() {
+    const tbody = document.getElementById("pr-psico-tbody");
+    const resumen = document.getElementById("pr-psico-resumen");
+    if (!tbody || !psico) return;
+    const grupo = (document.getElementById("pr-psico-grupo") as HTMLSelectElement)?.value ?? "";
+    const lista = psico
+      .filter((r) => !grupo || r.grupo === grupo)
+      .sort((a, b) => (b.enviado?.toDate().getTime() ?? 0) - (a.enviado?.toDate().getTime() ?? 0));
+    if (!lista.length) {
+      tbody.innerHTML = `<tr><td class="py-10 text-center text-slate-500 text-sm">Nadie ha terminado el simulador todavía${grupo ? " en este grupo" : ""}.</td></tr>`;
+      if (resumen) resumen.textContent = "Sin resultados";
+      return;
+    }
+    const color = (p: number) => p >= 80 ? "text-emerald-300" : p >= 60 ? "text-amber-300" : "text-rose-300";
+    tbody.innerHTML = `<tr class="border-b border-white/10 text-xs font-mono-tech text-slate-400 uppercase tracking-wider">
+        <th class="text-left py-3 pr-4 font-medium">Alumno</th>
+        <th class="text-left py-3 pr-4 font-medium">Grupo</th>
+        <th class="text-center py-3 px-2 font-medium">Pronóstico</th>
+        <th class="text-center py-3 px-2 font-medium">Razon.</th>
+        <th class="text-center py-3 px-2 font-medium">Situac.</th>
+        <th class="text-center py-3 px-2 font-medium">Integr.</th>
+        <th class="text-left py-3 px-2 font-medium">Perfil</th>
+        <th class="text-left py-3 px-2 font-medium">Cuándo</th>
+        <th></th>
+      </tr>` + lista.map((r) => {
+        const texto = encodeURIComponent(mensajePsico(r));
+        const wa = r.celular ? `https://wa.me/52${r.celular}?text=${texto}` : `https://wa.me/?text=${texto}`;
+        return `
+      <tr class="border-b border-white/5 hover:bg-white/[0.02]">
+        <td class="py-3 pr-4 text-slate-200">${escapar(r.nombre)}${r.mentira >= 2 ? ' <span class="text-[10px] text-amber-300 font-mono-tech" title="Contestó para quedar bien en las frases trampa">⚑ quedar bien</span>' : ""}</td>
+        <td class="py-3 pr-4 text-slate-500 font-mono-tech text-xs">${escapar(r.grupo)}</td>
+        <td class="py-3 px-2 text-center font-mono-tech font-bold ${color(r.total)}">${r.total}</td>
+        <td class="py-3 px-2 text-center font-mono-tech">${r.raz}/16</td>
+        <td class="py-3 px-2 text-center font-mono-tech">${r.sit}/8</td>
+        <td class="py-3 px-2 text-center font-mono-tech">${r.intP}%</td>
+        <td class="py-3 px-2 text-xs">${PERFIL[r.perfil] ?? ""}</td>
+        <td class="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">${r.enviado ? r.enviado.toDate().toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }) : ""}</td>
+        <td class="py-3 pl-2 text-right whitespace-nowrap">
+          <a href="${wa}" target="_blank" rel="noopener" class="text-xs font-mono-tech text-emerald-400 hover:underline mr-3" title="${r.celular ? "Abre el chat de " + escapar(r.nombre) : "Sin número: eliges el chat en WhatsApp"}">WhatsApp${r.celular ? "" : " ↗"}</a>
+          <button data-psico-quitar="${r.id}" class="text-xs font-mono-tech text-slate-600 hover:text-rose-400" title="Borrar este resultado">Borrar</button>
+        </td>
+      </tr>`;
+      }).join("");
+    tbody.querySelectorAll<HTMLElement>("[data-psico-quitar]").forEach((el) =>
+      el.addEventListener("click", () => borrarPsico(el.dataset.psicoQuitar!)));
+    const prom = Math.round(lista.reduce((a, r) => a + r.total, 0) / lista.length);
+    if (resumen) resumen.textContent = `${lista.length} resultados · pronóstico promedio: ${prom}/100`;
+  }
+
+  async function borrarPsico(id: string) {
+    const r = psico?.find((x) => x.id === id);
+    if (!confirm(`¿Borrar el resultado de ${r?.nombre ?? id}? No se puede deshacer.`)) return;
+    try {
+      await deleteDoc(doc(db(), "psicometrico", id));
+      psico = (psico ?? []).filter((x) => x.id !== id);
+      pintarPsico();
     } catch {
       alert("No se pudo borrar. Revisa tu conexión e intenta de nuevo.");
     }
