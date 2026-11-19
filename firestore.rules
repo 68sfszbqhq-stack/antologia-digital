@@ -260,10 +260,25 @@ service cloud.firestore {
     // lista es solo del profesor (hay celulares de menores); cada alumno puede
     // leer solo los suyos.
 
+    // Respuestas una por una (índice elegido; -1 o 0 = sin contestar) y
+    // segundos usados por sección. Opcionales: las entregas de antes del
+    // 18-nov no las traen.
+    function psicoRespBienFormadas(r) {
+      return r is map
+        && r.keys().hasOnly(['discMas', 'discMenos', 'raz', 'int', 'sit'])
+        && r.discMas is list   && r.discMas.size() == 8
+        && r.discMenos is list && r.discMenos.size() == 8
+        && r.raz is list       && r.raz.size() == 16
+        && r.int is list       && r.int.size() == 12
+        && r.sit is list       && r.sit.size() == 8;
+    }
+
     function psicoBienFormado() {
       let d = request.resource.data;
       return d.keys().hasOnly(['uid', 'nombre', 'grupo', 'celular', 'total', 'raz',
-               'sit', 'intP', 'mentira', 'discOk', 'perfil', 'enviado'])
+               'sit', 'intP', 'mentira', 'discOk', 'perfil', 'enviado', 'resp', 'tiempos'])
+        && (!('resp' in d) || psicoRespBienFormadas(d.resp))
+        && (!('tiempos' in d) || (d.tiempos is list && d.tiempos.size() == 4))
         && d.uid == request.auth.uid
         && d.nombre == fichaAlumno().nombre
         && d.grupo == fichaAlumno().grupo

@@ -39,6 +39,11 @@ const yo = (await createUserWithEmailAndPassword(auth, "ana@prueba.mx", "secreto
 await sembrarFicha(yo.uid, { matricula: "", nombre: "Ana Pérez", grupo: "5.º A", activo: true, correo: "ana@prueba.mx", origen: "google" });
 const mio = { ...base, uid: yo.uid, nombre: "Ana Pérez", grupo: "5.º A" };
 await intento("alumno con ficha entrega su resultado", mio, true);
+const resp = { discMas: Array(8).fill(0), discMenos: Array(8).fill(1), raz: Array(16).fill(-1), int: Array(12).fill(3), sit: Array(8).fill(2) };
+await intento("entrega con respuestas y tiempos", { ...mio, resp, tiempos: [60, 300, 100, 200] }, true);
+await intento("respuestas incompletas se rechazan", { ...mio, resp: { ...resp, raz: [1, 2] }, tiempos: [60, 300, 100, 200] }, false);
+await intento("respuestas con campo extra se rechazan", { ...mio, resp: { ...resp, otra: [1] } }, false);
+await intento("tiempos mal formados se rechazan", { ...mio, resp, tiempos: [1] }, false);
 await intento("puede repetir la práctica", { ...mio, celular: "2221234567" }, true);
 await intento("nombre distinto al de su ficha se rechaza", { ...mio, nombre: "Otro Alumno" }, false);
 await intento("grupo distinto al de su ficha se rechaza", { ...mio, grupo: "3.º A" }, false);

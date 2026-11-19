@@ -317,6 +317,7 @@ const linksAlumnos = [
   import sesiones from "../data/sesiones.json";
   import { EXAMENES } from "../data/examenes/index";
   import { observarAbiertos, abrir as abrirExamen } from "../lib/examen";
+  import * as PS from "../data/lengua/psicometrico";
 
   const DIAS: number[] = sesiones.map((s: any) => s.dia);
 
@@ -891,6 +892,8 @@ const linksAlumnos = [
     id: string; nombre: string; grupo: string; celular: string;
     total: number; raz: number; sit: number; intP: number;
     mentira: number; discOk: number; perfil: string;
+    resp?: { discMas: number[]; discMenos: number[]; raz: number[]; int: number[]; sit: number[] };
+    tiempos?: number[];
     enviado?: { toDate(): Date };
   }
   let psico: RegistroPsico[] | null = null;
@@ -975,14 +978,56 @@ const linksAlumnos = [
         <td class="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">${r.enviado ? r.enviado.toDate().toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }) : ""}</td>
         <td class="py-3 pl-2 text-right whitespace-nowrap">
           <a href="${wa}" target="_blank" rel="noopener" class="text-xs font-mono-tech text-emerald-400 hover:underline mr-3" title="${r.celular ? "Abre el chat de " + escapar(r.nombre) : "Sin número: eliges el chat en WhatsApp"}">WhatsApp${r.celular ? "" : " ↗"}</a>
+          <button data-psico-detalle="${r.id}" class="text-xs font-mono-tech text-cyan-400 hover:underline mr-3">Detalle</button>
           <button data-psico-quitar="${r.id}" class="text-xs font-mono-tech text-slate-600 hover:text-rose-400" title="Borrar este resultado">Borrar</button>
         </td>
-      </tr>`;
+      </tr>
+      <tr id="psico-det-${r.id}" class="hidden"><td colspan="9" class="pb-6 pt-1">${detallePsico(r)}</td></tr>`;
       }).join("");
+    tbody.querySelectorAll<HTMLElement>("[data-psico-detalle]").forEach((el) =>
+      el.addEventListener("click", () => document.getElementById(`psico-det-${el.dataset.psicoDetalle}`)?.classList.toggle("hidden")));
     tbody.querySelectorAll<HTMLElement>("[data-psico-quitar]").forEach((el) =>
       el.addEventListener("click", () => borrarPsico(el.dataset.psicoQuitar!)));
     const prom = Math.round(lista.reduce((a, r) => a + r.total, 0) / lista.length);
     if (resumen) resumen.textContent = `${lista.length} resultados · pronóstico promedio: ${prom}/100`;
+  }
+
+  /** Respuesta por respuesta y tiempo por sección. Las entregas de antes del
+   *  18-nov no traen `resp` ni `tiempos`: solo se guardaba el puntaje. */
+  function detallePsico(r: RegistroPsico): string {
+    const caja = (t: string, c: string) => `<div class="rounded-xl border border-white/10 bg-white/[0.02] p-4"><h4 class="text-xs font-mono-tech text-amber-300 uppercase tracking-wider mb-2">${t}</h4>${c}</div>`;
+    const ok = (b: boolean) => b ? '<span class="text-emerald-300">✓</span>' : '<span class="text-rose-300">✗</span>';
+    const blanco = '<span class="text-slate-500 italic">sin contestar</span>';
+    if (!r.resp) return `<p class="text-xs text-slate-500 italic px-1">Esta entrega es de antes de que se guardaran las respuestas: solo hay puntajes.</p>`;
+    const t = r.tiempos ?? [];
+    const tiempos = PS.SECS.map((s, i) => `<li>${s.nombre}: <b class="text-slate-200">${t[i] != null ? minSeg(t[i]) : "?"}</b> <span class="text-slate-500">de ${s.min}:00</span></li>`).join("");
+    const total = t.reduce((a, b) => a + b, 0);
+    const disc = PS.DISC.map((g, i) => {
+      const m = r.resp!.discMas[i], n = r.resp!.discMenos[i];
+      return `<li>${i + 1}. Más: ${m >= 0 ? `<b class="text-slate-200">${g[m][0]}</b>` : blanco} · Menos: ${n >= 0 ? `<b class="text-slate-200">${g[n][0]}</b>` : blanco}</li>`;
+    }).join("");
+    const raz = PS.RAZ.map((q, i) => {
+      const v = r.resp!.raz[i];
+      return `<li>${ok(v === q.a)} ${i + 1}. ${escapar(q.q)}${q.big ? ` <span class="font-mono-tech">${escapar(q.big)}</span>` : ""}<br><span class="text-slate-500">Contestó:</span> ${v >= 0 ? escapar(q.o[v]) : blanco}${v !== q.a ? ` · <span class="text-slate-500">Correcta:</span> ${escapar(q.o[q.a])}` : ""}</li>`;
+    }).join("");
+    const intg = PS.INT.map((q, i) => {
+      const v = r.resp!.int[i];
+      const etiqueta = q.k === "L" ? '<span class="text-amber-300">frase trampa</span>' : q.k === "+" ? "conviene: de acuerdo" : "conviene: en desacuerdo";
+      const alerta = q.k === "L" ? v >= 4 : q.k === "+" ? (v > 0 && v <= 2) : v >= 4;
+      return `<li>${v > 0 ? (alerta ? '<span class="text-rose-300">⚑</span>' : '<span class="text-emerald-300">✓</span>') : "·"} ${escapar(q.q)}<br><span class="text-slate-500">Contestó:</span> ${v > 0 ? PS.LIK[v - 1] : blanco} <span class="text-slate-500">(${etiqueta})</span></li>`;
+    }).join("");
+    const sit = PS.SIT.map((q, i) => {
+      const v = r.resp!.sit[i];
+      return `<li>${ok(v === q.a)} ${i + 1}. ${escapar(q.q)}<br><span class="text-slate-500">Eligió:</span> ${v >= 0 ? escapar(q.o[v]) : blanco}${v !== q.a ? ` · <span class="text-slate-500">Mejor:</span> ${escapar(q.o[q.a])}` : ""}</li>`;
+    }).join("");
+    const ul = (x: string) => `<ul class="text-xs text-slate-400 space-y-2 leading-relaxed">${x}</ul>`;
+    return `<div class="grid gap-3 md:grid-cols-2 text-left">
+      ${caja(`Tiempo usado · ${minSeg(total)} en total`, ul(tiempos))}
+      ${caja("Personalidad", ul(disc))}
+      ${caja("Razonamiento", ul(raz))}
+      ${caja("Situaciones laborales", ul(sit))}
+      <div class="md:col-span-2">${caja("Integridad", ul(intg))}</div>
+    </div>`;
   }
 
   async function borrarPsico(id: string) {
