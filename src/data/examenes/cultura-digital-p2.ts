@@ -135,16 +135,6 @@ export const EXAMEN_CD_P2: Examen = {
 
     // ─── Impacto social (1.3) ─────────────────────────────────────────────
     {
-      id: "q16", tipo: "opcion",
-      texto: "La brecha digital es:",
-      opciones: [
-        "Una falla del internet",
-        "La distancia entre dos computadoras",
-        "La diferencia entre quienes tienen acceso a la tecnología y saben usarla, y quienes no",
-        "Un tipo de cable",
-      ],
-    },
-    {
       id: "q17", tipo: "opcion",
       texto: "Una app \"gratis\" recopila lo que haces para venderlo a anunciantes. ¿Qué significa?",
       opciones: [
