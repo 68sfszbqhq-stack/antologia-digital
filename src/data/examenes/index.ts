@@ -3,9 +3,11 @@
 // aquí y otra en claves.ts.
 
 import { EXAMEN_CD_P1, type Examen } from "./cultura-digital-p1";
+import { EXAMEN_CD_P2 } from "./cultura-digital-p2";
 import { EXAMEN_COM_P1 } from "./comunicacion-p1";
 
 export const EXAMENES: Record<string, Examen> = {
   [EXAMEN_CD_P1.id]: EXAMEN_CD_P1,
+  [EXAMEN_CD_P2.id]: EXAMEN_CD_P2,
   [EXAMEN_COM_P1.id]: EXAMEN_COM_P1,
 };

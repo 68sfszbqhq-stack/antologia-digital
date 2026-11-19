@@ -1037,12 +1037,17 @@ const tituloTarea = cont.tarea.titulo;
     }
 
     function selectAnswer(qIdx, optIdx) {
+      // Cuenta la primera respuesta. Al contestar se marca en verde la
+      // correcta, así que dejar cambiarla regalaba el 10/10: tocar cualquiera,
+      // ver la verde y elegirla.
+      if (userAnswers[qIdx] !== undefined || modoRevision) return;
       userAnswers[qIdx] = optIdx;
       const correcta = cfg.respuestasCorrectas[qIdx];
       const acerto = optIdx === correcta;
 
       document.querySelectorAll(".opt-btn-" + qIdx).forEach(function (btn, idx) {
-        const base = "opt-btn-" + qIdx + " text-left p-4 rounded-xl border ";
+        btn.disabled = true;
+        const base = "opt-btn-" + qIdx + " text-left p-4 rounded-xl border cursor-default ";
         if (idx === optIdx) {
           btn.className = base + (acerto ? "border-emerald-400/60 bg-emerald-500/20" : "border-red-400/60 bg-red-500/20") + " text-white font-medium flex items-start gap-3";
         } else if (idx === correcta && !acerto) {
