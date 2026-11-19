@@ -15,7 +15,7 @@ import '../../styles/taller-lengua.css';
     <header class="taller-heading">
       <p class="taller-eyebrow">PRÁCTICA · PROCESOS DE SELECCIÓN</p>
       <h1>Simulador de pruebas psicométricas</h1>
-      <p>Muchas empresas y escuelas aplican estas pruebas antes de contratar. Aquí practicas las cuatro más comunes en 25 minutos y al final ves cómo te iría y qué te conviene mejorar.</p>
+      <p>Muchas empresas y escuelas aplican estas pruebas antes de contratar. Aquí practicas las cuatro más comunes en 25 minutos Al terminar, tus respuestas le llegan a tu profesor.</p>
     </header>
     <section id="psico"><div id="psico-app"><p class="taller-footnote">Cargando el simulador…</p></div></section>
   </div>
@@ -253,21 +253,18 @@ function bar(){
 function listo(){const u=window.psicoUsuario;return !!(u&&u.user&&(u.ficha?u.activo!==false:true));}
 function puerta(){
   const u=window.psicoUsuario;
-  const cel=`<div><label for="cel" class="lbl">Tu WhatsApp (opcional)</label>
-    <input type="text" id="cel" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="10 dígitos" value="${esc(S.celular)}"></div>`;
-  const nota='<p class="muted" style="font-size:.85rem">Tu resultado le llega a tu profesor. Si pones tu número, te lo puede mandar por WhatsApp. Solo él lo ve.</p>';
+  const nota='<p class="muted" style="font-size:.85rem">Al terminar, tus respuestas le llegan a tu profesor.</p>';
   if(u===undefined||(u&&u.cargando))return '<p class="muted">Verificando tu cuenta…</p>';
   if(u&&u.sinFirebase)return '<p class="no">El simulador no puede guardar resultados en este momento. Avísale a tu profesor.</p>';
-  if(!u)return `<div class="login"><p>Para que tu resultado le llegue a tu profesor, entra con la <strong>misma cuenta de Google</strong> que usas en la Antología.</p>
+  if(!u)return `<div class="login"><p>Para que tus respuestas le lleguen a tu profesor, entra con la <strong>misma cuenta de Google</strong> que usas en la Antología.</p>
     <button class="google" id="entrar" type="button">Entrar con Google</button></div>`;
   if(u.ficha&&u.activo===false)return '<p class="no">Tu cuenta está desactivada en la Antología. Habla con tu profesor.</p>';
-  if(u.ficha)return `<p class="quien">Entraste como <strong>${esc(u.nombre)}</strong> · ${esc(u.grupo)} <button class="link" id="salir" type="button">No soy yo</button></p>
-    <div class="datos">${cel}</div>${nota}`;
+  if(u.ficha)return `<p class="quien">Entraste como <strong>${esc(u.nombre)}</strong> · ${esc(u.grupo)} <button class="link" id="salir" type="button">No soy yo</button></p>${nota}`;
   return `<p class="quien">Entraste con <strong>${esc(u.correo)}</strong>. Es tu primera vez: escribe tu nombre y tu grupo. <button class="link" id="salir" type="button">Usar otra cuenta</button></p>
     <div class="datos"><div><label for="nom" class="lbl">Nombre completo</label>
     <input type="text" id="nom" autocomplete="name" placeholder="Nombre y apellidos" value="${esc(S.nombre)}"></div>
     <div><label for="gru" class="lbl">Grupo</label>
-    <input type="text" id="gru" maxlength="12" placeholder="Ej. 5.º A" value="${esc(S.grupo)}"></div>${cel}</div>${nota}`;
+    <input type="text" id="gru" maxlength="12" placeholder="Ej. 5.º A" value="${esc(S.grupo)}"></div></div>${nota}`;
 }
 function inicio(){
   return `${bar()}<div class="sheet stack">
@@ -332,9 +329,9 @@ function calc(){
 function nivel(p){return p>=80?['Vas muy bien','var(--good)']:p>=60?['Vas bien, con detalles por pulir','var(--warn)']:['Te conviene practicar más','var(--bad)'];}
 
 function estadoEnvio(){
-  if(S.envio==='ok')return '<span class="ok">✓ Tu resultado ya le llegó a tu profesor.</span>';
-  if(S.envio==='enviando')return '<span class="muted">Enviando tu resultado a tu profesor…</span>';
-  if(S.envio==='error')return '<span class="no">No se pudo enviar tu resultado. Revisa tu internet.</span> <button class="ghost" id="reenviar">Intentar de nuevo</button>';
+  if(S.envio==='ok')return '<span class="ok">✓ Tus respuestas ya le llegaron a tu profesor.</span>';
+  if(S.envio==='enviando')return '<span class="muted">Enviando tus respuestas a tu profesor… No cierres esta página.</span>';
+  if(S.envio==='error')return '<span class="no">No se pudieron enviar tus respuestas. Revisa tu internet.</span> <button class="ghost" id="reenviar">Intentar de nuevo</button>';
   return '';
 }
 async function enviar(){
@@ -342,7 +339,7 @@ async function enviar(){
   const r=calc(); S.envio='enviando'; pintarEnvio();
   try{
     if(typeof window.guardarPsico!=='function')throw new Error('sin conexión');
-    await window.guardarPsico({celular:S.celular,
+    await window.guardarPsico({celular:'',
       total:r.total,raz:r.raz,sit:r.sit,intP:r.intP,mentira:r.lie,discOk:r.discOk,perfil:r.top});
     S.envio='ok';
   }catch(err){console.error(err);S.envio='error';}
@@ -351,38 +348,13 @@ async function enviar(){
 function pintarEnvio(){const e=document.getElementById('envio');if(e)e.innerHTML=estadoEnvio();}
 
 function resultado(){
-  const r=calc(); const [vt,vc]=nivel(r.total); const di=DISC_INFO[r.top];
-  const tips=[];
-  if(r.razP<70)tips.push('Razonamiento: practica series de números, analogías y problemas de proporciones. En el examen real no te quedes atorado en una pregunta; avanza y regresa.');
-  if(r.sitP<75)tips.push('Situaciones laborales: la respuesta que buscan casi siempre resuelve el problema, avisa a tiempo y habla en privado antes de escalar.');
-  if(r.intP<75)tips.push('Integridad: algunas respuestas muestran que justificas saltarte reglas. Las empresas revisan esto con mucho cuidado.');
-  if(r.lie>=2)tips.push('Contestaste "de acuerdo" a frases como "nunca he dicho una mentira". Nadie es perfecto y las pruebas reales detectan cuando alguien responde para quedar bien. Sé sincero.');
-  if(r.discP<100)tips.push('Personalidad: dejaste renglones incompletos. En los exámenes reales, un perfil incompleto se puede invalidar.');
-  tips.push('El día del examen: duerme bien, lleva lápiz y goma, lee las instrucciones completas y cuida el tiempo de cada sección.');
-  const bars=[['Razonamiento',r.razP,`${r.raz}/${RAZ.length}`],['Situaciones laborales',r.sitP,`${r.sit}/${SIT.length}`],['Integridad',r.intP,''],['Personalidad completa',r.discP,`${r.discOk}/${DISC.length}`]];
-  const col=p=>p>=80?'var(--good)':p>=60?'var(--warn)':'var(--bad)';
-  const errs=RAZ.map((q,i)=>S.raz[i]==q.a?'':`<div><span class="no">${i+1}.</span> ${q.q}${q.big?' '+q.big:''}<br>Tu respuesta: ${S.raz[i]!=null?q.o[S.raz[i]]:'sin contestar'} · Correcta: <span class="ok">${q.o[q.a]}</span>${q.x?`<br><span class="muted">${q.x}</span>`:''}</div>`).join('');
-  const sErr=SIT.map((q,i)=>S.sit[i]==q.a?'':`<div><span class="no">${i+1}.</span> ${q.q}<br>Mejor respuesta: <span class="ok">${q.o[q.a]}</span><br><span class="muted">${q.x}</span></div>`).join('');
+  const n=window.psicoUsuario&&window.psicoUsuario.nombre;
   return `${bar()}<div class="sheet stack">
-   <span class="lbl">Resultados${window.psicoUsuario&&window.psicoUsuario.nombre?' · '+esc(window.psicoUsuario.nombre):''}</span>
+   <span class="lbl">Prueba terminada</span>
+   <h2>¡Listo${n?', '+esc(n.split(' ')[0]):''}!</h2>
    <p class="envio" id="envio">${estadoEnvio()}</p>
-   <div class="verdict" style="--v:${vc}"><span class="lbl" style="color:${vc}">Pronóstico</span><span class="score">${r.total}<small style="font-size:1.2rem"> / 100</small></span><h2>${vt}</h2>
-   <p class="muted">Así te iría hoy en un proceso de selección con pruebas parecidas. Con práctica, este número sube.</p></div>
-   <div class="bars">${bars.map(b=>`<div class="br"><span class="n">${b[0]}</span><div class="tr"><div class="fl" style="width:${b[1]}%;background:${col(b[1])}"></div></div><span class="pc">${b[1]}%</span></div>`).join('')}</div>
-   <h3>Tu perfil de personalidad: ${di.n}</h3>
-   <div class="disc-res">${['D','I','S','C'].map(k=>`<div class="${k===r.top?'top':''}"><b>${k}</b><span>${DISC_INFO[k].n} · ${r.prof[k]>0?'+':''}${r.prof[k]}</span></div>`).join('')}</div>
-   <p>${di.t} ${di.c}</p>
-   <h3>Qué te conviene mejorar</h3>
-   <ul class="tips">${tips.map(t=>`<li>${t}</li>`).join('')}</ul>
-   ${errs?`<details><summary>Revisar errores de razonamiento</summary><div class="rev" style="margin-top:10px">${errs}</div></details>`:'<p class="ok">Razonamiento sin errores.</p>'}
-   ${sErr?`<details><summary>Revisar situaciones laborales</summary><div class="rev" style="margin-top:10px">${sErr}</div></details>`:'<p class="ok">Situaciones laborales sin errores.</p>'}
-   <div class="row"><button class="ghost" id="copy">Copiar mi resumen</button><button class="ghost" id="again">Volver a empezar</button><span class="muted" id="msg" role="status"></span></div>
-   <textarea id="sumtxt" readonly hidden style="width:100%;min-height:120px">${esc(resumen(r))}</textarea>
+   <p>Tu profesor revisará tus respuestas y te dará tu resultado.</p>
   </div>`;
-}
-
-function resumen(r){
-  return `Simulador psicométrico\nNombre: ${(window.psicoUsuario&&window.psicoUsuario.nombre)||S.nombre||'(sin nombre)'}\nPronóstico: ${r.total}/100 (${nivel(r.total)[0]})\nRazonamiento: ${r.raz}/${RAZ.length}\nSituaciones laborales: ${r.sit}/${SIT.length}\nIntegridad: ${r.intP}%${r.lie>=2?' (respondió para quedar bien)':''}\nPerfil: ${DISC_INFO[r.top].n}`;
 }
 
 function render(){
@@ -420,13 +392,12 @@ app.addEventListener('change',e=>{
 app.addEventListener('input',e=>{const t=e.target;
   if(t.id==='nom')S.nombre=t.value.trim();
   if(t.id==='gru')S.grupo=t.value.trim();
-  if(t.id==='cel'){t.value=t.value.replace(/\D/g,'').slice(0,10);S.celular=t.value;}});
+});
 app.addEventListener('click',e=>{
   const id=e.target.id;
   if(id==='go'){
     const m=document.getElementById('errdatos'),u=window.psicoUsuario;
     if(!listo()){m.textContent='Primero entra con tu cuenta de Google.';return;}
-    if(S.celular&&S.celular.length!==10){m.textContent='El número de WhatsApp debe tener 10 dígitos, o déjalo vacío.';return;}
     if(!u.ficha){
       if(S.nombre.length<5||S.nombre.indexOf(' ')<0){m.textContent='Escribe tu nombre completo, con apellidos.';return;}
       if(!S.grupo){m.textContent='Escribe tu grupo.';return;}
@@ -440,12 +411,6 @@ app.addEventListener('click',e=>{
   else if(id==='salir'){window.psicoSalir();}
   else if(id==='reenviar')enviar();
   else if(id==='next')avanzar();
-  else if(id==='again'){S=fresh();render();}
-  else if(id==='copy'){
-    const txt=resumen(calc()),m=document.getElementById('msg');
-    const fallback=()=>{const ta=document.getElementById('sumtxt');ta.hidden=false;ta.select();m.textContent='Selecciona el texto y cópialo.';};
-    try{navigator.clipboard.writeText(txt).then(()=>m.textContent='Resumen copiado.',fallback);}catch(err){fallback();}
-  }
 });
 
 
