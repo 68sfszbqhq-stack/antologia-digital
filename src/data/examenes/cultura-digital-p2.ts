@@ -127,12 +127,6 @@ export const EXAMEN_CD_P2: Examen = {
       texto: "Un programa que puedes usar, estudiar, modificar y compartir libremente es:",
       opciones: ["Software privativo", "Shareware", "Software pirata", "Software libre"],
     },
-    {
-      id: "q15", tipo: "opcion",
-      texto: "En una licencia Creative Commons, la condición BY te obliga a:",
-      opciones: ["Pagarle al autor", "Darle crédito al autor", "No compartir la obra", "Venderla"],
-    },
-
     // ─── Impacto social (1.3) ─────────────────────────────────────────────
     {
       id: "q17", tipo: "opcion",
