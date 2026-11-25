@@ -316,6 +316,85 @@ export const modulo5: ContenidoModulo = {
       { clave: "App de linterna", texto: "Pedía acceso a contactos y ubicación — permisos revocados" },
     ],
   },
+
+  casoPractico: {
+    etiqueta: "Caso práctico visto en clase",
+    titulo: "Si pierdes tu celular, ¿qué más pierdes?",
+    intro:
+      "Un celular robado no es solo un aparato menos. Ahí vive tu chip, y tu chip recibe los códigos que abren tu WhatsApp, tu correo, tu Facebook y tu Instagram. Quien se queda con tu número puede hacerse pasar por ti, cambiar tus contraseñas y escribirle a tu familia y a tus amigos para pedirles dinero. Esto no le pasa solo a otros: es de las estafas más comunes en México. La buena noticia es que casi todo se evita con cuatro candados que se ponen en unos minutos.",
+
+    cadenaTitulo: "Así se cae una cuenta tras otra",
+    cadena: [
+      { icono: "📱", titulo: "1. Pierdes el celular o el chip",
+        texto: "Te lo roban, lo olvidas o alguien consigue un chip con tu número (SIM swap). Si el chip no tiene PIN, basta con ponerlo en otro teléfono." },
+      { icono: "💬", titulo: "2. Se quedan con tu WhatsApp",
+        texto: "Instalan WhatsApp con tu número y el código de 6 dígitos llega a TU chip, que ahora tienen ellos. Si no activaste la verificación en dos pasos, la cuenta es suya." },
+      { icono: "🔑", titulo: "3. Cambian tus otras contraseñas",
+        texto: "Con tu número reciben los SMS de \"recuperar contraseña\" de Facebook, Instagram o tu correo. Una por una, te sacan de tus cuentas." },
+      { icono: "🎭", titulo: "4. Se hacen pasar por ti",
+        texto: "Ven tus chats, tus fotos y tus contactos. Ya saben cómo escribes, a quién le dices \"ma\" y quién es tu mejor amigo." },
+      { icono: "💸", titulo: "5. Estafan a tu familia y amigos",
+        texto: "\"Estoy en un problema, ¿me depositas? Luego te explico.\" Como el mensaje sale de tu cuenta, te creen. El daño ya no es solo tuyo." },
+    ],
+
+    termino: {
+      nombre: "¿Qué es el SIM swap?",
+      texto:
+        "Es cuando alguien convence a la compañía telefónica de que es tú (con datos que consiguió de tus redes o de una filtración) y pide un chip nuevo con tu número. En ese momento tu chip deja de funcionar y todos tus SMS, incluidos los códigos de verificación, le llegan a esa persona.",
+      defensa:
+        "Señal de alarma: tu celular se queda sin señal de repente y sin razón. Llama de inmediato a tu compañía desde otro teléfono. Para prevenirlo, protege tus cuentas con una app de autenticación o un PIN propio, no solo con SMS, y no publiques datos como tu fecha de nacimiento o tu dirección.",
+    },
+
+    alerta: {
+      titulo: "Cómo reconocer la estafa cuando le llega a tu familia",
+      texto: "Enséñaselo a tus papás, abuelos y tíos. Son a quienes más buscan engañar.",
+      senales: [
+        "\"Cambié de número, guárdame este.\"",
+        "Prisa: \"es urgente\", \"no le digas a nadie\", \"luego te explico\".",
+        "Piden dinero, un depósito a una cuenta de otra persona o recargas.",
+        "Piden \"el código que te acaba de llegar por error\". Ese código es la llave de SU WhatsApp.",
+        "No quieren hablar por llamada o videollamada.",
+        "Regla de oro: antes de depositar, marca al número de siempre o pregunta algo que solo esa persona sabría.",
+      ],
+    },
+
+    blindajeTitulo: "Tus cuatro candados (hazlo hoy)",
+    blindaje: [
+      { icono: "💬", que: "Verificación en dos pasos de WhatsApp",
+        ruta: "WhatsApp › Ajustes › Cuenta › Verificación en dos pasos › Activar. Crea un PIN de 6 dígitos y agrega tu correo.",
+        porque: "Aunque alguien tenga tu chip, sin ese PIN no puede abrir tu WhatsApp en otro teléfono." },
+      { icono: "📶", que: "PIN de la SIM",
+        ruta: "Android: Ajustes › Seguridad › Bloqueo de tarjeta SIM (el nombre cambia según la marca). iPhone: Ajustes › Celular (o Datos celulares) › PIN de la SIM. El PIN de fábrica viene en la tarjeta de plástico de tu chip.",
+        porque: "Si te roban el celular y meten tu chip en otro teléfono, no funciona sin el PIN. Ojo: si lo escribes mal tres veces te pide el código PUK, que también viene en esa tarjeta. Guárdala." },
+      { icono: "🔐", que: "Segundo factor en correo, Facebook e Instagram",
+        ruta: "En la configuración de seguridad de cada cuenta busca \"Autenticación en dos pasos\" y elige una app de autenticación (Google Authenticator o Microsoft Authenticator) en lugar de SMS.",
+        porque: "Los SMS los recibe quien tenga tu número. La app vive en tu teléfono y no se va con el chip." },
+      { icono: "🧩", que: "Una contraseña distinta para cada cuenta",
+        ruta: "Nada de nombre de mascota más año. Usa frases largas y un gestor de contraseñas (el de Google o el de Apple ya vienen en tu celular).",
+        porque: "Si se filtra una, no abren las demás." },
+    ],
+
+    emergenciaTitulo: "Si ya te pasó: qué hacer, en este orden",
+    emergencia: [
+      { titulo: "1. Llama a tu compañía telefónica",
+        texto: "Desde otro teléfono. Pide suspender la línea y reponer el chip con tu mismo número. Lo hace el titular de la línea con su identificación; si eres menor de edad, normalmente es tu mamá o tu papá." },
+      { titulo: "2. Bloquea o borra el celular a distancia",
+        texto: "Android: \"Encontrar mi dispositivo\" de Google. iPhone: app \"Buscar\" en iCloud. Desde ahí puedes bloquearlo, mostrar un mensaje o borrarlo." },
+      { titulo: "3. Recupera tu WhatsApp",
+        texto: "En cuanto tengas el chip nuevo, instala WhatsApp con tu número y verifica con el código. Mientras tanto puedes escribir a support@whatsapp.com con el mensaje \"Perdido/Robado: Por favor, desactiven mi cuenta\" e incluir tu número con lada internacional (+52)." },
+      { titulo: "4. Avisa a tu familia y amigos",
+        texto: "Por otro medio (otra red social, la cuenta de alguien de confianza): \"Me robaron el celular. Si les piden dinero desde mi número, no soy yo.\"" },
+      { titulo: "5. Cambia contraseñas y cierra sesiones",
+        texto: "Empieza por tu correo, porque desde ahí se recupera todo lo demás. Luego Facebook e Instagram. En cada una usa \"cerrar sesión en todos los dispositivos\"." },
+      { titulo: "6. Reporta",
+        texto: "Si alguien ya está suplantándote o hubo un fraude, guarda capturas y repórtalo a la Policía Cibernética de tu estado y a cada red social con la opción \"Alguien se hace pasar por mí\"." },
+    ],
+
+    videos: [],
+
+    cierre:
+      "Tu reto extra: activa hoy la verificación en dos pasos de tu WhatsApp y luego ayuda a alguien de tu familia a activar la suya. Probablemente seas tú quien le enseñe a tu casa a no caer.",
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

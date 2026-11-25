@@ -93,6 +93,28 @@ export interface Reflexion {
   minPalabras: number;
 }
 
+/**
+ * Caso práctico de la clase: un riesgo real explicado como cadena de pasos,
+ * con lo que hay que hacer antes (blindaje) y después (emergencia).
+ */
+export interface CasoPractico {
+  etiqueta: string;
+  titulo: string;
+  intro: string;
+  cadenaTitulo: string;
+  cadena: { icono: string; titulo: string; texto: string }[];
+  /** Explicación aparte de un término clave (p. ej. SIM swap). */
+  termino: { nombre: string; texto: string; defensa: string };
+  alerta: { titulo: string; texto: string; senales: string[] };
+  blindajeTitulo: string;
+  blindaje: { icono: string; que: string; ruta: string; porque: string }[];
+  emergenciaTitulo: string;
+  emergencia: { titulo: string; texto: string }[];
+  /** Videos cortos que se vieron en clase (TikTok/YouTube). Vacío = no se muestra. */
+  videos: { titulo: string; url: string; descripcion: string }[];
+  cierre: string;
+}
+
 export interface ContenidoModulo {
   dia: number;
   /** Etiquetas de los cinco pasos de la secuencia didáctica */
@@ -115,4 +137,5 @@ export interface ContenidoModulo {
   preguntas: Pregunta[];
   tarea: Tarea;
   reflexion?: Reflexion;
+  casoPractico?: CasoPractico;
 }
