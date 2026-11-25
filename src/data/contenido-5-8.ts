@@ -361,8 +361,8 @@ export const modulo5: ContenidoModulo = {
     blindajeTitulo: "Tus cuatro candados (hazlo hoy)",
     blindaje: [
       { icono: "💬", que: "Verificación en dos pasos de WhatsApp",
-        ruta: "WhatsApp › Ajustes › Cuenta › Verificación en dos pasos › Activar. Crea un PIN de 6 dígitos y agrega tu correo.",
-        porque: "Aunque alguien tenga tu chip, sin ese PIN no puede abrir tu WhatsApp en otro teléfono." },
+        ruta: "WhatsApp › Ajustes › Cuenta › Verificación en dos pasos › Activar. Crea una contraseña de al menos 6 caracteres, con al menos una letra y un número, y agrega tu correo. (En versiones anteriores de WhatsApp se pide un PIN de 6 dígitos: funciona igual.)",
+        porque: "Aunque alguien tenga tu chip, sin esa contraseña no puede abrir tu WhatsApp en otro teléfono." },
       { icono: "📶", que: "PIN de la SIM",
         ruta: "Android: Ajustes › Seguridad › Bloqueo de tarjeta SIM (el nombre cambia según la marca). iPhone: Ajustes › Celular (o Datos celulares) › PIN de la SIM. El PIN de fábrica viene en la tarjeta de plástico de tu chip.",
         porque: "Si te roban el celular y meten tu chip en otro teléfono, no funciona sin el PIN. Ojo: si lo escribes mal tres veces te pide el código PUK, que también viene en esa tarjeta. Guárdala." },
