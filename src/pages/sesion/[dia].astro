@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import AccesoAlumno from "../../components/AccesoAlumno.astro";
 import TallerEnsamble from "../../components/TallerEnsamble.jsx";
+import RetoRobot from "../../components/RetoRobot.jsx";
 import TrabajosDestacados from "../../components/TrabajosDestacados.astro";
 import { trabajosDelModulo } from "../../data/galeria";
 import sesiones from "../../data/sesiones.json";
@@ -890,6 +891,9 @@ const tituloTarea = cont.tarea.titulo;
     <!-- PASO 5 · TAREA Y EVALUACIÓN                                        -->
     <!-- ================================================================= -->
     <div id="step-5" class="step-content hidden">
+      <!-- ── RETO: PROGRAMA A CHISPA (solo Módulo 2.4) ── -->
+      {modulo.dia === 8 && <RetoRobot client:only="react" />}
+
       <div class="glass-card rounded-2xl p-6 sm:p-8 border border-emerald-500/30 bg-emerald-500/5">
         <div class="flex items-center gap-3 mb-4 flex-wrap">
           <span class="tag-badge bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Actividad de evaluación</span>

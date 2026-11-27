@@ -38,7 +38,7 @@ const nombreModulo = (dia: number) => sesiones.find((s) => s.dia === dia)?.modul
           {conModulo && <span class="text-[10px] font-mono-tech text-slate-500">{nombreModulo(t.modulo)}</span>}
         </div>
         {t.imagen && (
-          <img src={u(`/${t.imagen}`)} alt={`Trabajo: ${t.titulo}`} loading="lazy" class="w-full h-56 object-cover object-bottom rounded-lg border border-white/10 bg-white" />
+          <img src={u(`/${t.imagen}`)} alt={`Trabajo: ${t.titulo}`} loading="lazy" class="w-full h-56 object-contain rounded-lg border border-white/10 bg-white" />
         )}
         <h4 class="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">{t.titulo}</h4>
         {t.codigo && (

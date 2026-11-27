@@ -57,6 +57,97 @@ export const galeria: TrabajoDestacado[] = [
     porque:
       "Con solo tres instrucciones dibujó 120 líneas. El ciclo repeat repite los pasos, y repcount es una variable que cuenta las vueltas: como cada línea mide 5 × la vuelta, crece un poco más que la anterior y sale la espiral.",
   },
+  // ── 1.º A, 26-nov-2026: capturas que mandaron por WhatsApp ──
+  // Los nombres salen del perfil de WhatsApp. Donde no se sabía, va genérico:
+  // corregir con nombre de pila e inicial cuando José los confirme.
+  {
+    modulo: 8,
+    ciclo: "2026-2027",
+    autor: "Kennan",
+    grupo: "1.º A",
+    titulo: "Rosetón de cuadrados",
+    formato: "Programa en Turtle Academy (Logo)",
+    url: "https://turtleacademy.com/playground",
+    imagen: "galeria/turtle-1a-roseton.jpg",
+    codigo: "repeat 36 [\n  repeat 4 [\n    fd 150\n    rt 90\n  ]\n  rt 10\n]",
+    porque:
+      "Un ciclo dentro de otro ciclo. El de adentro dibuja un cuadrado; el de afuera lo repite 36 veces girando 10° cada vez (36 × 10° = una vuelta completa). Son 144 líneas que salen de solo 7 renglones de código.",
+  },
+  {
+    modulo: 8,
+    ciclo: "2026-2027",
+    autor: "Jan",
+    grupo: "1.º A",
+    titulo: "Estrella fugaz",
+    formato: "Programa en Turtle Academy (Logo)",
+    url: "https://turtleacademy.com/playground",
+    imagen: "galeria/turtle-1a-estrella-fugaz.jpg",
+    codigo: "TO SHOOTINGSTAR\n  …\n  REPEAT 5 [\n    FD 35\n    RT 144\n  ]\nEND\n\nSHOOTINGSTAR",
+    porque:
+      "Creó su propio comando: con TO … END le enseñó a la tortuga qué significa SHOOTINGSTAR y después solo lo llamó por su nombre. Eso es una función. La estrella sale de repetir 5 veces avanzar y girar 144°.",
+  },
+  {
+    modulo: 8,
+    ciclo: "2026-2027",
+    autor: "Nohemí",
+    grupo: "1.º A",
+    titulo: "Conejo",
+    formato: "Programa en Turtle Academy (Logo)",
+    url: "https://turtleacademy.com/playground",
+    imagen: "galeria/turtle-1a-conejo.jpg",
+    porque:
+      "Más de 100 líneas, ordenadas por partes con comentarios (; MEJILLA IZQUIERDA, ; BOQUITA). Ubica cada parte con coordenadas SETXY y hace los círculos con REPEAT 360 [FD 0.18 RT 1]: 360 pasos diminutos girando 1° cada vez.",
+  },
+  {
+    modulo: 8,
+    ciclo: "2026-2027",
+    autor: "Alumna de 1.º A",
+    grupo: "1.º A",
+    titulo: "Mariposa",
+    formato: "Programa en Turtle Academy (Logo)",
+    url: "https://turtleacademy.com/playground",
+    imagen: "galeria/turtle-1a-mariposa.jpg",
+    codigo: "; DECORACION DE ALAS\nPU\nSETXY -35 20\nPD\nREPEAT 360 [FD 0.18 RT 1]",
+    porque:
+      "Simetría con coordenadas: cada círculo de un ala tiene su gemelo con la X en negativo (-35 y 35). PU levanta la pluma para moverse sin rayar y PD la baja para dibujar.",
+  },
+  {
+    modulo: 8,
+    ciclo: "2026-2027",
+    autor: "Alumno de 1.º A",
+    grupo: "1.º A",
+    titulo: "Casa",
+    formato: "Programa en Turtle Academy (Logo)",
+    url: "https://turtleacademy.com/playground",
+    imagen: "galeria/turtle-1a-casa.jpg",
+    codigo: "setcolor 1\npu\nsetxy -60 -60\npd\nsetxy 60 -60\nsetxy 60 40\nsetxy -60 40\nsetxy -60 -60",
+    porque:
+      "Estructura secuencial pura: cada instrucción se ejecuta una tras otra. Cambia de color con setcolor para separar muros, techo y puerta, y une esquinas con setxy como en un plano cartesiano.",
+  },
+  {
+    modulo: 8,
+    ciclo: "2026-2027",
+    autor: "Emilio",
+    grupo: "1.º A",
+    titulo: "Flor roja",
+    formato: "Programa en Turtle Academy (Logo)",
+    url: "https://turtleacademy.com/playground",
+    imagen: "galeria/turtle-1a-flor.jpg",
+    porque:
+      "Decenas de pétalos que salen del mismo centro: la tortuga repite ir, volver y girar un poco. Un solo ciclo basta para una figura que a mano tomaría muchísimo tiempo.",
+  },
+  {
+    modulo: 8,
+    ciclo: "2026-2027",
+    autor: "Alumno de 1.º A",
+    grupo: "1.º A",
+    titulo: "Retrato a color",
+    formato: "Programa en Turtle Academy (Logo)",
+    url: "https://turtleacademy.com/playground",
+    imagen: "galeria/turtle-1a-retrato.jpg",
+    porque:
+      "Se salió de las figuras geométricas e hizo un personaje completo con bloques rellenos de color. Muestra que con instrucciones muy simples se puede hacer arte.",
+  },
   // {
   //   modulo: 1,
   //   ciclo: "2026-2027",
